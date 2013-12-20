@@ -1,0 +1,17 @@
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.CookBook.Repository.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.CookBook.Repository.pdb
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.CookBook.Core.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.Infrastructure.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.Logging.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\MongoDB.Bson.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\MongoDB.Driver.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\NLog.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.CookBook.Core.pdb
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.Logging.pdb
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\Jalex.Infrastructure.pdb
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\MongoDB.Bson.xml
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\MongoDB.Driver.xml
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\bin\Release\NLog.xml
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\obj\Release\Jalex.CookBook.Repository.csprojResolveAssemblyReference.cache
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\obj\Release\Jalex.CookBook.Repository.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Repository\obj\Release\Jalex.CookBook.Repository.pdb

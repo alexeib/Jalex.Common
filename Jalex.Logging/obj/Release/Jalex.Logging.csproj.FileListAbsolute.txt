@@ -1,0 +1,14 @@
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Release\Jalex.Logging.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Release\Jalex.Logging.pdb
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Release\NLog.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Release\NLog.xml
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\obj\Release\Jalex.Logging.csprojResolveAssemblyReference.cache
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\obj\Release\Jalex.Logging.dll
+d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\obj\Release\Jalex.Logging.pdb
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\bin\Release\Jalex.Logging.dll
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\bin\Release\Jalex.Logging.pdb
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\bin\Release\NLog.dll
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\bin\Release\NLog.xml
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\obj\Release\Jalex.Logging.csprojResolveAssemblyReference.cache
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\obj\Release\Jalex.Logging.dll
+D:\programs\jalex\Jalex.CookBook\Jalex.Logging\obj\Release\Jalex.Logging.pdb

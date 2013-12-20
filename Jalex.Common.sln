@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Infrastructure", "Jalex.Infrastructure\Jalex.Infrastructure.csproj", "{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Logging", "Jalex.Logging\Jalex.Logging.csproj", "{2463F658-6A65-4951-B020-F7EA2E2033B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Repository", "Jalex.Repository\Jalex.Repository.csproj", "{4FA000E8-17BC-41BA-96CF-0EF572991A51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Repository.Test", "Jalex.Repository.Test\Jalex.Repository.Test.csproj", "{E1619C88-B558-4AE2-B456-D640109B05D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2463F658-6A65-4951-B020-F7EA2E2033B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2463F658-6A65-4951-B020-F7EA2E2033B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2463F658-6A65-4951-B020-F7EA2E2033B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2463F658-6A65-4951-B020-F7EA2E2033B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FA000E8-17BC-41BA-96CF-0EF572991A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FA000E8-17BC-41BA-96CF-0EF572991A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FA000E8-17BC-41BA-96CF-0EF572991A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FA000E8-17BC-41BA-96CF-0EF572991A51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1619C88-B558-4AE2-B456-D640109B05D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1619C88-B558-4AE2-B456-D640109B05D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1619C88-B558-4AE2-B456-D640109B05D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1619C88-B558-4AE2-B456-D640109B05D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
