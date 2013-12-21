@@ -11,3 +11,5 @@ D:\Src\jalex\Common\Jalex.Infrastructure\obj\Debug\Jalex.Infrastructure.csprojRe
 D:\Src\jalex\Common\Jalex.Infrastructure\obj\Debug\Jalex.Infrastructure.dll
 D:\Src\jalex\Common\Jalex.Infrastructure\obj\Debug\Jalex.Infrastructure.pdb
 D:\Src\jalex\Common\Jalex.Infrastructure\bin\Debug\MoreLinq.dll
+D:\Src\jalex\Common\Jalex.Infrastructure\bin\Debug\Newtonsoft.Json.dll
+D:\Src\jalex\Common\Jalex.Infrastructure\bin\Debug\Newtonsoft.Json.xml
