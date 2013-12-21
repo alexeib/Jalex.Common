@@ -45,3 +45,5 @@ D:\Src\jalex\Common\Jalex.Repository\obj\Debug\Jalex.Repository.dll
 D:\Src\jalex\Common\Jalex.Repository\obj\Debug\Jalex.Repository.pdb
 D:\Src\jalex\Common\Jalex.Repository\bin\Debug\MongoDB.Bson.dll
 D:\Src\jalex\Common\Jalex.Repository\bin\Debug\MongoDB.Driver.dll
+D:\Src\jalex\Common\Jalex.Repository\bin\Debug\Newtonsoft.Json.dll
+D:\Src\jalex\Common\Jalex.Repository\bin\Debug\Newtonsoft.Json.xml
