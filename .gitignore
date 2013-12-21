@@ -169,3 +169,9 @@ $RECYCLE.BIN/
 /packages
 
 /Jalex.Common.sln.DotSettings.user
+
+/Jalex.Repository/obj
+/Jalex.Repository/bin
+
+/Jalex.Repository.Test/obj
+/Jalex.Repository.Test/bin
