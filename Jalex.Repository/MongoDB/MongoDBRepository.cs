@@ -14,6 +14,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq;
 
 namespace Jalex.Repository.MongoDB
 {
@@ -29,7 +30,7 @@ namespace Jalex.Repository.MongoDB
         public string CollectionName { get; set; }
 
         // ReSharper disable once StaticFieldInGenericType
-        private static readonly IEnumerable<Tuple<IMongoIndexKeys, IMongoIndexOptions>> _indices;
+        private static IEnumerable<Tuple<IMongoIndexKeys, IMongoIndexOptions>> _indices;
 
         private bool _indicesEnsured;
 
@@ -48,20 +49,7 @@ namespace Jalex.Repository.MongoDB
 
             var classProps = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
-            var idProperty = classProps.FirstOrDefault(m => m.GetCustomAttributes(true).Any(n => n is KeyAttribute)) ??
-                             classProps.FirstOrDefault(m => _idFieldNames.Contains(m.Name));
-
-            if (idProperty == null)
-            {
-                throw new RepositoryException("Id property not found (must be one of " + string.Join(", ", _idFieldNames) + "). Alternatively, set a KeyAttribute on the key property.");
-            }
-
-            var idPropertyName = idProperty.Name;
-
-            if (idProperty.PropertyType != typeof(string))
-            {
-                throw new RepositoryException("Id property " + idPropertyName + " must be of type string");
-            }
+            var idPropertyName = getIdPropertyName(classProps);
 
             _idGetterExpression = ExpressionProperties.GetPropertyGetterExpression<T, string>(idPropertyName);
             _idGetter = _idGetterExpression.Compile();
@@ -78,19 +66,62 @@ namespace Jalex.Repository.MongoDB
 
             ConventionRegistry.Register(typeof(T).FullName, entityConventionPack, t => typeof(T).IsAssignableFrom(t));
 
+            _indices = createIndices(classProps);
+        }
+
+        private static string getIdPropertyName(PropertyInfo[] classProps)
+        {
+            var idProperty = classProps.FirstOrDefault(m => m.GetCustomAttributes(true).Any(n => n is KeyAttribute)) ??
+                             classProps.FirstOrDefault(m => _idFieldNames.Contains(m.Name));
+
+            if (idProperty == null)
+            {
+                throw new RepositoryException("Id property not found (must be one of " + string.Join(", ", _idFieldNames) +
+                                              "). Alternatively, set a KeyAttribute on the key property.");
+            }
+
+            var idPropertyName = idProperty.Name;
+
+            if (idProperty.PropertyType != typeof (string))
+            {
+                throw new RepositoryException("Id property " + idPropertyName + " must be of type string");
+            }
+            return idPropertyName;
+        }
+
+        private static IEnumerable<Tuple<IMongoIndexKeys, IMongoIndexOptions>> createIndices(PropertyInfo[] classProps)
+        {
             var indexedProps = (from prop in classProps
-                                let indexedAttr = prop.GetCustomAttributes(true).FirstOrDefault(p => p is IndexedAttribute)
-                                where indexedAttr != null
-                                select new { PropertyName = prop.Name, IndexedAttribute = (IndexedAttribute)indexedAttr })
-                               .ToArray();
+                let indexedAttr = prop.GetCustomAttributes(true).FirstOrDefault(p => p is IndexedAttribute)
+                where indexedAttr != null
+                select new {PropertyName = prop.Name, IndexedAttribute = (IndexedAttribute) indexedAttr})
+                .ToArray();
 
-            _indices = indexedProps
-                            .Select(indexProp =>
-                                Tuple.Create<IMongoIndexKeys, IMongoIndexOptions>(
-                                    new IndexKeysBuilder().Ascending(indexProp.PropertyName),
-                                    IndexOptions.SetUnique(indexProp.IndexedAttribute.IsUnique)))
-                            .ToList();
+            var mongoIndices = new List<Tuple<IMongoIndexKeys, IMongoIndexOptions>>();
 
+            foreach (var indexGroup in indexedProps.GroupBy(i => i.IndexedAttribute.IndexGroup))
+            {
+                // if group name is null/empty then we are just creating an index on a single prop, otherwise its a combination in
+                if (string.IsNullOrEmpty(indexGroup.Key))
+                {
+                    foreach (var index in indexGroup)
+                    {
+                        var mongoIndexTuple = Tuple.Create<IMongoIndexKeys, IMongoIndexOptions>(
+                            new IndexKeysBuilder().Ascending(index.PropertyName),
+                            IndexOptions.SetUnique(index.IndexedAttribute.IsUnique));
+                        mongoIndices.Add(mongoIndexTuple);
+                    }
+                }
+                else
+                {
+                    var mongoIndexTuple = Tuple.Create<IMongoIndexKeys, IMongoIndexOptions>(
+                        new IndexKeysBuilder().Ascending(indexGroup.Select(i => i.PropertyName).OrderBy(p => p).ToArray()),
+                        IndexOptions.Null);
+                    mongoIndices.Add(mongoIndexTuple);
+                }
+            }
+
+            return mongoIndices;
         }
 
         protected virtual void ensureIndices(MongoCollection<T> collection)
@@ -131,6 +162,12 @@ namespace Jalex.Repository.MongoDB
             var query = Query<T>.In(_idGetterExpression, idsArr);
 
             return collection.Find(query).SetLimit(idsArr.Length).ToArray();
+        }
+
+        public IEnumerable<T> Query(Func<T, bool> query)
+        {
+            var collection = getMongoCollection();
+            return collection.AsQueryable().Where(query).ToArray();
         }
 
         public IEnumerable<OperationResult<string>> Create(IEnumerable<T> newObjects)
