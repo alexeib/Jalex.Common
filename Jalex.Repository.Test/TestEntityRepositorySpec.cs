@@ -176,6 +176,35 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(IRepository<>))]
+    public class When_Retrieving_Several_TestEntitys_By_Query_For_Existing_Names : TestEntityRepositorySpec
+    {
+        protected static IEnumerable<TestEntity> _retrievedTestEntitys;
+
+        private Establish context = () => _testEntityRepository.Create(_sampleTestEntitys);
+
+        private Because of = () =>
+        {
+            _retrievedTestEntitys = _testEntityRepository.Query(r => _sampleTestEntitys.Select(e => e.Name).Contains(r.Name));
+        };
+
+        private It should_retrieve_right_number_of_TestEntitys = () => _retrievedTestEntitys.Count().ShouldEqual(_sampleTestEntitys.Count());
+        private It should_retrieve_correct_TestEntitys = () => _retrievedTestEntitys.Select(r => r.Name).Intersect(_sampleTestEntitys.Select(r => r.Name)).Count().ShouldEqual(_sampleTestEntitys.Count());
+    }
+
+    [Subject(typeof(IRepository<>))]
+    public class When_Retrieving_TestEntitys_By_Query_For_Non_Existing_Names : TestEntityRepositorySpec
+    {
+        protected static IEnumerable<TestEntity> _retrievedTestEntitys;
+
+        private Because of = () =>
+        {
+            _retrievedTestEntitys = _testEntityRepository.Query(r => r.Name == "507f1f77bcf86cd799439012");
+        };
+
+        private It should_retrieve_no_TestEntitys = () => _retrievedTestEntitys.ShouldBeEmpty();
+    }
+
+    [Subject(typeof(IRepository<>))]
     public class When_Updating_Existing_TestEntity : TestEntityRepositorySpec
     {
         protected static OperationResult _updateResult;
