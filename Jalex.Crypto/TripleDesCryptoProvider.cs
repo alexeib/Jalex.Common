@@ -7,7 +7,7 @@ namespace Jalex.Crypto
 {
     public class TripleDesCryptoProvider : ICryptoProvider
     {
-        private static byte[] _iv = new byte[] { 0x01, 0x02, 0x04, 0x05, 0x07, 0x08, 0xba, 0xad };
+        private static readonly byte[] _iv = new byte[] { 0x01, 0x02, 0x04, 0x05, 0x07, 0x08, 0xba, 0xad };
 
         public string Encrypt(string text, string key)
         {

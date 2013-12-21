@@ -154,3 +154,16 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+/Jalex.Logging/bin
+
+/Jalex.Infrastructure/obj
+/Jalex.Infrastructure/bin
+
+/Jalex.Repository/obj
+/Jalex.Repository/bin
+
+/Jalex.Repository.Test/obj
+/Jalex.Repository.Test/bin
+
+/packages

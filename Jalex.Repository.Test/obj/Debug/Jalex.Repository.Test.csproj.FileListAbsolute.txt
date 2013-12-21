@@ -60,6 +60,5 @@ D:\Src\jalex\Common\Jalex.Repository.Test\bin\Debug\MongoDB.Bson.xml
 D:\Src\jalex\Common\Jalex.Repository.Test\obj\Debug\Jalex.Repository.Test.csprojResolveAssemblyReference.cache
 D:\Src\jalex\Common\Jalex.Repository.Test\obj\Debug\Jalex.Repository.Test.dll
 D:\Src\jalex\Common\Jalex.Repository.Test\obj\Debug\Jalex.Repository.Test.pdb
-D:\Src\jalex\Common\Jalex.Repository.Test\bin\Debug\Machine.Specifications.Clr4.dll
-D:\Src\jalex\Common\Jalex.Repository.Test\bin\Debug\Machine.Specifications.dll
-D:\Src\jalex\Common\Jalex.Repository.Test\bin\Debug\Machine.Specifications.Should.dll
+D:\Src\jalex\Common\Jalex.Repository.Test\bin\Debug\Newtonsoft.Json.dll
+D:\Src\jalex\Common\Jalex.Repository.Test\bin\Debug\Newtonsoft.Json.xml
