@@ -175,3 +175,9 @@ $RECYCLE.BIN/
 
 /Jalex.Repository.Test/obj
 /Jalex.Repository.Test/bin
+/Jalex.Infrastructure/obj
+/Jalex.Infrastructure/bin
+
+/Jalex.Repository/bin
+
+/Jalex.Repository/obj
