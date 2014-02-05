@@ -17,7 +17,7 @@ namespace Jalex.Infrastructure.Objects
             Success = success;
         }
 
-        public OperationResult(bool success, IEnumerable<Message> messages) : this(success)
+        public OperationResult(bool success, params Message[] messages) : this(success)
         {
             Messages = messages;
         }
