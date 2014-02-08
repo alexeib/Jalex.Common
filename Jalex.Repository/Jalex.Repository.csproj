@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AWSSDK">
+      <HintPath>C:\Program Files (x86)\AWS SDK for .NET\bin\Net45\AWSSDK.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -50,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DynamoDB\Dynamo.cs" />
+    <Compile Include="DynamoDB\DynamoDBRepository.cs" />
+    <Compile Include="DynamoDB\DynamoMetadata.cs" />
     <Compile Include="Extensions\IRepositoryExtensions.cs" />
     <Compile Include="IDeleter.cs" />
     <Compile Include="IFileRepository.cs" />

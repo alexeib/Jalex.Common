@@ -19,3 +19,10 @@ D:\Src\jalex\Common\Jalex.Logging\bin\Debug\NLog.xml
 D:\Src\jalex\Common\Jalex.Logging\obj\Debug\Jalex.Logging.dll
 D:\Src\jalex\Common\Jalex.Logging\obj\Debug\Jalex.Logging.pdb
 D:\Src\jalex\Common\Jalex.Logging\obj\Debug\Jalex.Logging.csprojResolveAssemblyReference.cache
+E:\Kaytto\Common\Jalex.Logging\bin\Debug\Jalex.Logging.dll
+E:\Kaytto\Common\Jalex.Logging\bin\Debug\Jalex.Logging.pdb
+E:\Kaytto\Common\Jalex.Logging\bin\Debug\NLog.dll
+E:\Kaytto\Common\Jalex.Logging\bin\Debug\NLog.xml
+E:\Kaytto\Common\Jalex.Logging\obj\Debug\Jalex.Logging.csprojResolveAssemblyReference.cache
+E:\Kaytto\Common\Jalex.Logging\obj\Debug\Jalex.Logging.dll
+E:\Kaytto\Common\Jalex.Logging\obj\Debug\Jalex.Logging.pdb
