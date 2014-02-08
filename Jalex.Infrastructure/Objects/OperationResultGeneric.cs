@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace Jalex.Infrastructure.Objects
 {
     public class OperationResult<T> : OperationResult
@@ -16,12 +15,12 @@ namespace Jalex.Infrastructure.Objects
             
         }
 
-        public OperationResult(bool success, IEnumerable<Message> messages) : base(success, messages)
+        public OperationResult(bool success, params Message[] messages) : base(success, messages)
         {
             
         }
 
-        public OperationResult(bool success, IEnumerable<Message> messages, T value)
+        public OperationResult(bool success, T value, params Message[] messages)
             : base(success, messages)
         {
             Value = value;
