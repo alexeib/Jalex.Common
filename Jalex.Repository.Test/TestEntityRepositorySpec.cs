@@ -32,10 +32,12 @@ namespace Jalex.Repository.Test
                 new TestEntity
                 {
                     Name = "TestEntity1",
+                    IgnoredProperty = "Some Value"
                 },
                 new TestEntity
                 {
                     Name = "TestEntity2",
+                    IgnoredProperty = "Some Value 2"
                 }
             };
         };
@@ -144,6 +146,7 @@ namespace Jalex.Repository.Test
 
         private It should_retrieve_one_TestEntity = () => _retrievedTestEntitys.Count().ShouldEqual(1);
         private It should_retrieve_correct_TestEntity = () => _retrievedTestEntitys.All(r => r.Id == _targetTestEntityId).ShouldBeTrue();
+        private It should_have_not_retrieved_ignored_properties = () => _retrievedTestEntitys.ShouldEachConformTo(r => string.IsNullOrEmpty(r.IgnoredProperty));
     }
 
     [Subject(typeof(IRepository<>))]
@@ -160,6 +163,7 @@ namespace Jalex.Repository.Test
 
         private It should_retrieve_right_number_of_TestEntitys = () => _retrievedTestEntitys.Count().ShouldEqual(_sampleTestEntitys.Count());
         private It should_retrieve_correct_TestEntitys = () => _retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldEqual(_sampleTestEntitys.Count());
+        private It should_have_not_retrieved_ignored_properties = () => _retrievedTestEntitys.ShouldEachConformTo(r => string.IsNullOrEmpty(r.IgnoredProperty));
     }
 
     [Subject(typeof(IRepository<>))]
@@ -215,6 +219,7 @@ namespace Jalex.Repository.Test
             _testEntityRepository.Create(_sampleTestEntitys);
             _TestEntityToUpdate = _sampleTestEntitys.Last();
             _TestEntityToUpdate.Name = "changed name";
+            _TestEntityToUpdate.IgnoredProperty = "changed ignore value";
         };
 
         Because of = () =>
@@ -225,6 +230,7 @@ namespace Jalex.Repository.Test
         It should_be_updated_successfully = () => _updateResult.Success.ShouldBeTrue();
         It should_have_no_messages = () => _updateResult.Messages.ShouldBeEmpty();
         It should_have_saved_the_changes = () => _testEntityRepository.GetByIds(new[] {_TestEntityToUpdate.Id}).First().Name.ShouldEqual(_TestEntityToUpdate.Name);
+        It should_have_not_saved_ignored_properties = () => _testEntityRepository.GetByIds(new[] { _TestEntityToUpdate.Id }).First().IgnoredProperty.ShouldBeNull();
     }
 
     [Subject(typeof(IRepository<>))]

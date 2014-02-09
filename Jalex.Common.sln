@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Infrastructure", "Jalex.Infrastructure\Jalex.Infrastructure.csproj", "{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Crypto", "Jalex.Crypto\Jalex.Crypto.csproj", "{0A1C43F3-1C59-4994-A72D-58A402A63C0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Crypto.Test", "Jalex.Crypto.Test\Jalex.Crypto.Test.csproj", "{B41D24C3-7ED8-4F65-BA63-8E4E9A631A3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Authentication", "Jalex.Authentication\Jalex.Authentication.csproj", "{3FD78DD3-8841-462E-907C-41507ABC5D37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{B41D24C3-7ED8-4F65-BA63-8E4E9A631A3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B41D24C3-7ED8-4F65-BA63-8E4E9A631A3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B41D24C3-7ED8-4F65-BA63-8E4E9A631A3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FD78DD3-8841-462E-907C-41507ABC5D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FD78DD3-8841-462E-907C-41507ABC5D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FD78DD3-8841-462E-907C-41507ABC5D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FD78DD3-8841-462E-907C-41507ABC5D37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Jalex.Infrastructure.Attributes;
 
 namespace Jalex.Repository.Test
 {
@@ -10,5 +6,8 @@ namespace Jalex.Repository.Test
     {
         public string Id { get; set; }
         public string Name { get; set; }
+
+        [Ignore]
+        public string IgnoredProperty { get; set; }
     }
 }
