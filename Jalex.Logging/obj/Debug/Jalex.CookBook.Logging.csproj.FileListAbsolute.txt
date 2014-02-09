@@ -1,7 +1,0 @@
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Debug\Jalex.CookBook.Logging.dll
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Debug\Jalex.CookBook.Logging.pdb
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Debug\NLog.dll
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\bin\Debug\NLog.xml
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\obj\Debug\Jalex.CookBook.Logging.csprojResolveAssemblyReference.cache
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\obj\Debug\Jalex.CookBook.Logging.dll
-d:\programs\jalex\Jalex.CookBook\Jalex.CookBook.Logging\obj\Debug\Jalex.CookBook.Logging.pdb
