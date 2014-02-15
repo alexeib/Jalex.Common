@@ -55,6 +55,7 @@
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Objects\AsyncResultWrapper.cs" />
     <Compile Include="Objects\JalexException.cs" />
     <Compile Include="Objects\Message.cs" />
     <Compile Include="Objects\OperationResult.cs" />
@@ -64,9 +65,7 @@
     <Compile Include="Utils\ExpressionProperties.cs" />
     <Compile Include="Utils\ParameterChecker.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
