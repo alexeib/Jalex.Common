@@ -58,9 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DefaultDeviceTokenServiceSpec.cs" />
-    <Compile Include="HeaderAuthenticationModuleSpec.cs" />
-    <Compile Include="IDeviceTokenServiceBehavior.cs" />
+    <Compile Include="DefaultAuthenticationServiceSpec.cs" />
+    <Compile Include="DefaultAuthenticationTokenServiceSpec.cs" />
+    <Compile Include="IAuthenticationTokenServiceBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

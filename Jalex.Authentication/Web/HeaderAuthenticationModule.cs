@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Web;
 using Jalex.Authentication.Objects;
 using Jalex.Authentication.Services;
@@ -8,10 +7,12 @@ namespace Jalex.Authentication.Web
 {
     public class HeaderAuthenticationModule : IHttpModule
     {
-        private readonly IDeviceTokenService _tokenService;
+        private readonly IAuthenticationTokenService _tokenService;
+        private readonly IAuthenticationService _authenticationService;
 
-        public HeaderAuthenticationModule(IDeviceTokenService tokenService)
+        public HeaderAuthenticationModule(IAuthenticationService authenticationService, IAuthenticationTokenService tokenService)
         {
+            _authenticationService = authenticationService;
             _tokenService = tokenService;
         }
 
@@ -25,26 +26,13 @@ namespace Jalex.Authentication.Web
             HttpApplication application = (HttpApplication)sender;
             string tokenAuthHeaderValue = application.Request.Headers[AuthenticationConstants.AuthTokenHeader];
 
-            AuthenticateFromHeader(tokenAuthHeaderValue);
-        }
-
-        public void AuthenticateFromHeader(string tokenAuthHeaderValue)
-        {
             if (!string.IsNullOrEmpty(tokenAuthHeaderValue))
             {
                 var tokenResult = _tokenService.GetExistingToken(tokenAuthHeaderValue);
 
                 if (tokenResult.Success)
                 {
-                    JalexIdentity identity = new JalexIdentity(tokenResult.Value);
-                    JalexPrincipal principal = new JalexPrincipal(identity);
-
-                    Thread.CurrentPrincipal = principal;
-
-                    if (HttpContext.Current != null)
-                    {
-                        HttpContext.Current.User = principal;
-                    }
+                    _authenticationService.SetTokenForCurrentUser(tokenResult.Value);
                 }
             }
         }

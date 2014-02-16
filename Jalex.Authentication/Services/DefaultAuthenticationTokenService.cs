@@ -8,15 +8,15 @@ using Jalex.Repository.Extensions;
 
 namespace Jalex.Authentication.Services
 {
-    public class DefaultDeviceTokenService : IDeviceTokenService
+    public class DefaultAuthenticationTokenService : IAuthenticationTokenService
     {
         private const string _tokenTimeoutMinutesSetting = "AuthenticationTokenTimeoutMinutes";
         private static readonly TimeSpan _defaultTokenTimeout = TimeSpan.FromMinutes(30);
 
         public TimeSpan TokenTimeout { get; private set; }
 
-        protected readonly IRepository<DeviceToken> _repository;
-        public DefaultDeviceTokenService(IRepository<DeviceToken> repository)
+        protected readonly IRepository<AuthenticationToken> _repository;
+        public DefaultAuthenticationTokenService(IRepository<AuthenticationToken> repository)
         {
             _repository = repository;
 
@@ -33,19 +33,19 @@ namespace Jalex.Authentication.Services
             }
         }
 
-        public OperationResult<DeviceToken> GetExistingToken(string token)
+        public OperationResult<AuthenticationToken> GetExistingToken(string token)
         {
             var deviceToken = _repository.GetById(token);
             return createTokenOperationResult(deviceToken);
         }
 
-        public OperationResult<DeviceToken> GetExistingTokenForUserAndDevice(string userId, string deviceId)
+        public OperationResult<AuthenticationToken> GetExistingTokenForUserAndDevice(string userId, string deviceId)
         {
             var token = _repository.Query(t => t.UserId == userId && t.DeviceId == deviceId).FirstOrDefault();
             return createTokenOperationResult(token);
         }
 
-        public OperationResult<DeviceToken> CreateToken(string userId, string deviceId)
+        public OperationResult<AuthenticationToken> CreateToken(string userId, string deviceId)
         {
             var tokenResult = GetExistingTokenForUserAndDevice(userId, deviceId);
             if (tokenResult.Success)
@@ -54,7 +54,7 @@ namespace Jalex.Authentication.Services
             }
 
             var date = DateTime.UtcNow;
-            var deviceToken = new DeviceToken
+            var deviceToken = new AuthenticationToken
             {
                 UserId = userId,
                 DeviceId = deviceId,
@@ -64,7 +64,7 @@ namespace Jalex.Authentication.Services
             var result = _repository.Create(deviceToken);
             deviceToken.Id = result.Value;
 
-            return new OperationResult<DeviceToken>(result.Success, deviceToken, result.Messages.ToArray());
+            return new OperationResult<AuthenticationToken>(result.Success, deviceToken, result.Messages.ToArray());
         }
 
         public OperationResult DeleteToken(string tokenId)
@@ -72,17 +72,17 @@ namespace Jalex.Authentication.Services
             return _repository.Delete(tokenId);
         }
 
-        private OperationResult<DeviceToken> createTokenOperationResult(DeviceToken token)
+        private OperationResult<AuthenticationToken> createTokenOperationResult(AuthenticationToken token)
         {
             if (checkIfTokenIsValid(token))
             {
-                return new OperationResult<DeviceToken>(true, token);
+                return new OperationResult<AuthenticationToken>(true, token);
             }
 
-            return new OperationResult<DeviceToken>(false);
+            return new OperationResult<AuthenticationToken>(false);
         }
 
-        private bool checkIfTokenIsValid(DeviceToken token)
+        private bool checkIfTokenIsValid(AuthenticationToken token)
         {
             if (token == null)
             {

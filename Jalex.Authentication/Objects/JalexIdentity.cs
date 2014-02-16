@@ -14,9 +14,9 @@ namespace Jalex.Authentication.Objects
             }
         }
 
-        public DeviceToken Token { get; private set; }
+        public AuthenticationToken Token { get; private set; }
 
-        public JalexIdentity(DeviceToken token)
+        public JalexIdentity(AuthenticationToken token)
             : base(token != null ? token.UserId : string.Empty, "Jalex")
         {
             Token = token;
