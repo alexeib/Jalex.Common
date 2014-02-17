@@ -200,7 +200,7 @@ namespace Jalex.Repository.MongoDB
 
         protected MongoCollection<T> getMongoCollection()
         {
-            string collectionName = CollectionName ?? ConfigurationManager.AppSettings[_defaultCollectionPrefix + _typeName];
+            string collectionName = CollectionName ?? ConfigurationManager.AppSettings[_defaultCollectionPrefix + _typeName] ?? string.Format("{0}s", _typeName);
 
             var db = getMongoDatabase();
             var collection = db.GetCollection<T>(collectionName);
