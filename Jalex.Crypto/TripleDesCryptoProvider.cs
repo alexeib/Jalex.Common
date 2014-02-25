@@ -30,29 +30,7 @@ namespace Jalex.Crypto
                     return enc;
                 }
             }
-        }
-
-        private static TripleDESCryptoServiceProvider createEncodingProvider(string key, out string strKey)
-        {
-            strKey = key;
-            int lenKey = key.Length;
-            int rem = key.Length & 0x00000007; // % 8 bytes (64 bits)
-            if (rem != 0) //  Encryption key should be multiple of 64 bits
-            {
-                int pad = 8 - rem;
-                if (lenKey + pad < 16) pad = 16 - lenKey;
-                strKey = strKey.PadRight(lenKey + pad);
-            }
-            if (strKey.Length > 24) //  Maximum length 192 bit
-                strKey = strKey.Substring(0, 24);
-
-            TripleDESCryptoServiceProvider encProvider = new TripleDESCryptoServiceProvider
-            {
-                KeySize = strKey.Length*8,
-                Padding = PaddingMode.ANSIX923
-            };
-            return encProvider;
-        }
+        }        
 
         public string Decrypt(string text, string key)
         {
@@ -82,6 +60,28 @@ namespace Jalex.Crypto
         public void Dispose()
         {
             // no need to dispose
+        }
+
+        private static TripleDESCryptoServiceProvider createEncodingProvider(string key, out string strKey)
+        {
+            strKey = key;
+            int lenKey = key.Length;
+            int rem = key.Length & 0x00000007; // % 8 bytes (64 bits)
+            if (rem != 0) //  Encryption key should be multiple of 64 bits
+            {
+                int pad = 8 - rem;
+                if (lenKey + pad < 16) pad = 16 - lenKey;
+                strKey = strKey.PadRight(lenKey + pad);
+            }
+            if (strKey.Length > 24) //  Maximum length 192 bit
+                strKey = strKey.Substring(0, 24);
+
+            TripleDESCryptoServiceProvider encProvider = new TripleDESCryptoServiceProvider
+            {
+                KeySize = strKey.Length * 8,
+                Padding = PaddingMode.ANSIX923
+            };
+            return encProvider;
         }
     }
 }

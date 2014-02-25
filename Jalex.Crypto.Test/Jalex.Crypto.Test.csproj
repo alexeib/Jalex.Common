@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="ICryptoProviderBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sha1HashProviderSpec.cs" />
     <Compile Include="TripleDesCryptoProviderSpec.cs" />
   </ItemGroup>
   <ItemGroup>
