@@ -11,7 +11,7 @@ namespace Jalex.Authentication.Services
     public class DefaultAuthenticationTokenService : IAuthenticationTokenService
     {
         private const string _tokenTimeoutMinutesSetting = "AuthenticationTokenTimeoutMinutes";
-        private static readonly TimeSpan _defaultTokenTimeout = TimeSpan.FromMinutes(30);
+        private static readonly TimeSpan _defaultTokenTimeout = TimeSpan.FromHours(24);
 
         public TimeSpan TokenTimeout { get; private set; }
 
