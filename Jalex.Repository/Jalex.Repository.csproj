@@ -54,8 +54,10 @@
     <Compile Include="IDeleter.cs" />
     <Compile Include="IFileRepository.cs" />
     <Compile Include="IInserter.cs" />
+    <Compile Include="IQueryable.cs" />
+    <Compile Include="IQueryableRepository.cs" />
     <Compile Include="IReader.cs" />
-    <Compile Include="IRepository.cs" />
+    <Compile Include="ISimpleRepository.cs" />
     <Compile Include="IUpdater.cs" />
     <Compile Include="MongoDB\BaseMongoDBRepository.cs" />
     <Compile Include="MongoDB\MongoDBFileRepository.cs" />

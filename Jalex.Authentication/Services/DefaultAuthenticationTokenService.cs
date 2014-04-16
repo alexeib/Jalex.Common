@@ -15,8 +15,8 @@ namespace Jalex.Authentication.Services
 
         public TimeSpan TokenTimeout { get; private set; }
 
-        protected readonly IRepository<AuthenticationToken> _repository;
-        public DefaultAuthenticationTokenService(IRepository<AuthenticationToken> repository)
+        protected readonly IQueryableRepository<AuthenticationToken> _repository;
+        public DefaultAuthenticationTokenService(IQueryableRepository<AuthenticationToken> repository)
         {
             _repository = repository;
 

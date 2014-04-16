@@ -48,8 +48,8 @@ namespace Jalex.Authentication.Test
 
         Because of = () => _authenticationService.SetTokenForCurrentUser(_token);
 
-        It should_set_valid_thread_principal = () => Thread.CurrentPrincipal.ShouldBeOfType<JalexPrincipal>();
-        It should_set_valid_identity_on_principal = () => Thread.CurrentPrincipal.Identity.ShouldBeOfType<JalexIdentity>();
+        It should_set_valid_thread_principal = () => Thread.CurrentPrincipal.ShouldBeAssignableTo<JalexPrincipal>();
+        It should_set_valid_identity_on_principal = () => Thread.CurrentPrincipal.Identity.ShouldBeAssignableTo<JalexIdentity>();
         It should_be_authenticated = () => Thread.CurrentPrincipal.Identity.IsAuthenticated.ShouldBeTrue();
         It should_have_valid_user_id = () => Thread.CurrentPrincipal.Identity.Name.ShouldEqual(_token.UserId);
         It should_have_device_token_in_identity = () => ((JalexIdentity)Thread.CurrentPrincipal.Identity).Token.ShouldBeLike(_token);

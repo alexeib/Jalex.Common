@@ -17,7 +17,7 @@ namespace Jalex.Authentication.Test
 
         Establish context = () =>
         {
-            var mockRepository = new Mock<IRepository<AuthenticationToken>>();
+            var mockRepository = new Mock<IQueryableRepository<AuthenticationToken>>();
             mockRepository
                 .Setup(r => r.GetByIds(Moq.It.IsAny<IEnumerable<string>>()))
                 .Returns<IEnumerable<string>>(ids =>
@@ -88,7 +88,9 @@ namespace Jalex.Authentication.Test
             GetExpiredTokenOperationResult = _authenticationTokenService.GetExistingToken(_sampleExpiredToken.Id);
         };
 
+#pragma warning disable 169
         Behaves_like<IAuthenticationTokenService_ExpireTokenBehavior> device_token_service_that_expires_tokens_properly;
+#pragma warning restore 169
     }
 
     [Subject(typeof(IAuthenticationTokenService))]
@@ -103,6 +105,8 @@ namespace Jalex.Authentication.Test
             GetExpiredTokenOperationResult = _authenticationTokenService.GetExistingTokenForUserAndDevice(_sampleExpiredToken.UserId, _sampleExpiredToken.DeviceId);
         };
 
+#pragma warning disable 169
         Behaves_like<IAuthenticationTokenService_ExpireTokenBehavior> device_token_service_that_expires_tokens_properly;
+#pragma warning restore 169
     }
 }

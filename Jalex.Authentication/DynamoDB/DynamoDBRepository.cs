@@ -12,7 +12,7 @@ using Jalex.Repository;
 
 namespace Jalex.Authentication.DynamoDB
 {
-    public class DynamoDBRepository<T> : IRepository<T> where T : new()
+    public class DynamoDBRepository<T> : IQueryableRepository<T> where T : new()
     {
         // ReSharper disable StaticFieldInGenericType
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
@@ -27,7 +27,7 @@ namespace Jalex.Authentication.DynamoDB
         {
             _props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-            PropertyInfo idprop = _props.FirstOrDefault(p => Attribute.IsDefined((MemberInfo) p, typeof(IdAttribute)));
+            PropertyInfo idprop = _props.FirstOrDefault(p => Attribute.IsDefined((MemberInfo)p, typeof(IdAttribute)));
             if (idprop == null)
                 throw new RepositoryException("DynamoDB: Id property not defined");
             _idPropertyName = idprop.Name;
@@ -146,7 +146,8 @@ namespace Jalex.Authentication.DynamoDB
             return list;
         }
 
-        IEnumerable<T> IReader<T>.Query(Func<T, bool> query)
+
+        public IEnumerable<T> Query(Func<T, bool> query)
         {
             var results = _dynamo.ScanPerson();
             List<T> list = new List<T>();

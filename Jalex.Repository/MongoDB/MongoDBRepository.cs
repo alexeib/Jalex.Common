@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq;
 
 namespace Jalex.Repository.MongoDB
 {
-    public class MongoDBRepository<T> : BaseMongoDBRepository, IRepository<T>
+    public class MongoDBRepository<T> : BaseMongoDBRepository, IQueryableRepository<T>
     {
         // ReSharper disable once StaticFieldInGenericType
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
