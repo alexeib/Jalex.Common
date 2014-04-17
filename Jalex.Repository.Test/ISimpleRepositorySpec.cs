@@ -42,12 +42,15 @@ namespace Jalex.Repository.Test
         };
     }
 
-    [Behaviors]
-    public class Repository_that_creates_correctly
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Creating_TestEntitys : ISimpleRepositorySpec
     {
-        protected static ISimpleRepository<TestEntity> _testEntityRepository;
         protected static IEnumerable<OperationResult<string>> _createResult;
-        protected static IEnumerable<TestEntity> _sampleTestEntitys;
+
+        Because of = () =>
+        {
+            _createResult = _testEntityRepository.Create(_sampleTestEntitys);
+        };
 
         It should_be_created_successfully = () => _createResult.All(r => r.Success).ShouldBeTrue();
         It should_have_returned_valid_ids = () => _createResult.All(r => !string.IsNullOrEmpty(r.Value)).ShouldBeTrue();
@@ -56,11 +59,17 @@ namespace Jalex.Repository.Test
         It should_retrieve_new_TestEntitys = () => _testEntityRepository.GetByIds(_sampleTestEntitys.Select(r => r.Id)).ShouldNotBeEmpty();
     }
 
-    [Behaviors]
-    public class Repository_that_does_not_create_when_entities_exist
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Creating_Existing_TestEntitys : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult<string>> _createResult;
-        protected static MemoryLogger _logger;
+
+        Establish context = () => _testEntityRepository.Create(_sampleTestEntitys);
+
+        Because of = () =>
+        {
+            _createResult = _testEntityRepository.Create(_sampleTestEntitys);
+        };
 
         It should_not_be_created_successfully = () => _createResult.All(r => !r.Success).ShouldBeTrue();
         It should_not_have_valid_ids = () => _createResult.All(r => string.IsNullOrEmpty(r.Value)).ShouldBeTrue();
@@ -68,68 +77,118 @@ namespace Jalex.Repository.Test
         It should_have_logged_errors = () => _logger.Logs.Any().ShouldBeTrue();
     }
 
-    [Behaviors]
-    public class Repository_that_throws_exceptions_when_invalid_entity_created
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Creating_TestEntity_With_Invalid_Id : ISimpleRepositorySpec
     {
-        protected static Exception _exception;
-        protected static ISimpleRepository<TestEntity> _testEntityRepository;
+        protected static Exception Exception;
 
-        It should_fail = () => _exception.ShouldNotBeNull();
+        Because of = () =>
+        {
+            Exception = Catch.Exception(() => _testEntityRepository.Create(new[] { new TestEntity { Id = "FakeId", Name = "FakeName" } }));
+        };
+
+        It should_fail = () => Exception.ShouldNotBeNull();
     }
 
-    [Behaviors]
-    public class Repository_that_correctly_deletes_entities
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Deleting_Existing_TestEntity : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult> _deleteResult;
-        protected static ISimpleRepository<TestEntity> _testEntityRepository;
-        protected static IEnumerable<TestEntity> _sampleTestEntitys;
+
+        Establish context = () => _testEntityRepository.Create(_sampleTestEntitys);
+
+        Because of = () =>
+        {
+            _deleteResult = _testEntityRepository.Delete(_sampleTestEntitys.Select(r => r.Id));
+        };
 
         It should_be_deleted_successfully = () => _deleteResult.All(r => r.Success).ShouldBeTrue();
         It should_have_no_messages = () => _deleteResult.All(r => !r.Messages.Any()).ShouldBeTrue();
         It should_not_retrieve_deleted_TestEntitys = () => _testEntityRepository.GetByIds(_sampleTestEntitys.Select(r => r.Id)).ShouldBeEmpty();
     }
 
-    [Behaviors]
-    public class Repository_that_fails_to_delete_nonexistant_entities
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Deleting_Non_Existing_TestEntity : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult> _deleteResult;
+
+        Because of = () =>
+        {
+            _deleteResult = _testEntityRepository.Delete(new[] { "507f1f77bcf86cd799439011", "507f1f77bcf86cd799439012" });
+        };
 
         It should_be_not_delete_successfully = () => _deleteResult.All(r => !r.Success).ShouldBeTrue();
     }
 
-    [Behaviors]
-    public class Repository_that_correctly_retrieves_entity_by_id
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Retrieving_One_TestEntity_By_Id : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
         protected static string _targetTestEntityId;
+
+        private Establish context = () =>
+        {
+            _testEntityRepository.Create(_sampleTestEntitys);
+            _targetTestEntityId = _sampleTestEntitys.First().Id;
+        };
+
+        private Because of = () =>
+        {
+            _retrievedTestEntitys = _testEntityRepository.GetByIds(new[] { _targetTestEntityId });
+        };
 
         private It should_retrieve_one_TestEntity = () => _retrievedTestEntitys.Count().ShouldEqual(1);
         private It should_retrieve_correct_TestEntity = () => _retrievedTestEntitys.All(r => r.Id == _targetTestEntityId).ShouldBeTrue();
         private It should_have_not_retrieved_ignored_properties = () => _retrievedTestEntitys.ShouldEachConformTo(r => string.IsNullOrEmpty(r.IgnoredProperty));
     }
 
-    [Behaviors]
-    public class Repository_that_correctly_retrieves_many_entities_by_id
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Retrieving_Several_TestEntitys_By_Id : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
-        protected static IEnumerable<TestEntity> _sampleTestEntitys;
+
+        private Establish context = () => _testEntityRepository.Create(_sampleTestEntitys);
+
+        private Because of = () =>
+        {
+            _retrievedTestEntitys = _testEntityRepository.GetByIds(_sampleTestEntitys.Select(r => r.Id));
+        };
 
         private It should_retrieve_right_number_of_TestEntitys = () => _retrievedTestEntitys.Count().ShouldEqual(_sampleTestEntitys.Count());
         private It should_retrieve_correct_TestEntitys = () => _retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldEqual(_sampleTestEntitys.Count());
         private It should_have_not_retrieved_ignored_properties = () => _retrievedTestEntitys.ShouldEachConformTo(r => string.IsNullOrEmpty(r.IgnoredProperty));
     }
 
-    [Behaviors]
-    public class Repository_that_does_not_retrieve_nonexistant_entities_by_id
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Retrieving_TestEntitys_By_Non_Existant_Id : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
+
+        private Because of = () =>
+        {
+            _retrievedTestEntitys = _testEntityRepository.GetByIds(new[] { "507f1f77bcf86cd799439011", "507f1f77bcf86cd799439012" });
+        };
 
         private It should_retrieve_no_TestEntitys = () => _retrievedTestEntitys.ShouldBeEmpty();
     }
 
+    [Subject(typeof(ISimpleRepository<>))]
+    public class When_Retrieving_Several_TestEntitys_By_Query_For_Existing_Names : ISimpleRepositorySpec
+    {
+        protected static IEnumerable<TestEntity> _retrievedTestEntitys;
 
+        private Establish context = () => _testEntityRepository.Create(_sampleTestEntitys);
 
-    [Behaviors]
+        private Because of = () =>
+        {
+            _retrievedTestEntitys = _testEntityRepository.Query(r => _sampleTestEntitys.Select(e => e.Name).Contains(r.Name));
+        };
+
+        private It should_retrieve_right_number_of_TestEntitys = () => _retrievedTestEntitys.Count().ShouldEqual(_sampleTestEntitys.Count());
+        private It should_retrieve_correct_TestEntitys = () => _retrievedTestEntitys.Select(r => r.Name).Intersect(_sampleTestEntitys.Select(r => r.Name)).Count().ShouldEqual(_sampleTestEntitys.Count());
+    }
+
+    [Subject(typeof(ISimpleRepository<>))]
     public class When_Retrieving_TestEntitys_By_Query_For_Non_Existing_Names : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
