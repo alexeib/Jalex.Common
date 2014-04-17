@@ -2,55 +2,29 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Jalex.Infrastructure.Objects;
-using Jalex.Logging;
-using Jalex.Logging.Loggers;
 using Jalex.Repository.MongoDB;
 using Machine.Specifications;
 
 namespace Jalex.Repository.Test
 {
-    public abstract class TestEntityRepositorySpec
+    public abstract class MongoDBRepositorySpec : ISimpleRepositorySpec
     {
-        protected static IQueryableRepository<TestEntity> _testEntityRepository;
-        protected static IEnumerable<TestEntity> _sampleTestEntitys;
-        protected static MemoryLogger _logger = new MemoryLogger();
-
         Establish context = () =>
         {
-            LogManager.OverwriteLogger = _logger;
-
             _testEntityRepository = new MongoDBRepository<TestEntity>
             {
                 ConnectionString = ConfigurationManager.ConnectionStrings["MongoConnectionString"].ConnectionString,
                 DatabaseName = ConfigurationManager.AppSettings["MongoDatabase"],
                 CollectionName = ConfigurationManager.AppSettings["MongoTestEntityDB"]
             };
-
-            _sampleTestEntitys = new List<TestEntity>
-            {
-                new TestEntity
-                {
-                    Name = "TestEntity1",
-                    IgnoredProperty = "Some Value"
-                },
-                new TestEntity
-                {
-                    Name = "TestEntity2",
-                    IgnoredProperty = "Some Value 2"
-                }
-            };
-        };
-
-        private Cleanup after = () =>
-        {
-            _testEntityRepository.Delete(_sampleTestEntitys.Select(r => r.Id));
-            _logger.Clear();
         };
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Creating_TestEntitys : TestEntityRepositorySpec
+    public class When_Creating_TestEntitys : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult<string>> _createResult;
 
@@ -67,7 +41,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Creating_Existing_TestEntitys : TestEntityRepositorySpec
+    public class When_Creating_Existing_TestEntitys : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult<string>> _createResult;
 
@@ -85,7 +59,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Creating_TestEntity_With_Invalid_Id : TestEntityRepositorySpec
+    public class When_Creating_TestEntity_With_Invalid_Id : ISimpleRepositorySpec
     {
         protected static Exception Exception;
 
@@ -98,7 +72,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Deleting_Existing_TestEntity : TestEntityRepositorySpec
+    public class When_Deleting_Existing_TestEntity : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult> _deleteResult;
 
@@ -115,7 +89,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Deleting_Non_Existing_TestEntity : TestEntityRepositorySpec
+    public class When_Deleting_Non_Existing_TestEntity : ISimpleRepositorySpec
     {
         protected static IEnumerable<OperationResult> _deleteResult;
 
@@ -128,7 +102,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Retrieving_One_TestEntity_By_Id : TestEntityRepositorySpec
+    public class When_Retrieving_One_TestEntity_By_Id : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
         protected static string _targetTestEntityId;
@@ -150,7 +124,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Retrieving_Several_TestEntitys_By_Id : TestEntityRepositorySpec
+    public class When_Retrieving_Several_TestEntitys_By_Id : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
 
@@ -167,7 +141,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Retrieving_TestEntitys_By_Non_Existant_Id : TestEntityRepositorySpec
+    public class When_Retrieving_TestEntitys_By_Non_Existant_Id : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
 
@@ -180,7 +154,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Retrieving_Several_TestEntitys_By_Query_For_Existing_Names : TestEntityRepositorySpec
+    public class When_Retrieving_Several_TestEntitys_By_Query_For_Existing_Names : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
 
@@ -196,7 +170,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Retrieving_TestEntitys_By_Query_For_Non_Existing_Names : TestEntityRepositorySpec
+    public class When_Retrieving_TestEntitys_By_Query_For_Non_Existing_Names : ISimpleRepositorySpec
     {
         protected static IEnumerable<TestEntity> _retrievedTestEntitys;
 
@@ -209,7 +183,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Updating_Existing_TestEntity : TestEntityRepositorySpec
+    public class When_Updating_Existing_TestEntity : ISimpleRepositorySpec
     {
         protected static OperationResult _updateResult;
         protected static TestEntity _TestEntityToUpdate;
@@ -229,17 +203,17 @@ namespace Jalex.Repository.Test
 
         It should_be_updated_successfully = () => _updateResult.Success.ShouldBeTrue();
         It should_have_no_messages = () => _updateResult.Messages.ShouldBeEmpty();
-        It should_have_saved_the_changes = () => _testEntityRepository.GetByIds(new[] {_TestEntityToUpdate.Id}).First().Name.ShouldEqual(_TestEntityToUpdate.Name);
+        It should_have_saved_the_changes = () => _testEntityRepository.GetByIds(new[] { _TestEntityToUpdate.Id }).First().Name.ShouldEqual(_TestEntityToUpdate.Name);
         It should_have_not_saved_ignored_properties = () => _testEntityRepository.GetByIds(new[] { _TestEntityToUpdate.Id }).First().IgnoredProperty.ShouldBeNull();
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Updating_Non_Existing_TestEntity : TestEntityRepositorySpec
+    public class When_Updating_Non_Existing_TestEntity : ISimpleRepositorySpec
     {
         protected static OperationResult _updateResult;
         protected static TestEntity _nonExistentTestEntity;
 
-        private Establish context = () => _nonExistentTestEntity = new TestEntity {Id = "507f1f77bcf86cd799439011"};
+        private Establish context = () => _nonExistentTestEntity = new TestEntity { Id = "507f1f77bcf86cd799439011" };
 
         Because of = () =>
         {
@@ -251,7 +225,7 @@ namespace Jalex.Repository.Test
     }
 
     [Subject(typeof(ISimpleRepository<>))]
-    public class When_Updating_TestEntity_With_Null_Id : TestEntityRepositorySpec
+    public class When_Updating_TestEntity_With_Null_Id : ISimpleRepositorySpec
     {
         protected static TestEntity _invalidIdTestEntity;
         protected static Exception _exception;

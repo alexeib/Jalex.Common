@@ -3,19 +3,19 @@ using Jalex.Infrastructure.Objects;
 
 namespace Jalex.Repository.Extensions
 {
-    public static class IRepositoryExtensions
+    public static class RepositoryExtensions
     {
-        public static OperationResult<string> Create<T>(this ISimpleRepository<T> repository, T newObject)
+        public static OperationResult<string> Create<T>(this IInserter<T> repository, T newObject)
         {
             return repository.Create(new[] {newObject}).FirstOrDefault();
         }
 
-        public static OperationResult Delete<T>(this ISimpleRepository<T> repository, string id)
+        public static OperationResult Delete<T>(this IDeleter<T> repository, string id)
         {
             return repository.Delete(new[] {id}).FirstOrDefault();
         }
 
-        public static T GetById<T>(this ISimpleRepository<T> repository, string id)
+        public static T GetById<T>(this IReader<T> repository, string id)
         {
             return repository.GetByIds(new[] {id}).FirstOrDefault();
         }

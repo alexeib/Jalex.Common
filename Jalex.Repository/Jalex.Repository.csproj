@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\IRepositoryExtensions.cs" />
+    <Compile Include="Extensions\RepositoryExtensions.cs" />
     <Compile Include="IDeleter.cs" />
     <Compile Include="IFileRepository.cs" />
     <Compile Include="IInserter.cs" />
