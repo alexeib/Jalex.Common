@@ -10,17 +10,9 @@ namespace Jalex.Repository.Test
     public class MongoDBRepositoryTests : IQueryableRepositoryTests
     {
         public MongoDBRepositoryTests()
-            : base(createLogger(), createRepository(), createFixture())
+            : base(createRepository(), createFixture())
         {
             
-        }
-
-        private static MemoryLogger createLogger()
-        {
-            MemoryLogger logger = new MemoryLogger();
-            LogManager.OverwriteLogger = logger;
-
-            return logger;
         }
 
         private static MongoDBRepository<TestEntity> createRepository()

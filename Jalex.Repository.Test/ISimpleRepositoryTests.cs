@@ -20,15 +20,15 @@ namespace Jalex.Repository.Test
         protected MemoryLogger _logger;
 
         protected ISimpleRepositoryTests(
-            MemoryLogger logger, // should be first argument so that LogManager.OverwriteLogger happens BEFORE creating the repository
             ISimpleRepository<TestEntity> sut,
             IFixture fixture)
         {
             _fixture = fixture;
 
-            _logger = logger;            
+            _logger = new MemoryLogger();
 
             _testEntityRepository = sut;
+            _testEntityRepository.Logger = _logger;
 
             _sampleTestEntitys = _fixture.CreateMany<TestEntity>();
         }

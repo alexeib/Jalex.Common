@@ -12,10 +12,9 @@ namespace Jalex.Repository.Test
         protected IQueryableRepository<TestEntity> _queryableRepository;
 
         protected IQueryableRepositoryTests(
-            MemoryLogger logger,
             IQueryableRepository<TestEntity> sut, 
             IFixture fixture) : 
-            base(logger, sut, fixture)
+            base(sut, fixture)
         {
             _queryableRepository = sut;
         }
