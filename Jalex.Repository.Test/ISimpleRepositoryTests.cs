@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Jalex.Infrastructure.Objects;
-using Jalex.Logging;
 using Jalex.Logging.Loggers;
 using Jalex.Repository.Extensions;
 using Machine.Specifications.Utility;
@@ -134,35 +133,6 @@ namespace Jalex.Repository.Test
             var retrievedTestEntitys = _testEntityRepository.GetByIds(fakeEntityIds);
             retrievedTestEntitys.ShouldBeEmpty();
         }
-
-        //[Fact]
-        //public void RetrievesEntitiesByQueryingForAttribute
-        //{
-        //    protected static IEnumerable<TestEntity> _retrievedTestEntitys;
-
-        //    private Establish context = () => _testEntityRepository.Create(_sampleTestEntitys);
-
-        //    private Because of = () =>
-        //    {
-        //        _retrievedTestEntitys = _testEntityRepository.Query(r => _sampleTestEntitys.Select(e => e.Name).Contains(r.Name));
-        //    };
-
-        //    private It should_retrieve_right_number_of_TestEntitys = () => _retrievedTestEntitys.Count().ShouldEqual(_sampleTestEntitys.Count());
-        //    private It should_retrieve_correct_TestEntitys = () => _retrievedTestEntitys.Select(r => r.Name).Intersect(_sampleTestEntitys.Select(r => r.Name)).Count().ShouldEqual(_sampleTestEntitys.Count());
-        //}
-
-        //[Fact]
-        //public void When_Retrieving_TestEntitys_By_Query_For_Non_Existing_Names : ISimpleRepositorySpec
-        //{
-        //    protected static IEnumerable<TestEntity> _retrievedTestEntitys;
-
-        //    private Because of = () =>
-        //    {
-        //        _retrievedTestEntitys = _testEntityRepository.Query(r => r.Name == "507f1f77bcf86cd799439012");
-        //    };
-
-        //    private It should_retrieve_no_TestEntitys = () => _retrievedTestEntitys.ShouldBeEmpty();
-        //}
 
         [Fact]
         public void UpdatesExistingEntity()

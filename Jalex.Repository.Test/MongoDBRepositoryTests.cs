@@ -7,10 +7,9 @@ using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    // ReSharper disable once InconsistentNaming
-    public class MongoDBRepository_ISimpleRepositoryTests : ISimpleRepositoryTests
+    public class MongoDBRepositoryTests : IQueryableRepositoryTests
     {
-        public MongoDBRepository_ISimpleRepositoryTests()
+        public MongoDBRepositoryTests()
             : base(createLogger(), createRepository(), createFixture())
         {
             

@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileRepositorySpecs.cs" />
+    <Compile Include="IQueryableRepositoryTests.cs" />
     <Compile Include="ISimpleRepositoryTests.cs" />
     <Compile Include="MongoDBRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
