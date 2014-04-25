@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\IdAttribute.cs" />
-    <Compile Include="Attributes\IgnoreAttribute.cs" />
     <Compile Include="Attributes\IndexedAttribute.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />

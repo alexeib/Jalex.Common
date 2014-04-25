@@ -6,7 +6,6 @@ using Xunit.Extensions;
 namespace Jalex.TestUtils.xUnit
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    [CLSCompliant(false)]
     public sealed class InlineConstructorDataAttribute : DataAttribute
     {
         private readonly Type _type;

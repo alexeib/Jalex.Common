@@ -2,6 +2,7 @@
 
 namespace Jalex.Infrastructure.Attributes
 {
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
     public class IndexedAttribute : Attribute
     {
         public string IndexGroup { get; set; }

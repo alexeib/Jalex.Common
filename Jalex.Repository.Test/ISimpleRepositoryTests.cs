@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Jalex.Infrastructure.Objects;
 using Jalex.Logging.Loggers;
+using Jalex.Repository.Exceptions;
 using Jalex.Repository.Extensions;
 using Machine.Specifications.Utility;
 using Ploeh.AutoFixture;
@@ -70,7 +71,20 @@ namespace Jalex.Repository.Test
         [Fact]
         public void DoesNotCreateEntitiesWithInvalidIds()
         {
-            var exception = Assert.Throws<FormatException>(() => _testEntityRepository.Create(new[] { new TestEntity { Id = "FakeId", Name = "FakeName" } }));
+            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Create(new[] { new TestEntity { Id = "FakeId", Name = "FakeName" } }));
+            exception.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public void DoesNotCreateEntitiesWithDuplicateIds()
+        {
+            string id = _fixture.Create<string>();
+
+            var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.Create(new[]
+                                                                                                {
+                                                                                                    new TestEntity { Id = id, Name = "SameId" },
+                                                                                                    new TestEntity { Id = id, Name = "SameId" }
+                                                                                                }));
             exception.ShouldNotBeNull();
         }
 
@@ -110,7 +124,6 @@ namespace Jalex.Repository.Test
 
             retrievedTestEntitys.ShouldNotBeNull();
             retrievedTestEntitys.Id.ShouldBe(targetTestEntityId);
-            retrievedTestEntitys.IgnoredProperty.ShouldBeNull();
         }
 
         [Fact]
@@ -123,7 +136,6 @@ namespace Jalex.Repository.Test
 
             retrievedTestEntitys.Length.ShouldBe(_sampleTestEntitys.Count());
             retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldBe(_sampleTestEntitys.Count());
-            retrievedTestEntitys.Each(e => e.IgnoredProperty.ShouldBeNull());
         }
 
         [Fact]
@@ -142,7 +154,6 @@ namespace Jalex.Repository.Test
 
             var testEntityToUpdate = _sampleTestEntitys.Last();
             testEntityToUpdate.Name = "changed name";
-            testEntityToUpdate.IgnoredProperty = "changed ignore value";
 
             var updateResult = _testEntityRepository.Update(testEntityToUpdate);
 
@@ -153,7 +164,6 @@ namespace Jalex.Repository.Test
             retrievedTestEntity.ShouldNotBeNull();
 
             retrievedTestEntity.Name.ShouldBe(testEntityToUpdate.Name);
-            retrievedTestEntity.IgnoredProperty.ShouldBeNull();
         }
 
         [Fact]

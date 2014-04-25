@@ -1,6 +1,6 @@
 ﻿using Jalex.Infrastructure.Objects;
 
-namespace Jalex.Repository
+namespace Jalex.Repository.Exceptions
 {
     public class RepositoryException : JalexException
     {

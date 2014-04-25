@@ -2,8 +2,7 @@
 
 namespace Jalex.Repository
 {
-    public interface ISimpleRepository<T> : IReader<T>, IDeleter<T>, IUpdater<T>, IInserter<T>
+    public interface ISimpleRepository<T> : IReader<T>, IDeleter<T>, IUpdater<T>, IInserter<T>, IInjectableLogger
     {
-        ILogger Logger { get; set; }
     }
 }

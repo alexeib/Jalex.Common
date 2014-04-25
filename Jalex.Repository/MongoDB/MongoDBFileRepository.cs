@@ -86,7 +86,7 @@ namespace Jalex.Repository.MongoDB
         {
 
             var fileNameIndex = new IndexKeysBuilder().Ascending("filename");
-            fs.Files.EnsureIndex(fileNameIndex, IndexOptions.SetUnique(true));
+            fs.Files.CreateIndex(fileNameIndex, IndexOptions.SetUnique(true));
         }
 
         protected OperationResult<Stream> getFileStreamFromInfo(MongoGridFSFileInfo fileInfo)

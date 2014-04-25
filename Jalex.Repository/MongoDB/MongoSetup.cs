@@ -1,6 +1,4 @@
-﻿using Jalex.Infrastructure.Extensions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Conventions;
+﻿using MongoDB.Bson.Serialization.Conventions;
 
 namespace Jalex.Repository.MongoDB
 {

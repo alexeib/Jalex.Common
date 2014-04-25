@@ -25,10 +25,11 @@ namespace Jalex.Repository.Test
             var createResult = _testEntityRepository.Create(_sampleTestEntitys);
             createResult.All(r => r.Success).ShouldBeTrue();
 
-            var retrievedTestEntitys = _queryableRepository.Query(r => _sampleTestEntitys.Select(e => e.Name).Contains(r.Name)).ToArray();
+            string nameToFind = _sampleTestEntitys.First().Name;
+            var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == nameToFind).ToArray();
 
-            retrievedTestEntitys.Length.ShouldBe(_sampleTestEntitys.Count());
-            retrievedTestEntitys.Select(r => r.Name).Intersect(_sampleTestEntitys.Select(r => r.Name)).Count().ShouldBe(_sampleTestEntitys.Count());
+            retrievedTestEntitys.Length.ShouldBe(1);
+            retrievedTestEntitys.First().Name.ShouldBe(nameToFind);
         }
 
         [Fact]
