@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -44,6 +41,7 @@ namespace Jalex.Infrastructure.Extensions
         ///     Deserializes a given json string to an object of type T
         /// </summary>
         /// <param name="jsonString">The json string</param>
+        /// <param name="type">The type to deserialize to</param>
         /// <returns>Object deserialized from json string</returns>
         public static object FromJson(this string jsonString, Type type)
         {

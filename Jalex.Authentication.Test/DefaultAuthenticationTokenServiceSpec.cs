@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Jalex.Authentication.Objects;
 using Jalex.Authentication.Services;
 using Jalex.Infrastructure.Objects;
@@ -39,7 +40,7 @@ namespace Jalex.Authentication.Test
                     });
 
             mockRepository
-                .Setup(r => r.Query(Moq.It.IsAny<Func<AuthenticationToken, bool>>()))
+                .Setup(r => r.Query(Moq.It.IsAny<Expression<Func<AuthenticationToken, bool>>>()))
                 .Returns<Func<AuthenticationToken, bool>>(q =>
                     {
                         List<AuthenticationToken> retList = new List<AuthenticationToken>();
