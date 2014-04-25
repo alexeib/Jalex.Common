@@ -31,7 +31,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
     internal static class ReflExt
     {
         [ThreadStatic]
-        static Dictionary<Type,List<MemberInfo>> ReflexionCachePF=null;
+        static Dictionary<Type, List<MemberInfo>> ReflexionCachePF = null;
 
         public static List<MemberInfo> GetPropertiesOrFields(this Type tpy)
         {
@@ -82,7 +82,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             else
                 throw new InvalidOperationException();
         }
-    
+
     }
 
     internal static class CqlQueryTools
@@ -110,7 +110,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
         {
             return "\"" + id.Replace("\"", "\"\"") + "\"";
         }
-        
+
         /// <summary>
         /// Hex string lookup table.
         /// </summary>
@@ -166,8 +166,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             // need to treat "Unspecified" as UTC (+0) not the default behavior of DateTimeOffset which treats as Local Timezone
             // because we are about to do math against EPOCH which must align with UTC. 
             // If we don't, then the value saved will be shifted by the local timezone when retrieved back out as DateTime.
-            else if (obj is DateTime) return Encode(((DateTime)obj).Kind == DateTimeKind.Unspecified 
-                    ? new DateTimeOffset((DateTime)obj,TimeSpan.Zero) 
+            else if (obj is DateTime) return Encode(((DateTime)obj).Kind == DateTimeKind.Unspecified
+                    ? new DateTimeOffset((DateTime)obj, TimeSpan.Zero)
                     : new DateTimeOffset((DateTime)obj));
             else if (obj.GetType().IsGenericType)
             {
@@ -322,10 +322,10 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             sb.Append("(");
             string crtIndex = "CREATE INDEX ON " + table.GetQuotedTableName() + "(";
             string crtIndexAll = string.Empty;
-             
+
             var clusteringKeys = new SortedDictionary<int, ClusteringKeyAttribute>();
             var partitionKeys = new SortedDictionary<int, string>();
-            var directives = new List<string>(); 
+            var directives = new List<string>();
 
             var props = table.GetEntityType().GetPropertiesOrFields();
             int curLevel = 0;
@@ -335,7 +335,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
 
             if (entityType.GetCustomAttributes(typeof(CompactStorageAttribute), false).Any())
                 directives.Add("COMPACT STORAGE");
-            
+
 
             foreach (var prop in props)
             {
@@ -352,7 +352,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 {
                     countersCount++;
                     countersSpotted = true;
-                    if (prop.GetCustomAttributes(typeof (ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute != null || propIsPk)
+                    if (prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute != null || propIsPk)
                         throw new InvalidQueryException("Counter can not be a part of PRIMARY KEY !");
                     if (tpy != typeof(Int64))
                         throw new InvalidQueryException("Counters can be only of Int64(long) type !");
@@ -379,7 +379,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                         if (idx == -1)
                             idx = curLevel++;
                         rk.Name = memName;
-                        clusteringKeys.Add(idx, rk);                                        
+                        clusteringKeys.Add(idx, rk);
                     }
                     else
                     {
@@ -393,8 +393,26 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             }
 
             foreach (var clustKey in clusteringKeys)
-                if (clustKey.Value.ClusteringOrder != null)
-                    directives.Add(string.Format("CLUSTERING ORDER BY ({0} {1})", (string)clustKey.Value.Name.QuoteIdentifier(), clustKey.Value.ClusteringOrder));
+                if (clustKey.Value.ClusteringOrder != ClusteringKeyAttribute.Order.None)
+                {
+                    string order;
+                    switch (clustKey.Value.ClusteringOrder)
+                    {
+                        case ClusteringKeyAttribute.Order.Ascending:
+                            order = "ASC";
+                            break;
+                        case ClusteringKeyAttribute.Order.Descending:
+                            order = "DESC";
+                            break;
+                        default:
+                            throw new ArgumentException("Unknown clustering order value: " + clustKey.Value.ClusteringOrder);
+
+                    }
+
+                    directives.Add(string.Format("CLUSTERING ORDER BY ({0} {1})",
+                                                 clustKey.Value.Name.QuoteIdentifier(),
+                                                 order));
+                }
                 else
                     break;
 
@@ -489,7 +507,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             return sb.ToString();
         }
 
-        public static string GetUpdateCQL(object row, object newRow, string quotedtablename,  bool all = false)
+        public static string GetUpdateCQL(object row, object newRow, string quotedtablename, bool all = false)
         {
             var rowType = row.GetType();
             var set = new StringBuilder();
@@ -565,7 +583,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             sb.Append(set);
             sb.Append(" WHERE ");
             sb.Append(where);
- 
+
             return sb.ToString();
         }
 
@@ -716,9 +734,9 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
         internal static MethodInfo SelectMi = typeof(CqlMthHelps).GetMethod("Select", BindingFlags.NonPublic | BindingFlags.Static);
         internal static MethodInfo WhereMi = typeof(CqlMthHelps).GetMethod("Where", BindingFlags.NonPublic | BindingFlags.Static);
         internal static MethodInfo FirstMi = typeof(CqlMthHelps).GetMethod("First", BindingFlags.NonPublic | BindingFlags.Static);
-        internal static MethodInfo First_ForCQLTableMi = typeof(CqlMthHelps).GetMethod("First", new Type[] { typeof(ITable), typeof(int), typeof(object) });        
+        internal static MethodInfo First_ForCQLTableMi = typeof(CqlMthHelps).GetMethod("First", new Type[] { typeof(ITable), typeof(int), typeof(object) });
         internal static MethodInfo FirstOrDefaultMi = typeof(CqlMthHelps).GetMethod("FirstOrDefault", BindingFlags.NonPublic | BindingFlags.Static);
-        internal static MethodInfo FirstOrDefault_ForCQLTableMi = typeof(CqlMthHelps).GetMethod("FirstOrDefault", new Type[] { typeof(ITable), typeof(int), typeof(object) }); 
+        internal static MethodInfo FirstOrDefault_ForCQLTableMi = typeof(CqlMthHelps).GetMethod("FirstOrDefault", new Type[] { typeof(ITable), typeof(int), typeof(object) });
         internal static MethodInfo TakeMi = typeof(CqlMthHelps).GetMethod("Take", BindingFlags.NonPublic | BindingFlags.Static);
         internal static MethodInfo CountMi = typeof(CqlMthHelps).GetMethod("Count", BindingFlags.NonPublic | BindingFlags.Static);
         internal static MethodInfo OrderByMi = typeof(CqlMthHelps).GetMethod("OrderBy", BindingFlags.NonPublic | BindingFlags.Static);
