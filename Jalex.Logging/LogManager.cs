@@ -18,7 +18,7 @@ namespace Jalex.Logging
         /// This property allows overwriting loggers return by the factory. Note that this single instance of a logger will be returned for ALL classes.
         /// If this property is set after a class has already obtained a logger, it will have no effect.
         /// </summary>
-        public static ILogger OverwriteLogger { get; set; }
+        public static ILogger DefaultLogger { get; set; }
 
         /// <summary>
         ///     Gets a logger for the given class type.
@@ -37,7 +37,7 @@ namespace Jalex.Logging
                 throw new ArgumentNullException("type");
             }
 
-            return OverwriteLogger ?? new NLogLogger(type);
+            return DefaultLogger ?? new NLogLogger(type);
         }
     }
 }

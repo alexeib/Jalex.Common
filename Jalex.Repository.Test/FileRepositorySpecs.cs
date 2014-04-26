@@ -18,7 +18,7 @@ namespace Jalex.Repository.Test
 
         Establish context = () =>
         {
-            LogManager.OverwriteLogger = _logger;
+            LogManager.DefaultLogger = _logger;
 
             _fileRepository = new MongoDBFileRepository
             {
