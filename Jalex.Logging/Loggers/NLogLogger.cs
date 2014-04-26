@@ -11,6 +11,12 @@ namespace Jalex.Logging.Loggers
             _logger = NLog.LogManager.GetLogger(type.FullName);
         }
 
+        public void TraceException(Exception exception, string message, params object[] args)
+        {
+            string formattedMessage = string.Format(message, args);
+            _logger.TraceException(formattedMessage, exception);
+        }
+
         public void Debug(string message, params object[] args)
         {
             if (args == null)
@@ -23,9 +29,16 @@ namespace Jalex.Logging.Loggers
             }
         }
 
-        public void DebugException(string message, Exception exception)
+        public void DebugException(Exception exception, string message, params object[] args)
         {
-            _logger.DebugException(message, exception);
+            string formattedMessage = string.Format(message, args);
+            _logger.DebugException(formattedMessage, exception);
+        }
+
+        public void WarnException(Exception exception, string message, params object[] args)
+        {
+            string formattedMessage = string.Format(message, args);
+            _logger.WarnException(formattedMessage, exception);
         }
 
         public void Error(string message, params object[] args)
@@ -40,9 +53,10 @@ namespace Jalex.Logging.Loggers
             }
         }
 
-        public void ErrorException(string message, Exception exception)
+        public void ErrorException(Exception exception, string message, params object[] args)
         {
-            _logger.ErrorException(message, exception);
+            string formattedMessage = string.Format(message, args);
+            _logger.ErrorException(formattedMessage, exception);
         }
 
         public void Fatal(string message, params object[] args)
@@ -57,11 +71,12 @@ namespace Jalex.Logging.Loggers
             }
         }
 
-        public void FatalException(string message, Exception exception)
+        public void FatalException(Exception exception, string message, params object[] args)
         {
-            _logger.FatalException(message, exception);
+            string formattedMessage = string.Format(message, args);
+            _logger.FatalException(formattedMessage, exception);
         }
-
+        
         public void Info(string message, params object[] args)
         {
             if (args == null)
@@ -74,9 +89,10 @@ namespace Jalex.Logging.Loggers
             }
         }
 
-        public void InfoException(string message, Exception exception)
+        public void InfoException(Exception exception, string message, params object[] args)
         {
-            _logger.InfoException(message, exception);
+            string formattedMessage = string.Format(message, args);
+            _logger.InfoException(formattedMessage, exception);
         }
 
         public void Trace(string message, params object[] args)
@@ -91,11 +107,6 @@ namespace Jalex.Logging.Loggers
             }
         }
 
-        public void TraceException(string message, Exception exception)
-        {
-            _logger.TraceException(message, exception);
-        }
-
         public void Warn(string message, params object[] args)
         {
             if (args == null)
@@ -106,11 +117,6 @@ namespace Jalex.Logging.Loggers
             {
                 _logger.Warn(message, args);
             }
-        }
-
-        public void WarnException(string message, Exception exception)
-        {
-            _logger.WarnException(message, exception);
         }
     }
 }

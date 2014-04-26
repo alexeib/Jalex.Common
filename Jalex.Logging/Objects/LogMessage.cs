@@ -10,32 +10,11 @@ namespace Jalex.Logging.Objects
     {
         #region Constructors and Destructors
 
-        public LogMessage(string message, Exception exception, Level logLevel)
+        public LogMessage(string message, Exception exception, LogLevel logLogLevel)
         {
             Message = message;
             Exception = exception;
-            LogLevel = logLevel;
-        }
-
-        #endregion
-
-        #region Enums
-
-        public enum Level
-        {
-            Trace = 0,
-
-            Debug = 1,
-
-            Info = 2,
-
-            Warn = 3,
-
-            Error = 4,
-
-            Fatal = 5,
-
-            Off = 6,
+            LogLogLevel = logLogLevel;
         }
 
         #endregion
@@ -44,7 +23,7 @@ namespace Jalex.Logging.Objects
 
         public Exception Exception { get; private set; }
 
-        public Level LogLevel { get; private set; }
+        public LogLevel LogLogLevel { get; private set; }
 
         public string Message { get; private set; }
 

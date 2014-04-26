@@ -76,7 +76,7 @@ namespace Jalex.Repository.Cassandra
             }
             catch (CqlArgumentException cae)
             {
-                Logger.ErrorException("Error when deleting " + _typeDescriptor.TypeName, cae);
+                Logger.ErrorException(cae, "Error when deleting " + _typeDescriptor.TypeName);
                 return idsArr.Select(r =>
                     new OperationResult
                     {
@@ -127,7 +127,7 @@ namespace Jalex.Repository.Cassandra
                 }
                 catch (CqlArgumentException cae)
                 {
-                    Logger.ErrorException("Error when updating " + _typeDescriptor.TypeName, cae);
+                    Logger.ErrorException(cae, "Error when updating " + _typeDescriptor.TypeName);
                     return new OperationResult
                     {
                         Success = false,
@@ -215,7 +215,7 @@ namespace Jalex.Repository.Cassandra
             }
             catch (CqlArgumentException cae)
             {
-                Logger.ErrorException("Error when creating " + _typeDescriptor.TypeName, cae);
+                Logger.ErrorException(cae, "Error when creating " + _typeDescriptor.TypeName);
                 return newObjArr.Select(r =>
                     new OperationResult<string>
                     {

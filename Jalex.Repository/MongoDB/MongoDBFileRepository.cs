@@ -25,7 +25,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (WriteConcernException wce)
             {
-                _logger.ErrorException("Error when creating file " + fileName, wce);
+                _logger.ErrorException(wce, "Error when creating file " + fileName);
                 return new OperationResult<string>
                 {
                     Success = false,

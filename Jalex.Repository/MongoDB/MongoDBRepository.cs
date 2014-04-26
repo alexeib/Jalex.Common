@@ -96,7 +96,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (WriteConcernException wce)
             {
-                Logger.ErrorException("Error when creating " + _typeDescriptor.TypeName, wce);
+                Logger.ErrorException(wce, "Error when creating " + _typeDescriptor.TypeName);
                 return objectArr.Select(r =>
                                         new OperationResult<string>
                                         {
@@ -113,7 +113,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (FormatException fe)
             {
-                Logger.ErrorException("Formatting error when creating " + _typeDescriptor.TypeName, fe);
+                Logger.ErrorException(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
                 throw new IdFormatException(fe.Message);
             }
 
@@ -136,7 +136,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (WriteConcernException wce)
             {
-                Logger.ErrorException("Error when updating " + _typeDescriptor.TypeName, wce);
+                Logger.ErrorException(wce, "Error when updating " + _typeDescriptor.TypeName);
                 return new OperationResult
                 {
                     Success = false,
@@ -177,7 +177,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (WriteConcernException wce)
             {
-                Logger.ErrorException("Error when deleting " + _typeDescriptor.TypeName, wce);
+                Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
                 return idsArr.Select(r =>
                     new OperationResult
                     {

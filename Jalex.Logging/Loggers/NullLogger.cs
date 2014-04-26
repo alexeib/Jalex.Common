@@ -4,11 +4,19 @@ namespace Jalex.Logging.Loggers
 {
     public class NullLogger : ILogger
     {
+        public void TraceException(Exception exception, string message, params object[] args)
+        {
+        }
+
         public void Debug(string message, params object[] args)
         {
         }
 
-        public void DebugException(string message, Exception exception)
+        public void DebugException(Exception exception, string message, params object[] args)
+        {
+        }
+
+        public void WarnException(Exception exception, string message, params object[] args)
         {
         }
 
@@ -16,7 +24,7 @@ namespace Jalex.Logging.Loggers
         {
         }
 
-        public void ErrorException(string message, Exception exception)
+        public void ErrorException(Exception exception, string message, params object[] args)
         {
         }
 
@@ -24,7 +32,7 @@ namespace Jalex.Logging.Loggers
         {
         }
 
-        public void FatalException(string message, Exception exception)
+        public void FatalException(Exception exception, string message, params object[] args)
         {
         }
 
@@ -32,7 +40,7 @@ namespace Jalex.Logging.Loggers
         {
         }
 
-        public void InfoException(string message, Exception exception)
+        public void InfoException(Exception exception, string message, params object[] args)
         {
         }
 
@@ -40,15 +48,7 @@ namespace Jalex.Logging.Loggers
         {
         }
 
-        public void TraceException(string message, Exception exception)
-        {
-        }
-
         public void Warn(string message, params object[] args)
-        {
-        }
-
-        public void WarnException(string message, Exception exception)
         {
         }
     }

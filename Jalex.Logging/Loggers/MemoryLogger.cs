@@ -11,64 +11,70 @@ namespace Jalex.Logging.Loggers
 
         public IEnumerable<LogMessage> Logs { get { return _logs; } }
 
-        public void Debug(string message, params object[] args)
+        public void TraceException(Exception exception, string message, params object[] args)
         {
-            _logs.Add(args == null ? new LogMessage(message, null, LogMessage.Level.Debug) : new LogMessage(string.Format(message, args), null, LogMessage.Level.Debug));
+            string formattedMessage = string.Format(message, args);
+            _logs.Add(new LogMessage(formattedMessage, exception, LogLevel.Trace));
         }
 
-        public void DebugException(string message, Exception exception)
+        public void Debug(string message, params object[] args)
         {
-            _logs.Add(new LogMessage(message, exception, LogMessage.Level.Debug));
+            _logs.Add(args == null ? new LogMessage(message, null, LogLevel.Debug) : new LogMessage(string.Format(message, args), null, LogLevel.Debug));
+        }
+
+        public void DebugException(Exception exception, string message, params object[] args)
+        {
+            string formattedMessage = string.Format(message, args);
+            _logs.Add(new LogMessage(formattedMessage, exception, LogLevel.Debug));
+        }
+
+        public void WarnException(Exception exception, string message, params object[] args)
+        {
+            string formattedMessage = string.Format(message, args);
+            _logs.Add(new LogMessage(formattedMessage, exception, LogLevel.Warn));
         }
 
         public void Error(string message, params object[] args)
         {
-            _logs.Add(args == null ? new LogMessage(message, null, LogMessage.Level.Error) : new LogMessage(string.Format(message, args), null, LogMessage.Level.Error));
+            _logs.Add(args == null ? new LogMessage(message, null, LogLevel.Error) : new LogMessage(string.Format(message, args), null, LogLevel.Error));
         }
 
-        public void ErrorException(string message, Exception exception)
+        public void ErrorException(Exception exception, string message, params object[] args)
         {
-            _logs.Add(new LogMessage(message, exception, LogMessage.Level.Error));
+            string formattedMessage = string.Format(message, args);
+            _logs.Add(new LogMessage(formattedMessage, exception, LogLevel.Error));
         }
 
         public void Fatal(string message, params object[] args)
         {
-            _logs.Add(args == null ? new LogMessage(message, null, LogMessage.Level.Fatal) : new LogMessage(string.Format(message, args), null, LogMessage.Level.Fatal));
+            _logs.Add(args == null ? new LogMessage(message, null, LogLevel.Fatal) : new LogMessage(string.Format(message, args), null, LogLevel.Fatal));
         }
 
-        public void FatalException(string message, Exception exception)
+        public void FatalException(Exception exception, string message, params object[] args)
         {
-            _logs.Add(new LogMessage(message, exception, LogMessage.Level.Fatal));
+            string formattedMessage = string.Format(message, args);
+            _logs.Add(new LogMessage(formattedMessage, exception, LogLevel.Fatal));
         }
 
         public void Info(string message, params object[] args)
         {
-            _logs.Add(args == null ? new LogMessage(message, null, LogMessage.Level.Info) : new LogMessage(string.Format(message, args), null, LogMessage.Level.Info));
+            _logs.Add(args == null ? new LogMessage(message, null, LogLevel.Info) : new LogMessage(string.Format(message, args), null, LogLevel.Info));
         }
 
-        public void InfoException(string message, Exception exception)
+        public void InfoException(Exception exception, string message, params object[] args)
         {
-            _logs.Add(new LogMessage(message, exception, LogMessage.Level.Info));
+            string formattedMessage = string.Format(message, args);
+            _logs.Add(new LogMessage(formattedMessage, exception, LogLevel.Info));
         }
 
         public void Trace(string message, params object[] args)
         {
-            _logs.Add(args == null ? new LogMessage(message, null, LogMessage.Level.Trace) : new LogMessage(string.Format(message, args), null, LogMessage.Level.Trace));
-        }
-
-        public void TraceException(string message, Exception exception)
-        {
-            _logs.Add(new LogMessage(message, exception, LogMessage.Level.Trace));
+            _logs.Add(args == null ? new LogMessage(message, null, LogLevel.Trace) : new LogMessage(string.Format(message, args), null, LogLevel.Trace));
         }
 
         public void Warn(string message, params object[] args)
         {
-            _logs.Add(args == null ? new LogMessage(message, null, LogMessage.Level.Warn) : new LogMessage(string.Format(message, args), null, LogMessage.Level.Warn));
-        }
-
-        public void WarnException(string message, Exception exception)
-        {
-            _logs.Add(new LogMessage(message, exception, LogMessage.Level.Warn));
+            _logs.Add(args == null ? new LogMessage(message, null, LogLevel.Warn) : new LogMessage(string.Format(message, args), null, LogLevel.Warn));
         }
 
         public void Clear()

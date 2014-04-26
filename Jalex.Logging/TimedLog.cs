@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Logging
 {
@@ -16,8 +17,13 @@ namespace Jalex.Logging
 
         public TimedLog(ILogger logger, string message)
         {
+            ParameterChecker.CheckForVoid(() => logger);
+
             _logger = logger;
             _message = message;
+
+            _logger.Info(string.Format("Starting: {0}", _message));
+
             _timer = new Stopwatch();
             _timer.Start();
         }
@@ -26,10 +32,7 @@ namespace Jalex.Logging
         public void Dispose()
         {
             _timer.Stop();
-            if (_logger != null)
-            {
-                _logger.Info(string.Format("{0} [Time taken: {1}]", _message, _timer.Elapsed));
-            }
+            _logger.Info(string.Format("{0} [Time taken: {1}]", _message, _timer.Elapsed));
         }
     }
 }

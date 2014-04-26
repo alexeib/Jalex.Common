@@ -5,16 +5,16 @@ namespace Jalex.Logging
     public interface ILogger
     {
         void Trace(string message, params object[] args);
-        void TraceException(string message, Exception exception);
+        void TraceException(Exception exception, string message, params object[] args);
         void Debug(string message, params object[] args);
-        void DebugException(string message, Exception exception);
+        void DebugException(Exception exception, string message, params object[] args);
         void Info(string message, params object[] args);
-        void InfoException(string message, Exception exception);
+        void InfoException(Exception exception, string message, params object[] args);
         void Warn(string message, params object[] args);
-        void WarnException(string message, Exception exception);
+        void WarnException(Exception exception, string message, params object[] args);
         void Error(string message, params object[] args);
-        void ErrorException(string message, Exception exception);
+        void ErrorException(Exception exception, string message, params object[] args);
         void Fatal(string message, params object[] args);
-        void FatalException(string message, Exception exception);
+        void FatalException(Exception exception, string message, params object[] args);
     }
 }
