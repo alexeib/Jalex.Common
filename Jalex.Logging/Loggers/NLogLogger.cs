@@ -6,6 +6,11 @@ namespace Jalex.Logging.Loggers
     {
         private readonly NLog.Logger _logger;
 
+        public NLogLogger()
+        {
+            _logger = NLog.LogManager.GetLogger("Default");
+        }
+
         public NLogLogger(Type type)
         {
             _logger = NLog.LogManager.GetLogger(type.FullName);

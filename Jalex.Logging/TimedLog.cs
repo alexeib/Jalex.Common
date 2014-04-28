@@ -32,7 +32,7 @@ namespace Jalex.Logging
         public void Dispose()
         {
             _timer.Stop();
-            _logger.Info(string.Format("{0} [Time taken: {1}]", _message, _timer.Elapsed));
+            _logger.Info(string.Format("{0}: {1}ms", _message, _timer.Elapsed.TotalMilliseconds));
         }
     }
 }
