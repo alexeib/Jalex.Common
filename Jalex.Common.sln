@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Authentication.Test",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.TestUtils", "Jalex.TestUtils\Jalex.TestUtils.csproj", "{4D7290FB-0B59-4042-9748-F8ECCED81560}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Infrastructure.Test", "Jalex.Infrastructure.Test\Jalex.Infrastructure.Test.csproj", "{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{4D7290FB-0B59-4042-9748-F8ECCED81560}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D7290FB-0B59-4042-9748-F8ECCED81560}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D7290FB-0B59-4042-9748-F8ECCED81560}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
