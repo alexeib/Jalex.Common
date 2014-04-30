@@ -16,12 +16,12 @@ namespace Jalex.Repository.Test
     public abstract class ISimpleRepositoryTests : IDisposable
     {
         protected IFixture _fixture;
-        protected ISimpleRepository<TestEntity> _testEntityRepository;
-        protected IEnumerable<TestEntity> _sampleTestEntitys;
+        protected ISimpleRepository<TestObject> _testEntityRepository;
+        protected IEnumerable<TestObject> _sampleTestEntitys;
         protected MemoryLogger _logger;
 
         protected ISimpleRepositoryTests(
-            ISimpleRepository<TestEntity> sut,
+            ISimpleRepository<TestObject> sut,
             IFixture fixture)
         {
             _fixture = fixture;
@@ -31,7 +31,7 @@ namespace Jalex.Repository.Test
             _testEntityRepository = sut;
             _testEntityRepository.Logger = _logger;
 
-            _sampleTestEntitys = _fixture.CreateMany<TestEntity>();
+            _sampleTestEntitys = _fixture.CreateMany<TestObject>();
         }
 
         public virtual void Dispose()
@@ -71,7 +71,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void DoesNotCreateEntitiesWithInvalidIds()
         {
-            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Create(new[] { new TestEntity { Id = "FakeId", Name = "FakeName" } }));
+            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Create(new[] { new TestObject { Id = "FakeId", Name = "FakeName" } }));
             exception.ShouldNotBeNull();
         }
 
@@ -82,8 +82,8 @@ namespace Jalex.Repository.Test
 
             var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.Create(new[]
                                                                                                 {
-                                                                                                    new TestEntity { Id = id, Name = "SameId" },
-                                                                                                    new TestEntity { Id = id, Name = "SameId" }
+                                                                                                    new TestObject { Id = id, Name = "SameId" },
+                                                                                                    new TestObject { Id = id, Name = "SameId" }
                                                                                                 }));
             exception.ShouldNotBeNull();
         }
@@ -169,7 +169,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void FailsToUpdateNonExistingEntity()
         {
-            var nonexistentEntity = _fixture.Create<TestEntity>();
+            var nonexistentEntity = _fixture.Create<TestObject>();
 
             var updateResult = _testEntityRepository.Update(nonexistentEntity);
 
@@ -180,7 +180,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void FailsToUpdateEntityWithNullId()
         {
-            var invalidIdTestEntity = new TestEntity { Id = null };
+            var invalidIdTestEntity = new TestObject { Id = null };
 
             Assert.Throws<ArgumentNullException>(() => _testEntityRepository.Update(invalidIdTestEntity));
         }

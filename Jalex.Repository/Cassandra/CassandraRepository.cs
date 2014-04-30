@@ -10,6 +10,7 @@ using Jalex.Infrastructure.Utils;
 using Jalex.Repository.Cassandra.DataStax.Linq;
 using Jalex.Repository.Exceptions;
 using Jalex.Repository.Extensions;
+using Jalex.Repository.IdProviders;
 using Jalex.Repository.Utils;
 
 namespace Jalex.Repository.Cassandra
@@ -25,14 +26,14 @@ namespace Jalex.Repository.Cassandra
         private readonly Context _context;
         private readonly ContextTable<T> _table;
 
-        private readonly ICassandraIdProvider _idProvider;
+        private readonly IIdProvider _idProvider;
 
         static CassandraRepository()
         {
             _typeDescriptor = new ReflectedTypeDescriptor<T>();
         }
 
-        public CassandraRepository(ICassandraIdProvider idProvider)
+        public CassandraRepository(IIdProvider idProvider)
         {
             _idProvider = idProvider;
 
@@ -136,9 +137,9 @@ namespace Jalex.Repository.Cassandra
                         new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
                     }
                     };
-                }                
-   
-                return new OperationResult(true);
+                }
+
+                result = new OperationResult(true);
             }            
 
             return result;
@@ -272,7 +273,7 @@ namespace Jalex.Repository.Cassandra
 
         private void checkOrGenerateIdForEntity(string id, T newObj)
         {
-            if (string.IsNullOrEmpty(id))
+            if (String.IsNullOrEmpty(id))
             {
                 string generatedId = _idProvider.GenerateNewId();
                 _typeDescriptor.SetId(newObj, generatedId);

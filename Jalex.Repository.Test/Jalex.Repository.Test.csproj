@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EmitMapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EmitMapper.1.0.0\lib\EmitMapper.dll</HintPath>
+    </Reference>
     <Reference Include="Machine.Specifications, Version=0.8.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Machine.Specifications.0.8.1\lib\net45\Machine.Specifications.dll</HintPath>
@@ -86,9 +90,12 @@
     <Compile Include="FileRepositorySpecs.cs" />
     <Compile Include="IQueryableRepositoryTests.cs" />
     <Compile Include="ISimpleRepositoryTests.cs" />
+    <Compile Include="MappingSimpleRepositoryTests.cs" />
+    <Compile Include="MemoryRepositoryTests.cs" />
     <Compile Include="MongoDBRepositoryTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Objects\TestEntity.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Objects\TestObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

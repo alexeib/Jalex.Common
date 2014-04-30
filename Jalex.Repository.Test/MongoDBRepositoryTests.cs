@@ -15,9 +15,9 @@ namespace Jalex.Repository.Test
             
         }
 
-        private static MongoDBRepository<TestEntity> createRepository()
+        private static MongoDBRepository<TestObject> createRepository()
         {
-            return new MongoDBRepository<TestEntity>
+            return new MongoDBRepository<TestObject>
             {
                 ConnectionString = ConfigurationManager.ConnectionStrings["MongoConnectionString"].ConnectionString,
                 DatabaseName = ConfigurationManager.AppSettings["MongoDatabase"],

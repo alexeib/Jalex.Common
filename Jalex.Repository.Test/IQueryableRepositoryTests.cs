@@ -9,10 +9,10 @@ namespace Jalex.Repository.Test
     // ReSharper disable once InconsistentNaming
     public abstract class IQueryableRepositoryTests : ISimpleRepositoryTests
     {
-        protected IQueryableRepository<TestEntity> _queryableRepository;
+        protected IQueryableRepository<TestObject> _queryableRepository;
 
         protected IQueryableRepositoryTests(
-            IQueryableRepository<TestEntity> sut, 
+            IQueryableRepository<TestObject> sut, 
             IFixture fixture) : 
             base(sut, fixture)
         {

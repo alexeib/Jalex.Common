@@ -77,8 +77,9 @@
     <Compile Include="Cassandra\DataStax.Linq\SessionExtensions.cs" />
     <Compile Include="Cassandra\DataStax.Linq\Table.cs" />
     <Compile Include="Cassandra\DataStax.Linq\VisitingParam.cs" />
-    <Compile Include="Cassandra\DefaultCassandraIdProvider.cs" />
-    <Compile Include="Cassandra\ICassandraIdProvider.cs" />
+    <Compile Include="IdProviders\GuidIdProvider.cs" />
+    <Compile Include="IdProviders\IIdProvider.cs" />
+    <Compile Include="MappingSimpleRepository.cs" />
     <Compile Include="Exceptions\DuplicateIdException.cs" />
     <Compile Include="Extensions\RepositoryExtensions.cs" />
     <Compile Include="IDeleter.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="IReader.cs" />
     <Compile Include="ISimpleRepository.cs" />
     <Compile Include="IUpdater.cs" />
+    <Compile Include="Memory\MemoryRepository.cs" />
     <Compile Include="MongoDB\BaseMongoDBRepository.cs" />
     <Compile Include="MongoDB\MongoDBFileRepository.cs" />
     <Compile Include="MongoDB\MongoSetup.cs" />

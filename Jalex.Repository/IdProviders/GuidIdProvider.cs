@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Jalex.Repository.Cassandra
+namespace Jalex.Repository.IdProviders
 {
-    public class DefaultCassandraIdProvider : ICassandraIdProvider
+    public class GuidIdProvider : IIdProvider
     {
-        #region Implementation of ICassandraIdProvider
+        #region Implementation of IIdProvider
 
         public string GenerateNewId()
         {

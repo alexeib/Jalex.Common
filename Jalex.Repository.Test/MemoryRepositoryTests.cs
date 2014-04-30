@@ -1,29 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Jalex.Repository.Cassandra;
-using Jalex.Repository.IdProviders;
-using Jalex.Repository.MongoDB;
-using MongoDB.Bson;
+﻿using Jalex.Repository.IdProviders;
+using Jalex.Repository.Memory;
 using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    public class CassandraRepositoryTests : IQueryableRepositoryTests
+    public class MemoryRepositoryTests : IQueryableRepositoryTests
     {
-        public CassandraRepositoryTests()
+        public MemoryRepositoryTests()
             : base(createRepository(), createFixture())
         {
             
         }
 
-        private static CassandraRepository<TestObject> createRepository()
+        private static MemoryRepository<TestObject> createRepository()
         {
             var cassandraIdGenerator = new GuidIdProvider();
-            return new CassandraRepository<TestObject>(cassandraIdGenerator);
+            return new MemoryRepository<TestObject>(cassandraIdGenerator);
         }
 
         private static IFixture createFixture()

@@ -1,8 +1,8 @@
 ﻿using Jalex.Infrastructure.Attributes;
 
-namespace Jalex.Repository.Test.Objects
+namespace Jalex.Repository.Test
 {
-    public class TestEntity
+    public class TestObject
     {
         public string Id { get; set; }
         [Indexed(false)]

@@ -1,6 +1,6 @@
-﻿namespace Jalex.Repository.Cassandra
+﻿namespace Jalex.Repository.IdProviders
 {
-    public interface ICassandraIdProvider
+    public interface IIdProvider
     {
         string GenerateNewId();
         bool IsIdValid(string id);
