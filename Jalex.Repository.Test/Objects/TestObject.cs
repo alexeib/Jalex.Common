@@ -1,4 +1,4 @@
-﻿using Jalex.Infrastructure.Attributes;
+﻿using Jalex.Infrastructure.Repository;
 
 namespace Jalex.Repository.Test
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Jalex.Infrastructure.Attributes;
+using Jalex.Infrastructure.Repository;
 
 namespace Jalex.Authentication.Objects
 {

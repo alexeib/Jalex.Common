@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Jalex.Infrastructure.Logging;
 using Jalex.Logging.Loggers;
 
 namespace Jalex.Logging

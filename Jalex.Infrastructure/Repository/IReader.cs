@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Jalex.Repository
+namespace Jalex.Infrastructure.Repository
 {
     public interface IReader<out T>
     {

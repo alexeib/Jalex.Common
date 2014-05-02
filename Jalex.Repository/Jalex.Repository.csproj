@@ -80,17 +80,6 @@
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
     <Compile Include="MappingSimpleRepository.cs" />
-    <Compile Include="Exceptions\DuplicateIdException.cs" />
-    <Compile Include="Extensions\RepositoryExtensions.cs" />
-    <Compile Include="IDeleter.cs" />
-    <Compile Include="Exceptions\IdFormatException.cs" />
-    <Compile Include="IFileRepository.cs" />
-    <Compile Include="IInserter.cs" />
-    <Compile Include="IQueryable.cs" />
-    <Compile Include="IQueryableRepository.cs" />
-    <Compile Include="IReader.cs" />
-    <Compile Include="ISimpleRepository.cs" />
-    <Compile Include="IUpdater.cs" />
     <Compile Include="Memory\MemoryRepository.cs" />
     <Compile Include="MongoDB\BaseMongoDBRepository.cs" />
     <Compile Include="MongoDB\MongoDBFileRepository.cs" />
@@ -98,7 +87,6 @@
     <Compile Include="MongoDB\MongoDBRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryConstants.cs" />
-    <Compile Include="Exceptions\RepositoryException.cs" />
     <Compile Include="Utils\ReflectedTypeDescriptor.cs" />
     <Compile Include="Utils\ReflectedTypeDescriptorSimple.cs" />
   </ItemGroup>

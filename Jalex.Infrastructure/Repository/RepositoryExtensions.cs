@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Jalex.Infrastructure.Objects;
 
-namespace Jalex.Repository.Extensions
+namespace Jalex.Infrastructure.Repository
 {
     public static class RepositoryExtensions
     {

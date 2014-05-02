@@ -2,6 +2,7 @@
 using System.IO;
 using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.Repository;
 using Jalex.Logging;
 using Jalex.Logging.Loggers;
 using Jalex.Repository.MongoDB;

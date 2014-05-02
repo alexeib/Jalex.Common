@@ -1,4 +1,5 @@
 ﻿using System;
+using Jalex.Infrastructure.Logging;
 using Jalex.Logging.Objects;
 
 namespace Jalex.Logging.Loggers

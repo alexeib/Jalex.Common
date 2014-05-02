@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jalex.Infrastructure.Attributes
+namespace Jalex.Infrastructure.Repository
 {
     /// <summary>
     /// Note that this attribute is used ONLY by Cassandra repository

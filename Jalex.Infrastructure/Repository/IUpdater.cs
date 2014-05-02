@@ -1,6 +1,6 @@
 ﻿using Jalex.Infrastructure.Objects;
 
-namespace Jalex.Repository
+namespace Jalex.Infrastructure.Repository
 {
     public interface IUpdater<in T>
     {

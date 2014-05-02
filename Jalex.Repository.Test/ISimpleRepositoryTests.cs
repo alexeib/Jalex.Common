@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.Repository;
 using Jalex.Logging.Loggers;
-using Jalex.Repository.Exceptions;
-using Jalex.Repository.Extensions;
 using Machine.Specifications.Utility;
 using Ploeh.AutoFixture;
 using Xunit;

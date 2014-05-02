@@ -3,8 +3,8 @@ using System.Configuration;
 using System.Linq;
 using Jalex.Authentication.Objects;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.Repository;
 using Jalex.Repository;
-using Jalex.Repository.Extensions;
 
 namespace Jalex.Authentication.Services
 {

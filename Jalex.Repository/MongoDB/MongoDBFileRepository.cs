@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.Repository;
 using Jalex.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;

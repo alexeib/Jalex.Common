@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jalex.Infrastructure.Attributes
+namespace Jalex.Infrastructure.Repository
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
     public class IndexedAttribute : Attribute

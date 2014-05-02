@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Jalex.Infrastructure.Objects;
 
-namespace Jalex.Repository
+namespace Jalex.Infrastructure.Repository
 {
     public interface IFileRepository
     {

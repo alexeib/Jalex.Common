@@ -6,10 +6,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using Cassandra;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
 using Jalex.Repository.Cassandra.DataStax.Linq;
-using Jalex.Repository.Exceptions;
-using Jalex.Repository.Extensions;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.Utils;
 

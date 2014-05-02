@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Jalex.Infrastructure.Objects;
 
-namespace Jalex.Repository
+namespace Jalex.Infrastructure.Repository
 {
     public interface IInserter<in T>
     {

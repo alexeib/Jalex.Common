@@ -46,9 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IInjectableLogger.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="LoggerExtensions.cs" />
     <Compile Include="Loggers\BaseSimpleLogger.cs" />
     <Compile Include="Loggers\CompositeLogger.cs" />
     <Compile Include="Loggers\ConsoleLogger.cs" />

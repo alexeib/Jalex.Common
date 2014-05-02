@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using Jalex.Authentication.Objects;
 using Jalex.Authentication.Services;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.Repository;
 using Jalex.Repository;
 using Machine.Specifications;
 using Moq;

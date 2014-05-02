@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Logging.Loggers

@@ -1,4 +1,5 @@
 ﻿using EmitMapper;
+using Jalex.Infrastructure.Repository;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.Memory;
 using Jalex.Repository.Test.Objects;

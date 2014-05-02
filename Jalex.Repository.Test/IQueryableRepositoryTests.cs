@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Jalex.Infrastructure.Repository;
 using Jalex.Logging.Loggers;
 using Ploeh.AutoFixture;
 using Xunit;

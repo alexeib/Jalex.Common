@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Logging

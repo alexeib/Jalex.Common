@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jalex.Logging
+namespace Jalex.Infrastructure.Logging
 {
     public interface ILogger
     {

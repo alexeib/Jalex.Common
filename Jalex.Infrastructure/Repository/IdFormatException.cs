@@ -1,4 +1,4 @@
-﻿namespace Jalex.Repository.Exceptions
+﻿namespace Jalex.Infrastructure.Repository
 {
     public class IdFormatException : RepositoryException
     {

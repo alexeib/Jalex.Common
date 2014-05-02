@@ -1,4 +1,4 @@
-﻿namespace Jalex.Logging
+﻿namespace Jalex.Infrastructure.Logging
 {
     public static class LoggerExtensions
     {

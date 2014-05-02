@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Jalex.Repository
+namespace Jalex.Infrastructure.Repository
 {
     public interface IQueryable<T>
     {

@@ -1,4 +1,5 @@
-﻿using Jalex.Logging;
+﻿using Jalex.Infrastructure.Logging;
+using Jalex.Logging;
 
 namespace Jalex.Repository
 {

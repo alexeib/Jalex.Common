@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Repository.Utils
 {
-    public class ReflectedTypeDescriptor<T> : ReflectedTypeDescriptorSimple
+    internal class ReflectedTypeDescriptor<T> : ReflectedTypeDescriptorSimple
     {
         protected readonly Action<T, string> _idSetter;
         protected readonly Func<T, string> _idGetter;

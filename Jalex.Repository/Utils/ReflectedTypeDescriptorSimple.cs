@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Jalex.Infrastructure.Attributes;
-using Jalex.Repository.Exceptions;
+using Jalex.Infrastructure.Repository;
 
 namespace Jalex.Repository.Utils
 {

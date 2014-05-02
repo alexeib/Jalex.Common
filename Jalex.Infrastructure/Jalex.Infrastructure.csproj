@@ -53,9 +53,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\ClusteringKeyAttribute.cs" />
-    <Compile Include="Attributes\IdAttribute.cs" />
-    <Compile Include="Attributes\IndexedAttribute.cs" />
+    <Compile Include="Logging\IInjectableLogger.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Logging\LoggerExtensions.cs" />
+    <Compile Include="Repository\ClusteringKeyAttribute.cs" />
+    <Compile Include="Repository\DuplicateIdException.cs" />
+    <Compile Include="Repository\IdAttribute.cs" />
+    <Compile Include="Repository\IDeleter.cs" />
+    <Compile Include="Repository\IdFormatException.cs" />
+    <Compile Include="Repository\IFileRepository.cs" />
+    <Compile Include="Repository\IInserter.cs" />
+    <Compile Include="Repository\IndexedAttribute.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
@@ -68,6 +76,13 @@
     <Compile Include="Objects\OperationResultGeneric.cs" />
     <Compile Include="Objects\Severity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\IQueryable.cs" />
+    <Compile Include="Repository\IQueryableRepository.cs" />
+    <Compile Include="Repository\IReader.cs" />
+    <Compile Include="Repository\ISimpleRepository.cs" />
+    <Compile Include="Repository\IUpdater.cs" />
+    <Compile Include="Repository\RepositoryException.cs" />
+    <Compile Include="Repository\RepositoryExtensions.cs" />
     <Compile Include="Utils\ExpressionProperties.cs" />
     <Compile Include="Utils\ParameterChecker.cs" />
   </ItemGroup>
