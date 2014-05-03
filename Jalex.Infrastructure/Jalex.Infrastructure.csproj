@@ -53,6 +53,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\DiscriminatingFileLoader.cs" />
+    <Compile Include="IO\FileLoadException.cs" />
+    <Compile Include="IO\FtpFileLoader.cs" />
+    <Compile Include="IO\HttpFileLoader.cs" />
+    <Compile Include="IO\IFileLoader.cs" />
+    <Compile Include="IO\LocalFileLoader.cs" />
     <Compile Include="Logging\IInjectableLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\LoggerExtensions.cs" />

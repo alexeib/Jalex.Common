@@ -4,7 +4,7 @@ using FluentAssertions;
 using Jalex.Infrastructure.Mapping;
 using Xunit;
 
-namespace Jalex.Infrastructure.Test
+namespace Jalex.Infrastructure.Test.Mapping
 {
     public class ExtendedEmitMapperConfigTests
     {

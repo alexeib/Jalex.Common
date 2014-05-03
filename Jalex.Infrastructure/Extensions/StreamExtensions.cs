@@ -8,7 +8,10 @@ namespace Jalex.Infrastructure.Extensions
         {
             string contents;
 
-            stream.Seek(0, SeekOrigin.Begin);
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
 
             using (StreamReader reader = new StreamReader(stream))
             {
