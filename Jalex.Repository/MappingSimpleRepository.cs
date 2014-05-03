@@ -56,11 +56,13 @@ namespace Jalex.Repository
 
         #region Implementation of IUpdater<in TClass>
 
-        public OperationResult Update(TClass objectToUpdate)
+        public IEnumerable<OperationResult> Update(IEnumerable<TClass> objectsToUpdate)
         {
-            var entity = _classToEntityMapper.Map(objectToUpdate);
-            var result = _entityRepository.Update(entity);
-            return result;
+            ParameterChecker.CheckForVoid(() => objectsToUpdate);
+
+            var entities = objectsToUpdate.Select(_classToEntityMapper.Map).ToArray();
+            var results = _entityRepository.Update(entities);
+            return results;
         }
 
         #endregion
@@ -71,15 +73,15 @@ namespace Jalex.Repository
         {
             ParameterChecker.CheckForVoid(() => newObjects);
 
-            var stockArray = newObjects.ToArray();
+            var objArray = newObjects.ToArray();
 
-            var entities = stockArray.Select(_classToEntityMapper.Map).ToArray();
+            var entities = objArray.Select(_classToEntityMapper.Map).ToArray();
             var results = _entityRepository.Create(entities);
 
             for (int i = 0; i < entities.Length; i++)
             {
                 var entity = entities[i];
-                var stock = stockArray[i];
+                var stock = objArray[i];
 
                 // ReSharper disable CompareNonConstrainedGenericWithNull
                 if (entity != null && stock != null)

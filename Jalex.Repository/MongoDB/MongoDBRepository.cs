@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
@@ -126,45 +125,51 @@ namespace Jalex.Repository.MongoDB
             return objectArr.Select(r => new OperationResult<string> { Success = true, Value = _typeDescriptor.GetId(r) }).ToArray();
         }
 
-        public OperationResult Update(T objectToUpdate)
+        public IEnumerable<OperationResult> Update(IEnumerable<T> objectsToUpdate)
         {
-            ParameterChecker.CheckForVoid(() => objectToUpdate);
-            ParameterChecker.CheckForNullOrEmpty(_typeDescriptor.GetId(objectToUpdate), "objectToUpdate.Id");
+            ParameterChecker.CheckForVoid(() => objectsToUpdate);
+
+            List<OperationResult> results = new List<OperationResult>();
 
             MongoCollection<T> collection = getMongoCollection();
-            bool success;
 
-            try
+            foreach (var objectToUpdate in objectsToUpdate)
             {
-                WriteConcernResult wcr = collection.Update(Query<T>.EQ(_typeDescriptor.IdGetterExpression, _typeDescriptor.GetId(objectToUpdate)),
-                    Update<T>.Replace(objectToUpdate));
-                success = wcr.DocumentsAffected > 0;
-            }
-            catch (WriteConcernException wce)
-            {
-                Logger.ErrorException(wce, "Error when updating " + _typeDescriptor.TypeName);
-                return new OperationResult
+                OperationResult result;
+
+                try
                 {
-                    Success = false,
-                    Messages = new[]
+                    WriteConcernResult wcr = collection.Update(Query<T>.EQ(_typeDescriptor.IdGetterExpression, _typeDescriptor.GetId(objectToUpdate)),
+                                                               Update<T>.Replace(objectToUpdate));
+                    bool success = wcr.DocumentsAffected > 0;
+                    result = new OperationResult {Success = success};
+
+                    if (!success)
                     {
-                        new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
+                        result.Messages = new[]
+                                      {
+                                          new Message(Severity.Warning,
+                                                      string.Format("Could not update {0} because it was not found", objectToUpdate))
+                                      };
                     }
-                };
-            }
-
-            var result = new OperationResult { Success = success };
-
-            if (!success)
-            {
-                result.Messages = new[]
+                }
+                catch (WriteConcernException wce)
                 {
-                    new Message(Severity.Warning,
-                        string.Format("Could not update {0} because it was not found", objectToUpdate))
-                };
+                    Logger.ErrorException(wce, "Error when updating " + _typeDescriptor.TypeName);
+                    result = new OperationResult
+                           {
+                               Success = false,
+                               Messages = new[]
+                                          {
+                                              new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
+                                          }
+                           };
+                }
+
+                results.Add(result);
             }
 
-            return result;
+            return results;
         }
 
         public IEnumerable<OperationResult> Delete(IEnumerable<string> ids)

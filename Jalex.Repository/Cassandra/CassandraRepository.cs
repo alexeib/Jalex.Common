@@ -104,50 +104,59 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IUpdater<in T>
 
-        public OperationResult Update(T objectToUpdate)
+        public IEnumerable<OperationResult> Update(IEnumerable<T> objectsToUpdate)
         {
-            ParameterChecker.CheckForVoid(() => objectToUpdate);
-            
-            string id = _typeDescriptor.GetId(objectToUpdate);
-            
-            ParameterChecker.CheckForVoid(() => id);
+            ParameterChecker.CheckForVoid(() => objectsToUpdate);
+            List<OperationResult> results = new List<OperationResult>();
 
-            T entity = this.GetById(id);
+            var objectsToUpdateArr = objectsToUpdate.ToArray();
+            var ids = objectsToUpdateArr.Select(_typeDescriptor.GetId).Where(id => !string.IsNullOrEmpty(id)).ToArray();
+            var entities = ids.Length > 0 ? GetByIds(ids) : new T[0];
 
-            OperationResult result;
+            var entitiesById = entities.ToDictionary(_typeDescriptor.GetId);
 
-            if (entity == null)
+            foreach (var objectToUpdate in objectsToUpdateArr)
             {
-                result = new OperationResult(false, new Message(Severity.Warning, string.Format("Could not update {0} because it was not found", objectToUpdate)));
-            }
-            else
-            {
-                _table.Attach(entity, EntityUpdateMode.ModifiedOnly);
+                OperationResult result;
+                T entity;
 
-                var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
-                mapper.Map(objectToUpdate, entity);                
+                var id = _typeDescriptor.GetId(objectToUpdate);
 
-                try
+                if (!string.IsNullOrEmpty(id) && entitiesById.TryGetValue(id, out entity))
                 {
-                    _context.SaveChanges();
+                    _table.Attach(entity, EntityUpdateMode.ModifiedOnly);
+
+                    var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
+                    mapper.Map(objectToUpdate, entity);
+
+                    result = new OperationResult(true);
                 }
-                catch (CqlArgumentException cae)
+                else
                 {
-                    Logger.ErrorException(cae, "Error when updating " + _typeDescriptor.TypeName);
-                    return new OperationResult
+                    result = new OperationResult(false, new Message(Severity.Warning, string.Format("Could not update {0} because it was not found", objectToUpdate)));
+                }
+
+                results.Add(result);
+            }
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (CqlArgumentException cae)
+            {
+                Logger.ErrorException(cae, "Error when updating " + _typeDescriptor.TypeName);
+                results = objectsToUpdateArr.Select(objectToUpdate => new OperationResult
                     {
                         Success = false,
                         Messages = new[]
-                    {
-                        new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
-                    }
-                    };
-                }
+                                {
+                                    new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
+                                }
+                    }).ToList();
+            }
 
-                result = new OperationResult(true);
-            }            
-
-            return result;
+            return results;
         }
 
         #endregion

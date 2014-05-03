@@ -68,34 +68,46 @@ namespace Jalex.Repository.Memory
 
         #region Implementation of IUpdater<in T>
 
-        public OperationResult Update(T objectToUpdate)
+        public IEnumerable<OperationResult> Update(IEnumerable<T> objectsToUpdate)
         {
-            ParameterChecker.CheckForVoid(() => objectToUpdate);
+            ParameterChecker.CheckForVoid(() => objectsToUpdate);
 
-            string id = _typeDescriptor.GetId(objectToUpdate);
+            List<OperationResult> results = new List<OperationResult>();
 
-            ParameterChecker.CheckForVoid(() => id);
-
-            T entity = this.GetById(id);
-
-            OperationResult result;
-
-            if (entity == null)
+            foreach (var objectToUpdate in objectsToUpdate)
             {
-                result = new OperationResult(false,
-                                             new Message(Severity.Warning,
-                                                         string.Format("Could not update {0} because it was not found",
-                                                                       objectToUpdate)));
-            }
-            else
-            {
-                var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
-                mapper.Map(objectToUpdate, entity);
+                OperationResult result;
 
-                result = new OperationResult(true);
-            }
+                string id = _typeDescriptor.GetId(objectToUpdate);
 
-            return result;
+                if (string.IsNullOrEmpty(id))
+                {
+                    result = new OperationResult(false, new Message(Severity.Warning, string.Format("Could not update {0} because it has no ID", objectToUpdate)));
+                }
+                else
+                {
+
+                    T entity = this.GetById(id);
+
+                    if (entity == null)
+                    {
+                        result = new OperationResult(false,
+                                                     new Message(Severity.Warning,
+                                                                 string.Format("Could not update {0} because it was not found",
+                                                                               objectToUpdate)));
+                    }
+                    else
+                    {
+                        var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
+                        mapper.Map(objectToUpdate, entity);
+
+                        result = new OperationResult(true);
+                    }
+                }
+
+                results.Add(result);
+            }
+            return results;
         }
 
         #endregion

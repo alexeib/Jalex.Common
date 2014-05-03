@@ -4,7 +4,6 @@ using System.Linq;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
 using Jalex.Logging.Loggers;
-using Machine.Specifications.Utility;
 using Ploeh.AutoFixture;
 using Xunit;
 using Xunit.Should;
@@ -178,6 +177,36 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
+        public void UpdatesManyExistingEntities()
+        {
+            const string newName = "changed name!!!";
+
+            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
+            createResult.All(r => r.Success).ShouldBeTrue();
+
+            foreach (var testEntity in _sampleTestEntitys)
+            {
+                testEntity.Name = newName;
+            }
+
+            var updateResults = _testEntityRepository.Update(_sampleTestEntitys);
+
+            foreach (var updateResult in updateResults)
+            {
+                updateResult.Success.ShouldBeTrue();
+                updateResult.Messages.ShouldBeEmpty();    
+            }
+
+            var retrievedTestEntities = _testEntityRepository.GetByIds(_sampleTestEntitys.Select(e => e.Id)).ToArray();
+            retrievedTestEntities.ShouldNotBeEmpty();
+
+            foreach (var retrievedTestEntity in retrievedTestEntities)
+            {
+                retrievedTestEntity.Name.ShouldBe(newName);
+            }
+        }
+
+        [Fact]
         public void FailsToUpdateNonExistingEntity()
         {
             var nonexistentEntity = _fixture.Create<TestObject>();
@@ -192,8 +221,10 @@ namespace Jalex.Repository.Test
         public void FailsToUpdateEntityWithNullId()
         {
             var invalidIdTestEntity = new TestObject { Id = null };
+            var updateResult = _testEntityRepository.Update(invalidIdTestEntity);
 
-            Assert.Throws<ArgumentNullException>(() => _testEntityRepository.Update(invalidIdTestEntity));
+            updateResult.Success.ShouldBeFalse();
+            updateResult.Messages.ShouldNotBeEmpty();
         }
     }
 }
