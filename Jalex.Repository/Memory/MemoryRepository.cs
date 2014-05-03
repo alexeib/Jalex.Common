@@ -42,6 +42,12 @@ namespace Jalex.Repository.Memory
             }
         }
 
+        public IEnumerable<T> GetAll()
+        {
+            var objects = _objectDictionary.Values.ToArray();
+            return objects;
+        }
+
         #endregion
 
         #region Implementation of IDeleter<T>

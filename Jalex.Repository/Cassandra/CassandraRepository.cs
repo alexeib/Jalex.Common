@@ -55,6 +55,12 @@ namespace Jalex.Repository.Cassandra
             return results;
         }
 
+        public IEnumerable<T> GetAll()
+        {
+            var results = _table.Execute();
+            return results;
+        }
+
         #endregion
 
         #region Implementation of IDeleter<T>

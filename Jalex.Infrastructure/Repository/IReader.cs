@@ -10,5 +10,11 @@ namespace Jalex.Infrastructure.Repository
         /// <param name="ids">the ids of the objects to retrieve</param>
         /// <returns>The requested objects (the ones that weren't found will not be included in the set)</returns>
         IEnumerable<T> GetByIds(IEnumerable<string> ids);
+
+        /// <summary>
+        /// Retrieves all objects in the repository
+        /// </summary>
+        /// <returns>All objects in the repository</returns>
+        IEnumerable<T> GetAll();
     }
 }

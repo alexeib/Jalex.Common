@@ -137,6 +137,18 @@ namespace Jalex.Repository.Test
             retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldBe(_sampleTestEntitys.Count());
         }
 
+        [Fact] 
+        public void RetrievesAllEntities()
+        {
+            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
+            createResult.All(r => r.Success).ShouldBeTrue();
+
+            var retrievedTestEntitys = _testEntityRepository.GetAll().ToArray();
+
+            retrievedTestEntitys.Length.ShouldBeGreaterThanOrEqualTo(_sampleTestEntitys.Count());
+            retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldBe(_sampleTestEntitys.Count());
+        }
+
         [Fact]
         public void DoesNotRetrieveNonExistantEntitiesById()
         {

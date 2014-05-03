@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
@@ -57,13 +58,19 @@ namespace Jalex.Repository.MongoDB
 
             IMongoQuery query = Query<T>.In(_typeDescriptor.IdGetterExpression, idsArr);
 
-            return collection.Find(query).SetLimit(idsArr.Length).ToArray();
+            return collection.Find(query).SetLimit(idsArr.Length);
+        }
+
+        public IEnumerable<T> GetAll()
+        {
+            MongoCollection<T> collection = getMongoCollection();
+            return collection.FindAll();
         }
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {
             MongoCollection<T> collection = getMongoCollection();
-            return collection.AsQueryable().Where(query).ToArray();
+            return collection.AsQueryable().Where(query);
         }
 
         public IEnumerable<OperationResult<string>> Create(IEnumerable<T> newObjects)

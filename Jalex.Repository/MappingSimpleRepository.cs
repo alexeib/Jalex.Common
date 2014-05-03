@@ -5,7 +5,6 @@ using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
-using Jalex.Logging;
 
 namespace Jalex.Repository
 {
@@ -32,6 +31,13 @@ namespace Jalex.Repository
         public IEnumerable<TClass> GetByIds(IEnumerable<string> ids)
         {
             var entities = _entityRepository.GetByIds(ids);
+            var classes = entities.Select(_entityToClassMapper.Map).ToArray();
+            return classes;
+        }
+
+        public IEnumerable<TClass> GetAll()
+        {
+            var entities = _entityRepository.GetAll();
             var classes = entities.Select(_entityToClassMapper.Map).ToArray();
             return classes;
         }
