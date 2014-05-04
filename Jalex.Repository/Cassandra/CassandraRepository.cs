@@ -22,8 +22,8 @@ namespace Jalex.Repository.Cassandra
 
         public string Keyspace { get; set; }
 
-        private readonly Context _context;
-        private readonly ContextTable<T> _table;
+        private readonly Lazy<Context> _context;
+        private readonly Lazy<ContextTable<T>> _table;
 
         private readonly IIdProvider _idProvider;
 
@@ -35,12 +35,18 @@ namespace Jalex.Repository.Cassandra
         public CassandraRepository(IIdProvider idProvider)
         {
             _idProvider = idProvider;
-
-            var session = getCassandraSession();
-            _context = new Context(session);
-
-            _table = _context.AddTable<T>();
-            _context.CreateTablesIfNotExist();
+            
+            _context = new Lazy<Context>(() =>
+                                         {
+                                             var session = getCassandraSession();
+                                             return new Context(session);
+                                         });
+            _table = new Lazy<ContextTable<T>>(() =>
+                                               {
+                                                   var table = _context.Value.AddTable<T>();
+                                                   _context.Value.CreateTablesIfNotExist();
+                                                   return table;
+                                               });            
         }
 
         #region Implementation of IReader<out T>
@@ -57,7 +63,7 @@ namespace Jalex.Repository.Cassandra
 
         public IEnumerable<T> GetAll()
         {
-            var results = _table.Execute();
+            var results = _table.Value.Execute();
             return results;
         }
 
@@ -124,7 +130,7 @@ namespace Jalex.Repository.Cassandra
 
                 if (!string.IsNullOrEmpty(id) && entitiesById.TryGetValue(id, out entity))
                 {
-                    _table.Attach(entity, EntityUpdateMode.ModifiedOnly);
+                    _table.Value.Attach(entity, EntityUpdateMode.ModifiedOnly);
 
                     var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
                     mapper.Map(objectToUpdate, entity);
@@ -141,7 +147,7 @@ namespace Jalex.Repository.Cassandra
 
             try
             {
-                _context.SaveChanges();
+                _context.Value.SaveChanges();
             }
             catch (CqlArgumentException cae)
             {
@@ -222,11 +228,11 @@ namespace Jalex.Repository.Cassandra
                     {
                         var successResult = new OperationResult<string> { Success = true, Value = id };
                         results.Add(successResult);
-                        _table.AddNew(newObj);
+                        _table.Value.AddNew(newObj);
                     }
                 }
 
-                _context.SaveChanges();
+                _context.Value.SaveChanges();
             }
             catch (CqlArgumentException cae)
             {
@@ -254,14 +260,14 @@ namespace Jalex.Repository.Cassandra
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {
-            var queryCommand = _table.Where(query);
+            var queryCommand = _table.Value.Where(query);
             var results = queryCommand.Execute();
             return results;
         }
 
         #endregion
 
-        protected Session getCassandraSession()
+        private Session getCassandraSession()
         {
             string keyspace = Keyspace ?? ConfigurationManager.AppSettings[_defaultKeyspaceSettingNane];
 
@@ -281,7 +287,7 @@ namespace Jalex.Repository.Cassandra
             var call = Expression.Call(typeof(Enumerable), "Contains", new[] { typeof(string) }, idsExpr, _typeDescriptor.IdPropertyExpression);
             var lambda = Expression.Lambda<Func<T, bool>>(call, _typeDescriptor.TypeParameter);
 
-            var results = _table.Where(lambda);
+            var results = _table.Value.Where(lambda);
             return results;
         }
 
