@@ -76,11 +76,15 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Containers\TypeInstanceContainerTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
     <Compile Include="Objects\ChildEntity.cs" />
     <Compile Include="Objects\DtoEntity.cs" />
     <Compile Include="Objects\Entity.cs" />
     <Compile Include="Mapping\ExtendedEmitMapperConfigTests.cs" />
+    <Compile Include="Objects\IInterface.cs" />
+    <Compile Include="Objects\InterfaceImpl.cs" />
+    <Compile Include="Objects\InterfaceImpl2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

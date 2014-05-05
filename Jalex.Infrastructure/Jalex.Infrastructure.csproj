@@ -53,6 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Containers\TypeInstanceContainer.cs" />
+    <Compile Include="Containers\TypeInstanceContainerExtensions.cs" />
     <Compile Include="IO\DiscriminatingFileLoader.cs" />
     <Compile Include="IO\FileLoadException.cs" />
     <Compile Include="IO\FtpFileLoader.cs" />
