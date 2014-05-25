@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Security.Cryptography;
 using Jalex.Authentication.Objects;
 using Jalex.Authentication.Services;
 using Jalex.Infrastructure.Objects;
@@ -11,7 +10,7 @@ using NSubstitute;
 
 namespace Jalex.Authentication.Test
 {
-    public abstract class DefaultAuthenticationTokenServiceSpec
+    public abstract class AuthenticationTokenServiceSpec
     {
         protected static IAuthenticationTokenService _authenticationTokenService;
         protected static AuthenticationToken _sampleValidToken;
@@ -63,7 +62,7 @@ namespace Jalex.Authentication.Test
                              return retList;
                          });
 
-            _authenticationTokenService = new DefaultAuthenticationTokenService(mockRepository);
+            _authenticationTokenService = new AuthenticationTokenService(mockRepository);
 
             _sampleValidToken = new AuthenticationToken
             {
@@ -84,7 +83,7 @@ namespace Jalex.Authentication.Test
     }
 
     [Subject(typeof(IAuthenticationTokenService))]
-    public class When_retrieving_a_token_by_id : DefaultAuthenticationTokenServiceSpec
+    public class When_retrieving_a_token_by_id : AuthenticationTokenServiceSpec
     {
         protected static OperationResult<AuthenticationToken> GetExpiredTokenOperationResult;
         protected static OperationResult<AuthenticationToken> GetValidTokenOperationResult;
@@ -101,7 +100,7 @@ namespace Jalex.Authentication.Test
     }
 
     [Subject(typeof(IAuthenticationTokenService))]
-    public class When_Retrieving_A_Token_By_UserId_And_DeviceId : DefaultAuthenticationTokenServiceSpec
+    public class When_Retrieving_A_Token_By_UserId_And_DeviceId : AuthenticationTokenServiceSpec
     {
         protected static OperationResult<AuthenticationToken> GetExpiredTokenOperationResult;
         protected static OperationResult<AuthenticationToken> GetValidTokenOperationResult;

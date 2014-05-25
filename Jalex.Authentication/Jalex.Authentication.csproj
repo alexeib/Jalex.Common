@@ -48,14 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\NIProfileAttribute.cs" />
     <Compile Include="Objects\AuthenticationConstants.cs" />
     <Compile Include="Objects\AuthenticationToken.cs" />
     <Compile Include="Objects\JalexIdentity.cs" />
     <Compile Include="Objects\JalexPrincipal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\DefaultAuthenticationService.cs" />
-    <Compile Include="Services\DefaultAuthenticationTokenService.cs" />
+    <Compile Include="Services\AuthenticationService.cs" />
+    <Compile Include="Services\AuthenticationTokenService.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
     <Compile Include="Services\IAuthenticationTokenService.cs" />
     <Compile Include="Web\HeaderAuthenticationModule.cs" />

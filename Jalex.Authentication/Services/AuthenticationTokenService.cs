@@ -4,11 +4,10 @@ using System.Linq;
 using Jalex.Authentication.Objects;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
-using Jalex.Repository;
 
 namespace Jalex.Authentication.Services
 {
-    public class DefaultAuthenticationTokenService : IAuthenticationTokenService
+    public class AuthenticationTokenService : IAuthenticationTokenService
     {
         private const string _tokenTimeoutMinutesSetting = "AuthenticationTokenTimeoutMinutes";
         private static readonly TimeSpan _defaultTokenTimeout = TimeSpan.FromHours(24);
@@ -16,7 +15,7 @@ namespace Jalex.Authentication.Services
         public TimeSpan TokenTimeout { get; private set; }
 
         protected readonly IQueryableRepository<AuthenticationToken> _repository;
-        public DefaultAuthenticationTokenService(IQueryableRepository<AuthenticationToken> repository)
+        public AuthenticationTokenService(IQueryableRepository<AuthenticationToken> repository)
         {
             _repository = repository;
 

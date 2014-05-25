@@ -57,8 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DefaultAuthenticationServiceSpec.cs" />
-    <Compile Include="DefaultAuthenticationTokenServiceSpec.cs" />
+    <Compile Include="AuthenticationServiceSpec.cs" />
+    <Compile Include="AuthenticationTokenServiceSpec.cs" />
     <Compile Include="IAuthenticationTokenServiceBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

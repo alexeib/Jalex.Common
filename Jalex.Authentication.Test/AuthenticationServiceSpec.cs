@@ -6,15 +6,15 @@ using Machine.Specifications;
 
 namespace Jalex.Authentication.Test
 {
-    public abstract class DefaultAuthenticationServiceSpec
+    public abstract class AuthenticationServiceSpec
     {
         protected static IAuthenticationService _authenticationService;
 
-        Establish context = () => _authenticationService = new DefaultAuthenticationService();
+        Establish context = () => _authenticationService = new AuthenticationService();
     }
 
     [Subject(typeof(IAuthenticationService))]
-    public class When_Getting_Token_Of_Currently_Logged_In_User : DefaultAuthenticationServiceSpec
+    public class When_Getting_Token_Of_Currently_Logged_In_User : AuthenticationServiceSpec
     {
         protected static AuthenticationToken _setToken;
         protected static AuthenticationToken _retrievedToken;
@@ -34,7 +34,7 @@ namespace Jalex.Authentication.Test
     }
 
     [Subject(typeof(IAuthenticationService))]
-    public class When_Authenticating_With_Valid_Header : DefaultAuthenticationServiceSpec
+    public class When_Authenticating_With_Valid_Header : AuthenticationServiceSpec
     {
         protected static AuthenticationToken _token;
 

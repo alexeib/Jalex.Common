@@ -4,7 +4,7 @@ using Jalex.Authentication.Objects;
 
 namespace Jalex.Authentication.Services
 {
-    public class DefaultAuthenticationService : IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         public AuthenticationToken GetTokenForCurrentUser()
         {
