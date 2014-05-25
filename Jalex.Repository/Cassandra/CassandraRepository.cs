@@ -18,7 +18,7 @@ namespace Jalex.Repository.Cassandra
     {
         private const string _defaultKeyspaceSettingNane = "cassandra-keyspace";
 
-        private static readonly ReflectedTypeDescriptor<T> _typeDescriptor;
+        private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
         public string Keyspace { get; set; }
 
@@ -27,15 +27,13 @@ namespace Jalex.Repository.Cassandra
 
         private readonly IIdProvider _idProvider;
 
-        static CassandraRepository()
-        {
-            _typeDescriptor = new ReflectedTypeDescriptor<T>();
-        }
-
-        public CassandraRepository(IIdProvider idProvider)
+        public CassandraRepository(
+            IIdProvider idProvider,
+            IReflectedTypeDescriptorProvider typeDescriptorProvider)
         {
             _idProvider = idProvider;
-            
+            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
+
             _context = new Lazy<Context>(() =>
                                          {
                                              var session = getCassandraSession();

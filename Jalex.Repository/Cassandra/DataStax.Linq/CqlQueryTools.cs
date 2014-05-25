@@ -331,7 +331,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             int curLevel = 0;
 
             Type entityType = table.GetEntityType();
-            ReflectedTypeDescriptorSimple typeDescriptor = new ReflectedTypeDescriptorSimple(entityType);
+            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
+            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
 
             if (entityType.GetCustomAttributes(typeof(CompactStorageAttribute), false).Any())
                 directives.Add("COMPACT STORAGE");
@@ -517,7 +518,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             bool firstWhere = true;
             bool changeDetected = false;
 
-            ReflectedTypeDescriptorSimple typeDescriptor = new ReflectedTypeDescriptorSimple(rowType);
+            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
+            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(rowType);
 
             foreach (var prop in props)
             {
@@ -597,7 +599,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             sb.Append(" WHERE ");
 
             var props = rowType.GetPropertiesOrFields();
-            ReflectedTypeDescriptorSimple typeDescriptor = new ReflectedTypeDescriptorSimple(rowType);
+            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
+            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(rowType);
 
             bool first = true;
             foreach (var prop in props)

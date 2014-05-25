@@ -40,7 +40,9 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
         public bool Equals(TEntity x, TEntity y)
         {
             Type entityType = typeof (TEntity);
-            ReflectedTypeDescriptorSimple typeDescriptor = new ReflectedTypeDescriptorSimple(entityType);
+
+            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
+            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
             var props = entityType.GetPropertiesOrFields();
 
             foreach (var prop in props)
@@ -77,7 +79,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             int hashCode = 0;
 
             Type entityType = typeof(TEntity);
-            ReflectedTypeDescriptorSimple typeDescriptor = new ReflectedTypeDescriptorSimple(entityType);
+            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
+            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
             var props = entityType.GetPropertiesOrFields();
 
             foreach (var prop in props)

@@ -1,8 +1,9 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace Jalex.Repository.IdProviders
 {
-    public class ObjectIdIdProvider : IIdProvider
+    public class ObjectIdIdProvider : IIdProvider, IIdGenerator
     {
         #region Implementation of IIdProvider
 
@@ -16,6 +17,20 @@ namespace Jalex.Repository.IdProviders
         {
             ObjectId d;
             return ObjectId.TryParse(id, out d);
+        }
+
+        #endregion
+
+        #region Implementation of IIdGenerator
+
+        public object GenerateId(object container, object document)
+        {
+            return GenerateNewId();
+        }
+
+        public bool IsEmpty(object id)
+        {
+            return string.IsNullOrEmpty(id as string);
         }
 
         #endregion

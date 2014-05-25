@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging.Loggers;
 using Ploeh.AutoFixture;
 using Xunit;
 using Xunit.Should;
@@ -13,17 +12,16 @@ namespace Jalex.Repository.Test
         protected IQueryableRepository<TestObject> _queryableRepository;
 
         protected IQueryableRepositoryTests(
-            IQueryableRepository<TestObject> sut, 
             IFixture fixture) : 
-            base(sut, fixture)
+            base(fixture)
         {
-            _queryableRepository = sut;
+            _queryableRepository = _fixture.Create<IQueryableRepository<TestObject>>();            
         }
 
         [Fact]
         public void RetrievesEntitiesByQueryingForAttribute()
         {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
+            var createResult = _queryableRepository.Create(_sampleTestEntitys);
             createResult.All(r => r.Success).ShouldBeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;
@@ -38,7 +36,7 @@ namespace Jalex.Repository.Test
         {
             var fakeName = _fixture.Create<string>();
 
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
+            var createResult = _queryableRepository.Create(_sampleTestEntitys);
             createResult.All(r => r.Success).ShouldBeTrue();
 
             var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == fakeName).ToArray();

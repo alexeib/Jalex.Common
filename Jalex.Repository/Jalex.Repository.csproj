@@ -83,7 +83,7 @@
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
     <Compile Include="IdProviders\ObjectIdIdProvider.cs" />
-    <Compile Include="MappingSimpleRepository.cs" />
+    <Compile Include="MappingResponsibility.cs" />
     <Compile Include="Memory\MemoryRepository.cs" />
     <Compile Include="MongoDB\BaseMongoDBRepository.cs" />
     <Compile Include="MongoDB\MongoDBFileRepository.cs" />
@@ -93,11 +93,14 @@
     <Compile Include="RepositoryConstants.cs" />
     <Compile Include="RepositoryModule.cs" />
     <Compile Include="RepositoryType.cs" />
+    <Compile Include="Utils\IReflectedTypeDescriptorProvider.cs" />
     <Compile Include="Utils\ReflectedTypeDescriptor.cs" />
-    <Compile Include="Utils\ReflectedTypeDescriptorSimple.cs" />
+    <Compile Include="Utils\ReflectedTypeDescriptorProvider.cs" />
+    <Compile Include="Utils\IReflectedTypeDescriptor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Compile Include="Utils\IReflectedTypeDescriptor.generic.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jalex.Infrastructure\Jalex.Infrastructure.csproj">

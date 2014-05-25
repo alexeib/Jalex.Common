@@ -15,17 +15,15 @@ namespace Jalex.Repository.Memory
     {
         private readonly IIdProvider _idProvider;
         private readonly ConcurrentDictionary<string, T> _objectDictionary;
-        private static readonly ReflectedTypeDescriptor<T> _typeDescriptor;
+        private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
-        static MemoryRepository()
-        {
-            _typeDescriptor = new ReflectedTypeDescriptor<T>();
-        }
-
-        public MemoryRepository(IIdProvider idProvider)
+        public MemoryRepository(
+            IIdProvider idProvider,
+            IReflectedTypeDescriptorProvider typeDescriptorProvider)
         {
             _idProvider = idProvider;
             _objectDictionary = new ConcurrentDictionary<string, T>();
+            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
         }
 
         #region Implementation of IReader<out T>

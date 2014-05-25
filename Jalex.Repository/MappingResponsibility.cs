@@ -8,13 +8,13 @@ using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Repository
 {
-    public class MappingSimpleRepository<TClass, TEntity> : ISimpleRepository<TClass>
+    public class MappingResponsibility<TClass, TEntity> : ISimpleRepository<TClass>
     {
         private readonly ISimpleRepository<TEntity> _entityRepository;
         private readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
         private readonly ObjectsMapper<TEntity, TClass> _entityToClassMapper;
 
-        public MappingSimpleRepository(
+        public MappingResponsibility(
             ISimpleRepository<TEntity> entityRepository,
             ObjectsMapper<TClass, TEntity> classToEntityMapper,
             ObjectsMapper<TEntity, TClass> entityToClassMapper)

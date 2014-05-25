@@ -1,7 +1,8 @@
 ﻿using System.Configuration;
-using Jalex.Logging;
-using Jalex.Logging.Loggers;
+using Jalex.Infrastructure.Repository;
+using Jalex.Repository.IdProviders;
 using Jalex.Repository.MongoDB;
+using Jalex.Repository.Utils;
 using MongoDB.Bson;
 using Ploeh.AutoFixture;
 
@@ -10,24 +11,26 @@ namespace Jalex.Repository.Test
     public class MongoDBRepositoryTests : IQueryableRepositoryTests
     {
         public MongoDBRepositoryTests()
-            : base(createRepository(), createFixture())
+            : base(createFixture())
         {
-            
-        }
 
-        private static MongoDBRepository<TestObject> createRepository()
-        {
-            return new MongoDBRepository<TestObject>
-            {
-                ConnectionString = ConfigurationManager.ConnectionStrings["MongoConnectionString"].ConnectionString,
-                DatabaseName = ConfigurationManager.AppSettings["MongoDatabase"],
-                CollectionName = ConfigurationManager.AppSettings["MongoTestEntityDB"]
-            };
         }
 
         private static IFixture createFixture()
         {
             IFixture fixture = new Fixture();
+
+            fixture.Register<IIdProvider>(fixture.Create<ObjectIdIdProvider>);
+            fixture.Register<IReflectedTypeDescriptorProvider>(fixture.Create<ReflectedTypeDescriptorProvider>);
+            fixture.Register<IQueryableRepository<TestObject>>(() =>
+                                                               {
+                                                                   var repo = fixture.Create<MongoDBRepository<TestObject>>();
+                                                                   repo.ConnectionString = ConfigurationManager.ConnectionStrings["MongoConnectionString"].ConnectionString;
+                                                                   repo.DatabaseName = ConfigurationManager.AppSettings["MongoDatabase"];
+                                                                   repo.CollectionName = ConfigurationManager.AppSettings["MongoTestEntityDB"];
+                                                                   return repo;
+                                                               });
+            fixture.Register<ISimpleRepository<TestObject>>(fixture.Create<IQueryableRepository<TestObject>>);
 
             // ReSharper disable once RedundantTypeArgumentsOfMethod
             fixture.Register<string>(() => ObjectId.GenerateNewId().ToString());

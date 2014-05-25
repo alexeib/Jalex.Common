@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
 using Jalex.Logging.Loggers;
@@ -14,20 +15,19 @@ namespace Jalex.Repository.Test
     public abstract class ISimpleRepositoryTests : IDisposable
     {
         protected IFixture _fixture;
-        protected ISimpleRepository<TestObject> _testEntityRepository;
+        private readonly ISimpleRepository<TestObject> _testEntityRepository;
         protected IEnumerable<TestObject> _sampleTestEntitys;
         protected MemoryLogger _logger;
 
         protected ISimpleRepositoryTests(
-            ISimpleRepository<TestObject> sut,
             IFixture fixture)
         {
             _fixture = fixture;
 
             _logger = new MemoryLogger();
 
-            _testEntityRepository = sut;
-            _testEntityRepository.Logger = _logger;
+            _fixture.Inject<ILogger>(_logger);
+            _testEntityRepository = _fixture.Create<ISimpleRepository<TestObject>>();
 
             _sampleTestEntitys = _fixture.CreateMany<TestObject>();
         }
