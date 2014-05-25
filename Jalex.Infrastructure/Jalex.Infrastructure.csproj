@@ -64,7 +64,6 @@
     <Compile Include="Logging\IInjectableLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\LoggerExtensions.cs" />
-    <Compile Include="Repository\ClusteringKeyAttribute.cs" />
     <Compile Include="Repository\DuplicateIdException.cs" />
     <Compile Include="Repository\IdAttribute.cs" />
     <Compile Include="Repository\IDeleter.cs" />

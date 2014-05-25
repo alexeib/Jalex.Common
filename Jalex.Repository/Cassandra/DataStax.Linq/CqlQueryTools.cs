@@ -323,7 +323,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             string crtIndex = "CREATE INDEX ON " + table.GetQuotedTableName() + "(";
             string crtIndexAll = string.Empty;
 
-            var clusteringKeys = new SortedDictionary<int, ClusteringKeyAttribute>();
+            var clusteringKeys = new SortedDictionary<int, IndexedAttribute>();
             var partitionKeys = new SortedDictionary<int, string>();
             var directives = new List<string>();
 
@@ -353,7 +353,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 {
                     countersCount++;
                     countersSpotted = true;
-                    if (prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute != null || propIsPk)
+                    if (prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute != null || propIsPk)
                         throw new InvalidQueryException("Counter can not be a part of PRIMARY KEY !");
                     if (tpy != typeof(Int64))
                         throw new InvalidQueryException("Counters can be only of Int64(long) type !");
@@ -373,7 +373,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 }
                 else
                 {
-                    var rk = prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute;
+                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
                     if (rk != null)
                     {
                         var idx = rk.Index;
@@ -384,7 +384,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                     }
                     else
                     {
-                        var si = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault() as IndexedAttribute;
+                        var si = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => !((IndexedAttribute)a).IsClustered) as IndexedAttribute;
                         if (si != null)
                         {
                             commands.Add(crtIndex + memName.QuoteIdentifier() + ");");
@@ -394,19 +394,18 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             }
 
             foreach (var clustKey in clusteringKeys)
-                if (clustKey.Value.ClusteringOrder != ClusteringKeyAttribute.Order.None)
                 {
                     string order;
-                    switch (clustKey.Value.ClusteringOrder)
+                    switch (clustKey.Value.SortOrder)
                     {
-                        case ClusteringKeyAttribute.Order.Ascending:
+                        case IndexedAttribute.Order.Ascending:
                             order = "ASC";
                             break;
-                        case ClusteringKeyAttribute.Order.Descending:
+                        case IndexedAttribute.Order.Descending:
                             order = "DESC";
                             break;
                         default:
-                            throw new ArgumentException("Unknown clustering order value: " + clustKey.Value.ClusteringOrder);
+                            throw new ArgumentException("Unknown clustering order value: " + clustKey.Value.SortOrder);
 
                     }
 
@@ -414,8 +413,6 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                                                  clustKey.Value.Name.QuoteIdentifier(),
                                                  order));
                 }
-                else
-                    break;
 
             if (countersSpotted)// validating if table consists only of counters
                 if (countersCount + clusteringKeys.Count + 1 != props.Count())
@@ -528,7 +525,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 var memName = CalculateMemberName(prop);
                 if (!isPropPk)
                 {
-                    var rk = prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute;
+                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
                     if (rk == null)
                     {
                         var counter = prop.GetCustomAttributes(typeof(CounterAttribute), true).FirstOrDefault() as CounterAttribute;
@@ -608,7 +605,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 bool isPropPk = prop.Name == typeDescriptor.IdPropertyName;
                 if (isPropPk)
                 {
-                    var rk = prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute;
+                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
                     if (rk == null)
                     {
                         continue;

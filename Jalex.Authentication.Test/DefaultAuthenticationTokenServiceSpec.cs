@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using Jalex.Authentication.Objects;
 using Jalex.Authentication.Services;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
-using Jalex.Repository;
 using Machine.Specifications;
-using Moq;
+using NSubstitute;
 
 namespace Jalex.Authentication.Test
 {
@@ -19,46 +19,51 @@ namespace Jalex.Authentication.Test
 
         Establish context = () =>
         {
-            var mockRepository = new Mock<IQueryableRepository<AuthenticationToken>>();
+            var mockRepository = Substitute.For<IQueryableRepository<AuthenticationToken>>();
             mockRepository
-                .Setup(r => r.GetByIds(Moq.It.IsAny<IEnumerable<string>>()))
-                .Returns<IEnumerable<string>>(ids =>
-                    {
-                        HashSet<string> hashedIds = new HashSet<string>(ids);
+                .GetByIds(Arg.Any<IEnumerable<string>>())
+                .Returns(ci =>
+                         {
+                             var ids = ci.Arg<IEnumerable<string>>();
 
-                        List<AuthenticationToken> retList = new List<AuthenticationToken>();
-                        if (_sampleValidToken != null && hashedIds.Contains(_sampleValidToken.Id))
-                        {
-                            retList.Add(_sampleValidToken);
-                        }
+                             HashSet<string> hashedIds = new HashSet<string>(ids);
 
-                        if (_sampleExpiredToken != null && hashedIds.Contains(_sampleExpiredToken.Id))
-                        {
-                            retList.Add(_sampleExpiredToken);
-                        }
+                             List<AuthenticationToken> retList = new List<AuthenticationToken>();
+                             if (_sampleValidToken != null && hashedIds.Contains(_sampleValidToken.Id))
+                             {
+                                 retList.Add(_sampleValidToken);
+                             }
 
-                        return retList;
-                    });
+                             if (_sampleExpiredToken != null && hashedIds.Contains(_sampleExpiredToken.Id))
+                             {
+                                 retList.Add(_sampleExpiredToken);
+                             }
+
+                             return retList;
+                         });
 
             mockRepository
-                .Setup(r => r.Query(Moq.It.IsAny<Expression<Func<AuthenticationToken, bool>>>()))
-                .Returns<Func<AuthenticationToken, bool>>(q =>
-                    {
-                        List<AuthenticationToken> retList = new List<AuthenticationToken>();
-                        if (q(_sampleValidToken))
-                        {
-                            retList.Add((_sampleValidToken));
-                        }
+                .Query(Arg.Any<Expression<Func<AuthenticationToken, bool>>>())
+                .Returns(ci =>
+                         {
+                             var qExpr = ci.Arg<Expression<Func<AuthenticationToken, bool>>>();
+                             var q = qExpr.Compile();
 
-                        if (q(_sampleExpiredToken))
-                        {
-                            retList.Add((_sampleExpiredToken));
-                        }
+                             List<AuthenticationToken> retList = new List<AuthenticationToken>();
+                             if (q(_sampleValidToken))
+                             {
+                                 retList.Add((_sampleValidToken));
+                             }
 
-                        return retList;
-                    });
+                             if (q(_sampleExpiredToken))
+                             {
+                                 retList.Add((_sampleExpiredToken));
+                             }
 
-            _authenticationTokenService = new DefaultAuthenticationTokenService(mockRepository.Object);
+                             return retList;
+                         });
+
+            _authenticationTokenService = new DefaultAuthenticationTokenService(mockRepository);
 
             _sampleValidToken = new AuthenticationToken
             {

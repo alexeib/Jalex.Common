@@ -215,7 +215,7 @@ namespace Jalex.Repository.MongoDB
                 lock (_syncRoot)
                 {
                     if (!_isInitialized)
-                    {                        
+                    {
                         MongoSetup.EnsureInitialized();
 
                         registerConventions();
@@ -281,32 +281,13 @@ namespace Jalex.Repository.MongoDB
 
             var mongoIndices = new List<Tuple<IMongoIndexKeys, IMongoIndexOptions>>();
 
-            foreach (var indexGroup in indexedProps.GroupBy(i => i.IndexedAttribute.IndexGroup))
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var index in indexedProps)
             {
-                // if group name is null/empty then we are just creating an index on a single prop, otherwise its a combination in
-                if (string.IsNullOrEmpty(indexGroup.Key))
-                {
-                    // ReSharper disable once LoopCanBeConvertedToQuery
-                    foreach (var index in indexGroup)
-                    {
-                        Tuple<IMongoIndexKeys, IMongoIndexOptions> mongoIndexTuple = Tuple
-                            .Create<IMongoIndexKeys, IMongoIndexOptions>(
-                                new IndexKeysBuilder().Ascending(index.PropertyName),
-                                IndexOptions.SetUnique(index.IndexedAttribute.IsUnique));
-                        mongoIndices.Add(mongoIndexTuple);
-                    }
-                }
-                else
-                {
-                    Tuple<IMongoIndexKeys, IMongoIndexOptions> mongoIndexTuple = Tuple
-                        .Create<IMongoIndexKeys, IMongoIndexOptions>(
-                            new IndexKeysBuilder().Ascending(
-                                indexGroup.Select(i => i.PropertyName).OrderBy(p => p).ToArray()),
-                            IndexOptions.Null);
-                    mongoIndices.Add(mongoIndexTuple);
-                }
+                Tuple<IMongoIndexKeys, IMongoIndexOptions> mongoIndexTuple = Tuple
+                    .Create<IMongoIndexKeys, IMongoIndexOptions>(new IndexKeysBuilder().Ascending(index.PropertyName), IndexOptions.Null);
+                mongoIndices.Add(mongoIndexTuple);
             }
-
             return mongoIndices;
         }
 

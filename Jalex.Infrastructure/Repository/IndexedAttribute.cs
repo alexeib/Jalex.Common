@@ -5,19 +5,21 @@ namespace Jalex.Infrastructure.Repository
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
     public class IndexedAttribute : Attribute
     {
-        public string IndexGroup { get; set; }
-        public int IndexOrder { get; set; }
-        public bool IsUnique { get; set; }
-        public IndexedAttribute(bool isUnique)
+        public enum Order
         {
-            IsUnique = isUnique;
+            Ascending,
+            Descending
         }
 
-        public IndexedAttribute(string indexGroup, int indexOrder)
+        public IndexedAttribute()
         {
-            IndexGroup = indexGroup;
-            IndexOrder = indexOrder;
-            IsUnique = false;
+            SortOrder = Order.Ascending;
+            Index = -1;
         }
+
+        public int Index { get; set; }
+        public Order SortOrder { get; set; }
+        public string Name { get; set; }
+        public bool IsClustered { get; set; }
     }
 }

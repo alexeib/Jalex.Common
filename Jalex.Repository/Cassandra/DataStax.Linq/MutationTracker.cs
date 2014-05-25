@@ -59,7 +59,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 }
                 else
                 {
-                    var rk = prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute;
+                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
                     if (rk != null)
                     {
                         if (prop.GetValueFromPropertyOrField(x) == null)
@@ -94,7 +94,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 }
                 else
                 {
-                    var rk = prop.GetCustomAttributes(typeof(ClusteringKeyAttribute), true).FirstOrDefault() as ClusteringKeyAttribute;
+                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
                     if (rk != null)
                     {
                         if (prop.GetValueFromPropertyOrField(obj) == null)

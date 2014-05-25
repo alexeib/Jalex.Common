@@ -5,7 +5,7 @@ namespace Jalex.Repository.Test
     public class TestObject
     {
         public string Id { get; set; }
-        [Indexed(false)]
+        [Indexed]
         public string Name { get; set; }
     }
 }
