@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.MongoDB;
@@ -28,6 +29,7 @@ namespace Jalex.Repository.Test
                                                                    repo.ConnectionString = ConfigurationManager.ConnectionStrings["MongoConnectionString"].ConnectionString;
                                                                    repo.DatabaseName = ConfigurationManager.AppSettings["MongoDatabase"];
                                                                    repo.CollectionName = ConfigurationManager.AppSettings["MongoTestEntityDB"];
+                                                                   repo.Logger = fixture.Create<ILogger>();
                                                                    return repo;
                                                                });
             fixture.Register<ISimpleRepository<TestObject>>(fixture.Create<IQueryableRepository<TestObject>>);
