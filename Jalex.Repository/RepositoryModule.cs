@@ -4,6 +4,7 @@ using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.MongoDB;
+using Jalex.Repository.Utils;
 
 namespace Jalex.Repository
 {
@@ -15,6 +16,10 @@ namespace Jalex.Repository
 
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<ReflectedTypeDescriptorProvider>()
+                                       .As<IReflectedTypeDescriptorProvider>()
+                                       .InstancePerLifetimeScope();
+
             switch (RepositoryType)
             {
                 case RepositoryType.Cassandra:
