@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
 using Jalex.Repository.IdProviders;
-using Jalex.Repository.Utils;
 
 namespace Jalex.Repository.Memory
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Jalex.Repository.Utils
+namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 {
     public interface IReflectedTypeDescriptor<T> : IReflectedTypeDescriptor
     {

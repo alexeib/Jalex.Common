@@ -23,8 +23,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Cassandra;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Repository.Utils;
 
 namespace Jalex.Repository.Cassandra.DataStax.Linq
 {

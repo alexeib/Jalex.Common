@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 
 namespace Jalex.Infrastructure.Utils
 {
-    public static class ExpressionProperties
+    public static class ExpressionUtils
     {
         // returns property getter
         public static Func<TObject, TProperty> GetPropertyGetter<TObject, TProperty>(string propertyName)
@@ -31,12 +32,21 @@ namespace Jalex.Infrastructure.Utils
 
             MemberExpression propertyGetterExpression = Expression.Property(paramExpression, propertyName);
 
-            Action<TObject, TProperty> result = Expression.Lambda<Action<TObject, TProperty>>
-            (
+            Action<TObject, TProperty> result = Expression.Lambda<Action<TObject, TProperty>>(
                 Expression.Assign(propertyGetterExpression, paramExpression2), paramExpression, paramExpression2
             ).Compile();
 
             return result;
+        }
+
+        public static Expression<Func<TTo, TRet>> ChangeType<TFrom, TTo, TRet>(
+            Expression<Func<TFrom, TRet>> expression, 
+            IReflectedTypeDescriptorProvider reflectedTypeDescriptorProvider)
+        {
+            ParameterExpression parameter = Expression.Parameter(typeof(TTo));
+            var visitor = new ExpressionTypeChangingVisitor<TFrom, TTo>(parameter, reflectedTypeDescriptorProvider);
+            Expression body = visitor.Visit(expression.Body);
+            return Expression.Lambda<Func<TTo, TRet>>(body, parameter);
         }
     }
 }

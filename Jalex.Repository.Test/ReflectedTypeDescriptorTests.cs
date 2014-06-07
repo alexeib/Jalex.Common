@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Jalex.Repository.Utils;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Ploeh.AutoFixture;
 using Xunit;
 

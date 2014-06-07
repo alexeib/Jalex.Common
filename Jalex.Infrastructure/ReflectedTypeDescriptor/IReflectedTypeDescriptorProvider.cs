@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jalex.Repository.Utils
+namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 {
     public interface IReflectedTypeDescriptorProvider
     {

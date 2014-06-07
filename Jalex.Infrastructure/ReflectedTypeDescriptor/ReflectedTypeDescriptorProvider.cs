@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace Jalex.Repository.Utils
+namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 {
     public class ReflectedTypeDescriptorProvider : IReflectedTypeDescriptorProvider
     {

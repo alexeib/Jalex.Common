@@ -20,8 +20,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cassandra;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Repository.Utils;
 
 namespace Jalex.Repository.Cassandra.DataStax.Linq
 {

@@ -1,8 +1,8 @@
 ﻿using Jalex.Infrastructure.Logging;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
 using Jalex.Repository.IdProviders;
-using Jalex.Repository.Utils;
 using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test

@@ -90,17 +90,11 @@
     <Compile Include="MongoDB\MongoSetup.cs" />
     <Compile Include="MongoDB\MongoDBRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RepositoryConstants.cs" />
     <Compile Include="RepositoryModule.cs" />
     <Compile Include="RepositoryType.cs" />
-    <Compile Include="Utils\IReflectedTypeDescriptorProvider.cs" />
-    <Compile Include="Utils\ReflectedTypeDescriptor.cs" />
-    <Compile Include="Utils\ReflectedTypeDescriptorProvider.cs" />
-    <Compile Include="Utils\IReflectedTypeDescriptor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Compile Include="Utils\IReflectedTypeDescriptor.generic.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jalex.Infrastructure\Jalex.Infrastructure.csproj">

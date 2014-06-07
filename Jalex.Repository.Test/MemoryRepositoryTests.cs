@@ -1,7 +1,7 @@
-﻿using Jalex.Infrastructure.Repository;
+﻿using Jalex.Infrastructure.ReflectedTypeDescriptor;
+using Jalex.Infrastructure.Repository;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.Memory;
-using Jalex.Repository.Utils;
 using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test

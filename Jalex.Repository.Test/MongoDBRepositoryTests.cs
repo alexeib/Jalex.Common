@@ -1,9 +1,9 @@
 ﻿using System.Configuration;
 using Jalex.Infrastructure.Logging;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.MongoDB;
-using Jalex.Repository.Utils;
 using MongoDB.Bson;
 using Ploeh.AutoFixture;
 

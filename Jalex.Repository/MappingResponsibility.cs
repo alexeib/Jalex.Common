@@ -1,28 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using EmitMapper;
 using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Repository
 {
-    public class MappingResponsibility<TClass, TEntity> : ISimpleRepository<TClass>
+    public class MappingResponsibility<TClass, TEntity> : IQueryableRepository<TClass>
     {
-        private readonly ISimpleRepository<TEntity> _entityRepository;
+        private readonly IQueryableRepository<TEntity> _entityRepository;
         private readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
         private readonly ObjectsMapper<TEntity, TClass> _entityToClassMapper;
+        private readonly IReflectedTypeDescriptorProvider _reflectedTypeDescriptorProvider;
 
         public MappingResponsibility(
-            ISimpleRepository<TEntity> entityRepository,
+            IQueryableRepository<TEntity> entityRepository,
             ObjectsMapper<TClass, TEntity> classToEntityMapper,
-            ObjectsMapper<TEntity, TClass> entityToClassMapper)
+            ObjectsMapper<TEntity, TClass> entityToClassMapper,
+            IReflectedTypeDescriptorProvider reflectedTypeDescriptorProvider)
         {
             _entityRepository = entityRepository;
 
             _classToEntityMapper = classToEntityMapper;
             _entityToClassMapper = entityToClassMapper;
+            _reflectedTypeDescriptorProvider = reflectedTypeDescriptorProvider;
 
         }
 
@@ -102,6 +108,19 @@ namespace Jalex.Repository
         {
             get { return _entityRepository.Logger; }
             set { _entityRepository.Logger = value; }
+        }
+
+        #endregion
+
+        #region Implementation of IQueryable<TClass>
+
+        public IEnumerable<TClass> Query(Expression<Func<TClass, bool>> query)
+        {
+            var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(query, _reflectedTypeDescriptorProvider);
+
+            var entities = _entityRepository.Query(entityQuery);
+            var classes = entities.Select(_entityToClassMapper.Map).ToArray();
+            return classes;
         }
 
         #endregion

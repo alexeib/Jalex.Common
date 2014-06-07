@@ -1,10 +1,10 @@
 ﻿using System;
 using Autofac;
+using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.MongoDB;
-using Jalex.Repository.Utils;
 
 namespace Jalex.Repository
 {

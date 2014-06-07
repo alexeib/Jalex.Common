@@ -34,13 +34,13 @@ namespace Jalex.Infrastructure.Extensions
             return memberExpression.Member;
         }
 
-        public static string GetParameterName(this Expression<Func<object>> property)
+        public static string GetParameterName<TRet>(this Expression<Func<TRet>> property)
         {
             // get its name
             return ((MemberExpression)property.Body).Member.Name;
         }
 
-        public static string GetPropertyName<T>(this Expression<Func<T, object>> property)
+        public static string GetPropertyName<T, TRet>(this Expression<Func<T, TRet>> property)
         {
             // get member expression if it is inside unary expression
             Expression memberExpression = property.Body is UnaryExpression ? ((UnaryExpression)property.Body).Operand : property.Body;
