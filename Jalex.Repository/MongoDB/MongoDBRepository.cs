@@ -281,12 +281,52 @@ namespace Jalex.Repository.MongoDB
 
             var mongoIndices = new List<Tuple<IMongoIndexKeys, IMongoIndexOptions>>();
 
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var index in indexedProps)
+            foreach (var indexGroup in indexedProps.GroupBy(i => i.IndexedAttribute.Name))
             {
-                Tuple<IMongoIndexKeys, IMongoIndexOptions> mongoIndexTuple = Tuple
-                    .Create<IMongoIndexKeys, IMongoIndexOptions>(new IndexKeysBuilder().Ascending(index.PropertyName), IndexOptions.Null);
-                mongoIndices.Add(mongoIndexTuple);
+                // if name is null/empty then we are just creating an index on a single prop, otherwise its a combination in
+                if (string.IsNullOrEmpty(indexGroup.Key))
+                {
+                    // ReSharper disable once LoopCanBeConvertedToQuery
+                    foreach (var index in indexGroup)
+                    {
+                        var builder = new IndexKeysBuilder();
+                        if (index.IndexedAttribute.SortOrder == IndexedAttribute.Order.Descending)
+                        {
+                            builder.Descending(index.PropertyName);
+                        }
+                        else
+                        {
+                            builder.Ascending(index.PropertyName);
+                        }
+
+                        Tuple<IMongoIndexKeys, IMongoIndexOptions> mongoIndexTuple = Tuple
+                            .Create<IMongoIndexKeys, IMongoIndexOptions>(
+                                builder,
+                                IndexOptions.Null);
+                        mongoIndices.Add(mongoIndexTuple);
+                    }
+                }
+                else
+                {
+                    var builder = new IndexKeysBuilder();
+                    foreach (var index in indexGroup.OrderBy(p => p.IndexedAttribute.Index))
+                    {
+                        if (index.IndexedAttribute.SortOrder == IndexedAttribute.Order.Descending)
+                        {
+                            builder.Descending(index.PropertyName);
+                        }
+                        else
+                        {
+                            builder.Ascending(index.PropertyName);
+                        }
+                    }
+
+                    Tuple<IMongoIndexKeys, IMongoIndexOptions> mongoIndexTuple = Tuple
+                            .Create<IMongoIndexKeys, IMongoIndexOptions>(
+                                builder,
+                                IndexOptions.Null);
+                    mongoIndices.Add(mongoIndexTuple);
+                }                
             }
             return mongoIndices;
         }
