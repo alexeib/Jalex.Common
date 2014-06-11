@@ -169,6 +169,10 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             else if (obj is DateTime) return Encode(((DateTime)obj).Kind == DateTimeKind.Unspecified
                     ? new DateTimeOffset((DateTime)obj, TimeSpan.Zero)
                     : new DateTimeOffset((DateTime)obj));
+            else if (obj.GetType().IsEnum)
+            {
+                return Encode(obj.ToString());
+            }
             else if (obj.GetType().IsGenericType)
             {
                 if (obj.GetType().GetInterface("ISet`1") != null)
@@ -289,6 +293,10 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                         return "list<" + GetCqlTypeFromType(tpy.GetGenericArguments()[0]) + ">";
                     }
                 }
+                else if (tpy.IsEnum)
+                {
+                    return "text";
+                }
                 else
                     if (tpy.Name == "BigDecimal")
                         return "decimal";
@@ -394,25 +402,25 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             }
 
             foreach (var clustKey in clusteringKeys)
+            {
+                string order;
+                switch (clustKey.Value.SortOrder)
                 {
-                    string order;
-                    switch (clustKey.Value.SortOrder)
-                    {
-                        case IndexedAttribute.Order.Ascending:
-                            order = "ASC";
-                            break;
-                        case IndexedAttribute.Order.Descending:
-                            order = "DESC";
-                            break;
-                        default:
-                            throw new ArgumentException("Unknown clustering order value: " + clustKey.Value.SortOrder);
+                    case IndexedAttribute.Order.Ascending:
+                        order = "ASC";
+                        break;
+                    case IndexedAttribute.Order.Descending:
+                        order = "DESC";
+                        break;
+                    default:
+                        throw new ArgumentException("Unknown clustering order value: " + clustKey.Value.SortOrder);
 
-                    }
-
-                    directives.Add(string.Format("CLUSTERING ORDER BY ({0} {1})",
-                                                 clustKey.Value.Name.QuoteIdentifier(),
-                                                 order));
                 }
+
+                directives.Add(string.Format("CLUSTERING ORDER BY ({0} {1})",
+                                             clustKey.Value.Name.QuoteIdentifier(),
+                                             order));
+            }
 
             if (countersSpotted)// validating if table consists only of counters
                 if (countersCount + clusteringKeys.Count + 1 != props.Count())
@@ -679,6 +687,11 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                                     }
                                     else
                                         throw new InvalidOperationException();
+                            }
+                            else if (tpy.IsEnum)
+                            {
+                                var enumVal = Enum.Parse(tpy, (string)val);
+                                prop.SetValueFromPropertyOrField(row, enumVal);
                             }
                             else
                                 prop.SetValueFromPropertyOrField(row, val);
