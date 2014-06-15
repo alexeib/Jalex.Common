@@ -74,6 +74,18 @@ namespace Jalex.Repository.MongoDB
             return collection.AsQueryable().Where(query);
         }
 
+        /// <summary>
+        /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
+        /// </summary>
+        /// <param name="query">The query that must be satisfied</param>
+        /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
+        public T FirstOrDefault(Expression<Func<T, bool>> query)
+        {
+            MongoCollection<T> collection = getMongoCollection();
+            var result = collection.AsQueryable().FirstOrDefault(query);
+            return result;
+        }
+
         public IEnumerable<OperationResult<string>> Create(IEnumerable<T> newObjects)
         {
             ParameterChecker.CheckForVoid(() => newObjects);

@@ -123,6 +123,20 @@ namespace Jalex.Repository
             return classes;
         }
 
+        /// <summary>
+        /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
+        /// </summary>
+        /// <param name="query">The query that must be satisfied</param>
+        /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
+        public TClass FirstOrDefault(Expression<Func<TClass, bool>> query)
+        {
+            var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(query, _reflectedTypeDescriptorProvider);
+
+            var entity = _entityRepository.FirstOrDefault(entityQuery);
+            var @class = _entityToClassMapper.Map(entity);
+            return @class;
+        }
+
         #endregion
     }
 }

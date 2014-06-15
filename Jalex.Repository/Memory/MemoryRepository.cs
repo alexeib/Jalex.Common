@@ -180,6 +180,16 @@ namespace Jalex.Repository.Memory
             return results;
         }
 
+        /// <summary>
+        /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
+        /// </summary>
+        /// <param name="query">The query that must be satisfied</param>
+        /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
+        public T FirstOrDefault(Expression<Func<T, bool>> query)
+        {
+            return Query(query).FirstOrDefault();
+        }
+
         #endregion
 
         private void checkOrGenerateIdForEntity(string id, T newObj)

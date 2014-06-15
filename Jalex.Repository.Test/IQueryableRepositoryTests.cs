@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using FluentAssertions;
 using Jalex.Infrastructure.Repository;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -41,6 +42,27 @@ namespace Jalex.Repository.Test
 
             var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == fakeName).ToArray();
             retrievedTestEntitys.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void Retrieves_First_Entity_Queried_By_Attribute()
+        {
+            var createResult = _queryableRepository.Create(_sampleTestEntitys);
+            createResult.All(r => r.Success).ShouldBeTrue();
+
+            string nameToFind = _sampleTestEntitys.First().Name;
+            var retrievedTestEntitys = _queryableRepository.FirstOrDefault(r => r.Name == nameToFind);
+
+            retrievedTestEntitys.ShouldBeEquivalentTo(_sampleTestEntitys.First());
+        }
+
+        [Fact]
+        public void Returns_Default_Value_When_Entity_Not_Found()
+        {
+            string nameToFind = _fixture.Create<string>();
+            var retrievedTestEntity = _queryableRepository.FirstOrDefault(r => r.Name == nameToFind);
+
+            retrievedTestEntity.Should().BeNull();
         }
     }
 }
