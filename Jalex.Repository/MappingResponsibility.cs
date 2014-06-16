@@ -13,9 +13,9 @@ namespace Jalex.Repository
 {
     public class MappingResponsibility<TClass, TEntity> : IQueryableRepository<TClass>
     {
-        protected readonly IQueryableRepository<TEntity> _entityRepository;
-        protected readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
-        protected readonly ObjectsMapper<TEntity, TClass> _entityToClassMapper;
+        private readonly IQueryableRepository<TEntity> _entityRepository;
+        private readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
+        private readonly ObjectsMapper<TEntity, TClass> _entityToClassMapper;
         private readonly IReflectedTypeDescriptorProvider _reflectedTypeDescriptorProvider;
 
         public MappingResponsibility(
@@ -84,17 +84,16 @@ namespace Jalex.Repository
             var entities = objArray.Select(_classToEntityMapper.Map).ToArray();
             var results = _entityRepository.Create(entities);
 
+            var entityDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TEntity>();
+            var classDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TClass>();
+
             for (int i = 0; i < entities.Length; i++)
             {
                 var entity = entities[i];
-                var stock = objArray[i];
+                var @class = objArray[i];
 
-                // ReSharper disable CompareNonConstrainedGenericWithNull
-                if (entity != null && stock != null)
-                // ReSharper restore CompareNonConstrainedGenericWithNull
-                {
-                    _entityToClassMapper.Map(entity, stock);
-                }
+                var id = entityDescriptor.GetId(entity);
+                classDescriptor.SetId(@class, id);
             }
 
             return results;

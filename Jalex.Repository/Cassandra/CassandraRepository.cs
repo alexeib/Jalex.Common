@@ -180,7 +180,7 @@ namespace Jalex.Repository.Cassandra
             {
                 string id = _typeDescriptor.GetId(newObj);
 
-                if (!_typeDescriptor.HasClusteredIndices && !string.IsNullOrEmpty(id))
+                if (!string.IsNullOrEmpty(id))
                 {
                     if (!existingIds.Add(id))
                     {
@@ -210,7 +210,7 @@ namespace Jalex.Repository.Cassandra
                 foreach (var newObj in newObjArr)
                 {
                     string id = _typeDescriptor.GetId(newObj);
-                    if (!_typeDescriptor.HasClusteredIndices && existingIds.Contains(id))
+                    if (existingIds.Contains(id))
                     {
                         string message = string.Format("Failed to create {0} with ID {1} because it already exists.", _typeDescriptor.TypeName, id);
 
