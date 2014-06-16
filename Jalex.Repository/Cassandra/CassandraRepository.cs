@@ -20,10 +20,10 @@ namespace Jalex.Repository.Cassandra
 
         private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string Keyspace { get; set; }
 
-        private readonly Lazy<Context> _context;
-        private readonly Lazy<ContextTable<T>> _table;
+        private readonly Session _session;
 
         private readonly IIdProvider _idProvider;
 
@@ -33,18 +33,9 @@ namespace Jalex.Repository.Cassandra
         {
             _idProvider = idProvider;
             _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
+            _session = getCassandraSession();
 
-            _context = new Lazy<Context>(() =>
-                                         {
-                                             var session = getCassandraSession();
-                                             return new Context(session);
-                                         });
-            _table = new Lazy<ContextTable<T>>(() =>
-                                               {
-                                                   var table = _context.Value.AddTable<T>();
-                                                   _context.Value.CreateTablesIfNotExist();
-                                                   return table;
-                                               });            
+            createTableIfNotExist();
         }
 
         #region Implementation of IReader<out T>
@@ -53,7 +44,10 @@ namespace Jalex.Repository.Cassandra
         {
             ParameterChecker.CheckForVoid(() => ids);
 
-            var query = getCqlQueryForIds(ids);
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+
+            var query = getCqlQueryForIds(ids, table);
             var results = query.Execute();
 
             return results;
@@ -61,7 +55,9 @@ namespace Jalex.Repository.Cassandra
 
         public IEnumerable<T> GetAll()
         {
-            var results = _table.Value.Execute();
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+            var results = table.Execute();
             return results;
         }
 
@@ -77,7 +73,10 @@ namespace Jalex.Repository.Cassandra
             var existingEntities = GetByIds(idsArr);
             var existingIds = new HashSet<string>(existingEntities.Select(e => _typeDescriptor.GetId(e)));
 
-            var cqlQuery = getCqlQueryForIds(existingIds);
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+
+            var cqlQuery = getCqlQueryForIds(existingIds, table);
             var deleteCommand = cqlQuery.Delete();
 
             try
@@ -119,6 +118,9 @@ namespace Jalex.Repository.Cassandra
 
             var entitiesById = entities.ToDictionary(_typeDescriptor.GetId);
 
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+
             foreach (var objectToUpdate in objectsToUpdateArr)
             {
                 OperationResult result;
@@ -128,7 +130,7 @@ namespace Jalex.Repository.Cassandra
 
                 if (!string.IsNullOrEmpty(id) && entitiesById.TryGetValue(id, out entity))
                 {
-                    _table.Value.Attach(entity, EntityUpdateMode.ModifiedOnly);
+                    table.Attach(entity, EntityUpdateMode.ModifiedOnly);
 
                     var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
                     mapper.Map(objectToUpdate, entity);
@@ -145,7 +147,7 @@ namespace Jalex.Repository.Cassandra
 
             try
             {
-                _context.Value.SaveChanges();
+                context.SaveChanges();
             }
             catch (CqlArgumentException cae)
             {
@@ -200,6 +202,9 @@ namespace Jalex.Repository.Cassandra
 
             List<OperationResult<string>> results = new List<OperationResult<string>>(newObjArr.Length);
 
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+
             try
             {
                 foreach (var newObj in newObjArr)
@@ -224,13 +229,13 @@ namespace Jalex.Repository.Cassandra
                     }
                     else
                     {
-                        _table.Value.AddNew(newObj);
+                        table.AddNew(newObj);
                         var successResult = new OperationResult<string> { Success = true, Value = id };
-                        results.Add(successResult);                        
+                        results.Add(successResult);
                     }
                 }
 
-                _context.Value.SaveChanges();
+                context.SaveChanges();
             }
             catch (CqlArgumentException cae)
             {
@@ -258,7 +263,10 @@ namespace Jalex.Repository.Cassandra
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {
-            var queryCommand = _table.Value.Where(query);
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+
+            var queryCommand = table.Where(query);
             var results = queryCommand.Execute();
             return results;
         }
@@ -270,7 +278,10 @@ namespace Jalex.Repository.Cassandra
         /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
         public T FirstOrDefault(Expression<Func<T, bool>> query)
         {
-            var firstOrDefaultCommand = _table.Value.FirstOrDefault(query);
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+
+            var firstOrDefaultCommand = table.FirstOrDefault(query);
             var result = firstOrDefaultCommand.Execute();
             return result;
         }
@@ -291,13 +302,20 @@ namespace Jalex.Repository.Cassandra
             return session;
         }
 
-        private CqlQuery<T> getCqlQueryForIds(IEnumerable<string> ids)
+        private void createTableIfNotExist()
+        {
+            var context = new Context(_session);
+            context.AddTable<T>();
+            context.CreateTablesIfNotExist();
+        }
+
+        private CqlQuery<T> getCqlQueryForIds(IEnumerable<string> ids, ContextTable<T> table)
         {
             var idsExpr = Expression.Constant(ids);
             var call = Expression.Call(typeof(Enumerable), "Contains", new[] { typeof(string) }, idsExpr, _typeDescriptor.IdPropertyExpression);
             var lambda = Expression.Lambda<Func<T, bool>>(call, _typeDescriptor.TypeParameter);
 
-            var results = _table.Value.Where(lambda);
+            var results = table.Where(lambda);
             return results;
         }
 
