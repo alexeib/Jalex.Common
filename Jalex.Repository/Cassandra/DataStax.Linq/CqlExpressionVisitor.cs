@@ -502,7 +502,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             {
                 var table = (node.Value as ITable);
                 QuotedTableName = table.GetQuotedTableName();
-                AllowFiltering = table.GetEntityType().GetCustomAttributes(typeof(AllowFilteringAttribute), false).Any();
+                AllowFiltering = true; //table.GetEntityType().GetCustomAttributes(typeof(AllowFilteringAttribute), false).Any();
                 
                 var props = table.GetEntityType().GetPropertiesOrFields();
                 foreach (var prop in props)

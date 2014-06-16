@@ -13,9 +13,9 @@ namespace Jalex.Repository
 {
     public class MappingResponsibility<TClass, TEntity> : IQueryableRepository<TClass>
     {
-        private readonly IQueryableRepository<TEntity> _entityRepository;
-        private readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
-        private readonly ObjectsMapper<TEntity, TClass> _entityToClassMapper;
+        protected readonly IQueryableRepository<TEntity> _entityRepository;
+        protected readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
+        protected readonly ObjectsMapper<TEntity, TClass> _entityToClassMapper;
         private readonly IReflectedTypeDescriptorProvider _reflectedTypeDescriptorProvider;
 
         public MappingResponsibility(
