@@ -41,13 +41,12 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
         {
             Type entityType = typeof (TEntity);
 
-            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
-            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
+            var cassandraHelper = new CassandraHelper(entityType);
             var props = entityType.GetPropertiesOrFields();
 
             foreach (var prop in props)
             {
-                bool isPropPk = prop.Name == typeDescriptor.IdPropertyName;
+                bool isPropPk = cassandraHelper.IsPropertyPartitionKey(prop.Name);
                 if (isPropPk)
                 {
                     if (prop.GetValueFromPropertyOrField(x) == null)
@@ -59,8 +58,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 }
                 else
                 {
-                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
-                    if (rk != null)
+                    var isPropCk = cassandraHelper.IsPropertyClusteringKey(prop.Name);
+                    if (isPropCk)
                     {
                         if (prop.GetValueFromPropertyOrField(x) == null)
                             throw new InvalidOperationException("Clustering Key is not set");
@@ -79,13 +78,12 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             int hashCode = 0;
 
             Type entityType = typeof(TEntity);
-            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
-            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
+            var cassandraHelper = new CassandraHelper(entityType);
             var props = entityType.GetPropertiesOrFields();
 
             foreach (var prop in props)
             {
-                bool isPropPk = prop.Name == typeDescriptor.IdPropertyName;
+                bool isPropPk = cassandraHelper.IsPropertyPartitionKey(prop.Name);
                 if (isPropPk)
                 {
                     if (prop.GetValueFromPropertyOrField(obj) == null)
@@ -94,8 +92,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 }
                 else
                 {
-                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
-                    if (rk != null)
+                    var isPropCk = cassandraHelper.IsPropertyClusteringKey(prop.Name);
+                    if (isPropCk)
                     {
                         if (prop.GetValueFromPropertyOrField(obj) == null)
                             throw new InvalidOperationException("Clustering Key is not set");

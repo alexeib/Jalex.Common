@@ -5,6 +5,7 @@ using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
 using Jalex.Logging.Loggers;
+using Jalex.Repository.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
 using Xunit.Should;
@@ -12,12 +13,13 @@ using Xunit.Should;
 namespace Jalex.Repository.Test
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class ISimpleRepositoryTests : IDisposable
+    public abstract class ISimpleRepositoryTests<T> : IDisposable
+        where T : class, IObjectWithIdAndName, new()
     {
-        protected IFixture _fixture;
-        private readonly ISimpleRepository<TestObject> _testEntityRepository;
-        protected IEnumerable<TestObject> _sampleTestEntitys;
-        protected MemoryLogger _logger;
+        protected readonly IFixture _fixture;
+        private readonly ISimpleRepository<T> _testEntityRepository;
+        protected readonly IEnumerable<T> _sampleTestEntitys;
+        private readonly MemoryLogger _logger;
 
         protected ISimpleRepositoryTests(
             IFixture fixture)
@@ -26,10 +28,11 @@ namespace Jalex.Repository.Test
 
             _logger = new MemoryLogger();
 
+            //_fixture.Customize<DateTime>(c => c.FromSeed(s => DateTime.SpecifyKind(s, DateTimeKind.Utc)));
             _fixture.Inject<ILogger>(_logger);
-            _testEntityRepository = _fixture.Create<ISimpleRepository<TestObject>>();
+            _testEntityRepository = _fixture.Create<ISimpleRepository<T>>();
 
-            _sampleTestEntitys = _fixture.CreateMany<TestObject>();
+            _sampleTestEntitys = _fixture.CreateMany<T>();
         }
 
         public virtual void Dispose()
@@ -69,7 +72,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void DoesNotCreateEntitiesWithInvalidIds()
         {
-            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Create(new[] { new TestObject { Id = "FakeId", Name = "FakeName" } }));
+            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Create(new[] { new T { Id = "FakeId", Name = "FakeName" } }));
             exception.ShouldNotBeNull();
         }
 
@@ -80,8 +83,8 @@ namespace Jalex.Repository.Test
 
             var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.Create(new[]
                                                                                                 {
-                                                                                                    new TestObject { Id = id, Name = "SameId" },
-                                                                                                    new TestObject { Id = id, Name = "SameId" }
+                                                                                                    new T { Id = id, Name = "SameId" },
+                                                                                                    new T { Id = id, Name = "SameId" }
                                                                                                 }));
             exception.ShouldNotBeNull();
         }
@@ -209,7 +212,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void FailsToUpdateNonExistingEntity()
         {
-            var nonexistentEntity = _fixture.Create<TestObject>();
+            var nonexistentEntity = _fixture.Create<T>();
 
             var updateResult = _testEntityRepository.Update(nonexistentEntity);
 
@@ -220,7 +223,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void FailsToUpdateEntityWithNullId()
         {
-            var invalidIdTestEntity = new TestObject { Id = null };
+            var invalidIdTestEntity = new T { Id = null };
             var updateResult = _testEntityRepository.Update(invalidIdTestEntity);
 
             updateResult.Success.ShouldBeFalse();

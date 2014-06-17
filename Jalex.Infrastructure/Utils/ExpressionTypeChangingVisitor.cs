@@ -24,14 +24,15 @@ namespace Jalex.Infrastructure.Utils
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            return node.Type == typeof (TFrom)
+            var result = node.Type.IsAssignableFrom(typeof(TFrom))
                        ? _parameter
                        : node;
+            return result;
         }
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (node.Member.ReflectedType != typeof(TFrom))
+            if (node.Member.ReflectedType == null || !node.Member.ReflectedType.IsAssignableFrom(typeof(TFrom)))
             {
                 return node;
             }

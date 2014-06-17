@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Jalex.Infrastructure.Repository;
+using Jalex.Repository.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
 using Xunit.Should;
@@ -8,15 +10,16 @@ using Xunit.Should;
 namespace Jalex.Repository.Test
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class IQueryableRepositoryTests : ISimpleRepositoryTests
+    public abstract class IQueryableRepositoryTests<T> : ISimpleRepositoryTests<T>
+        where T : class, IObjectWithIdAndName, new()
     {
-        protected IQueryableRepository<TestObject> _queryableRepository;
+        private readonly IQueryableRepository<T> _queryableRepository;
 
         protected IQueryableRepositoryTests(
-            IFixture fixture) : 
+            IFixture fixture) :
             base(fixture)
         {
-            _queryableRepository = _fixture.Create<IQueryableRepository<TestObject>>();            
+            _queryableRepository = _fixture.Create<IQueryableRepository<T>>();            
         }
 
         [Fact]
@@ -53,7 +56,11 @@ namespace Jalex.Repository.Test
             string nameToFind = _sampleTestEntitys.First().Name;
             var retrievedTestEntitys = _queryableRepository.FirstOrDefault(r => r.Name == nameToFind);
 
-            retrievedTestEntitys.ShouldBeEquivalentTo(_sampleTestEntitys.First());
+            retrievedTestEntitys
+                .ShouldBeEquivalentTo(_sampleTestEntitys.First(),
+                                      opts => opts
+                                                  .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1000))
+                                                  .WhenTypeIs<DateTime>());
         }
 
         [Fact]

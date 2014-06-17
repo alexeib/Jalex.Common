@@ -339,8 +339,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             int curLevel = 0;
 
             Type entityType = table.GetEntityType();
-            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
-            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
+            var cassandraHelper = new CassandraHelper(entityType);
 
             if (entityType.GetCustomAttributes(typeof(CompactStorageAttribute), false).Any())
                 directives.Add("COMPACT STORAGE");
@@ -355,13 +354,14 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 sb.Append(memName.QuoteIdentifier());
                 sb.Append(" ");
 
-                bool propIsPk = prop.Name == typeDescriptor.IdPropertyName;
+                bool isPropPk = cassandraHelper.IsPropertyPartitionKey(prop.Name);
+                bool isPropCk = cassandraHelper.IsPropertySecondaryIndex(prop.Name);
 
                 if (prop.GetCustomAttributes(typeof(CounterAttribute), true).FirstOrDefault() as CounterAttribute != null)
                 {
                     countersCount++;
                     countersSpotted = true;
-                    if (prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute != null || propIsPk)
+                    if (isPropCk || isPropPk)
                         throw new InvalidQueryException("Counter can not be a part of PRIMARY KEY !");
                     if (tpy != typeof(Int64))
                         throw new InvalidQueryException("Counters can be only of Int64(long) type !");
@@ -372,7 +372,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                     sb.Append(GetCqlTypeFromType(tpy));
 
                 sb.Append(", ");
-                if (propIsPk)
+                if (isPropPk)
                 {
                     var idx = 0; // pk.Index;
                     if (idx == -1)
@@ -381,7 +381,7 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                 }
                 else
                 {
-                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
+                    var rk = cassandraHelper.GetClusteringKeyAttribute(prop.Name);
                     if (rk != null)
                     {
                         var idx = rk.Index;
@@ -392,8 +392,8 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
                     }
                     else
                     {
-                        var si = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => !((IndexedAttribute)a).IsClustered) as IndexedAttribute;
-                        if (si != null)
+                        bool isPropSi = cassandraHelper.IsPropertySecondaryIndex(prop.Name);
+                        if (isPropSi)
                         {
                             commands.Add(crtIndex + memName.QuoteIdentifier() + ");");
                         }
@@ -523,18 +523,17 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             bool firstWhere = true;
             bool changeDetected = false;
 
-            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
-            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(rowType);
+            var cassandraHelper = new CassandraHelper(rowType);
 
             foreach (var prop in props)
             {
-                bool isPropPk = prop.Name == typeDescriptor.IdPropertyName;
+                bool isPropPk = cassandraHelper.IsPropertyPartitionKey(prop.Name);
 
                 var memName = CalculateMemberName(prop);
                 if (!isPropPk)
                 {
-                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
-                    if (rk == null)
+                    bool isPropCk = cassandraHelper.IsPropertyClusteringKey(prop.Name);
+                    if (!isPropCk)
                     {
                         var counter = prop.GetCustomAttributes(typeof(CounterAttribute), true).FirstOrDefault() as CounterAttribute;
                         if (counter != null)
@@ -604,20 +603,16 @@ namespace Jalex.Repository.Cassandra.DataStax.Linq
             sb.Append(" WHERE ");
 
             var props = rowType.GetPropertiesOrFields();
-            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
-            IReflectedTypeDescriptor typeDescriptor = provider.GetReflectedTypeDescriptor(rowType);
+            var cassandraHelper = new CassandraHelper(rowType);
 
             bool first = true;
             foreach (var prop in props)
             {
-                bool isPropPk = prop.Name == typeDescriptor.IdPropertyName;
-                if (isPropPk)
+                bool isPropPk = cassandraHelper.IsPropertyPartitionKey(prop.Name);
+                bool isPropCk = cassandraHelper.IsPropertyPartitionKey(prop.Name);
+                if (!isPropPk && !isPropCk)
                 {
-                    var rk = prop.GetCustomAttributes(typeof(IndexedAttribute), true).FirstOrDefault(a => ((IndexedAttribute)a).IsClustered) as IndexedAttribute;
-                    if (rk == null)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
                 var pv = prop.GetValueFromPropertyOrField(row);
                 if (pv != null)

@@ -8,7 +8,7 @@ using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    public class MappingResponsibilityTests : IQueryableRepositoryTests
+    public class MappingResponsibilityTests : IQueryableRepositoryTests<TestObject>
     {
         public MappingResponsibilityTests()
             : base(createFixture())

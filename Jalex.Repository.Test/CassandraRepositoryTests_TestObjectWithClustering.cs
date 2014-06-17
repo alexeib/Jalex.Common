@@ -3,13 +3,14 @@ using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
 using Jalex.Repository.IdProviders;
+using Jalex.Repository.Test.Objects;
 using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    public class CassandraRepositoryTests : IQueryableRepositoryTests
+    public class CassandraRepositoryTests_TestObjectWithClustering : IQueryableRepositoryTests<TestObjectWithClustering>
     {
-        public CassandraRepositoryTests()
+        public CassandraRepositoryTests_TestObjectWithClustering()
             : base(createFixture())
         {
             
@@ -19,17 +20,17 @@ namespace Jalex.Repository.Test
         {
             IFixture fixture = new Fixture();
 
-            fixture.Customize<CassandraRepository<TestObject>>(c => c.OmitAutoProperties());
-
+            fixture.Customize<CassandraRepository<TestObjectWithClustering>>(c => c.OmitAutoProperties());
+            
             fixture.Register<IIdProvider>(fixture.Create<GuidIdProvider>);
             fixture.Register<IReflectedTypeDescriptorProvider>(fixture.Create<ReflectedTypeDescriptorProvider>);
-            fixture.Register<IQueryableRepository<TestObject>>(() =>
+            fixture.Register<IQueryableRepository<TestObjectWithClustering>>(() =>
                                                                {
-                                                                   var repo = fixture.Create<CassandraRepository<TestObject>>();
+                                                                   var repo = fixture.Create<CassandraRepository<TestObjectWithClustering>>();
                                                                    repo.Logger = fixture.Create<ILogger>();
                                                                    return repo;
                                                                });
-            fixture.Register<ISimpleRepository<TestObject>>(fixture.Create<IQueryableRepository<TestObject>>);
+            fixture.Register<ISimpleRepository<TestObjectWithClustering>>(fixture.Create<IQueryableRepository<TestObjectWithClustering>>);
 
             GuidIdProvider idProvider = new GuidIdProvider();
 

@@ -21,6 +21,7 @@ namespace Jalex.Repository.Cassandra
         private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
         public string Keyspace { get; set; }
 
         private readonly Session _session;
@@ -47,9 +48,31 @@ namespace Jalex.Repository.Cassandra
             var context = new Context(_session);
             var table = context.AddTable<T>();
 
+            if (_typeDescriptor.HasClusteredIndices)
+            {
+                return getResultsByIdOneByOne(ids, table);
+            }
+            return getResultsByIdInBulk(ids, table);
+        }
+
+        private IEnumerable<T> getResultsByIdOneByOne(IEnumerable<string> ids, ContextTable<T> table)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var id in ids)
+            {
+                var query = getCqlQueryForSingleId(id, table);
+                var result = query.Execute().FirstOrDefault();
+                if (result != null)
+                {
+                    yield return result;
+                }
+            }
+        }
+
+        private IEnumerable<T> getResultsByIdInBulk(IEnumerable<string> ids, ContextTable<T> table)
+        {
             var query = getCqlQueryForIds(ids, table);
             var results = query.Execute();
-
             return results;
         }
 
@@ -70,33 +93,35 @@ namespace Jalex.Repository.Cassandra
             ParameterChecker.CheckForVoid(() => ids);
             string[] idsArr = ids.ToArray();
 
-            var existingEntities = GetByIds(idsArr);
+            var existingEntities = GetByIds(idsArr).ToArray();
             var existingIds = new HashSet<string>(existingEntities.Select(e => _typeDescriptor.GetId(e)));
 
             var context = new Context(_session);
             var table = context.AddTable<T>();
 
-            var cqlQuery = getCqlQueryForIds(existingIds, table);
-            var deleteCommand = cqlQuery.Delete();
+            foreach (var existingEntity in existingEntities)
+            {
+                table.Delete(existingEntity);
+            }
 
             try
             {
-                deleteCommand.Execute();
+                context.SaveChanges();
             }
             catch (CqlArgumentException cae)
             {
                 Logger.ErrorException(cae, "Error when deleting " + _typeDescriptor.TypeName);
                 return idsArr.Select(r =>
-                    new OperationResult
-                    {
-                        Success = false,
-                        Messages = new[]
-                        {
-                            new Message(Severity.Error,
-                                string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName,
-                                    r.ToString(CultureInfo.InvariantCulture)))
-                        }
-                    }).ToArray();
+                                     new OperationResult
+                                     {
+                                         Success = false,
+                                         Messages = new[]
+                                                    {
+                                                        new Message(Severity.Error,
+                                                                    string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName,
+                                                                                  r.ToString(CultureInfo.InvariantCulture)))
+                                                    }
+                                     }).ToArray();
             }
 
             var results = idsArr.Select(id => new OperationResult { Success = existingIds.Contains(id) }).ToArray();
@@ -207,33 +232,8 @@ namespace Jalex.Repository.Cassandra
 
             try
             {
-                foreach (var newObj in newObjArr)
-                {
-                    string id = _typeDescriptor.GetId(newObj);
-                    if (existingIds.Contains(id))
-                    {
-                        string message = string.Format("Failed to create {0} with ID {1} because it already exists.", _typeDescriptor.TypeName, id);
-
-                        Logger.Info(message);
-
-                        var failResult = new OperationResult<string>
-                        {
-                            Success = false,
-                            Value = null,
-                            Messages = new[]
-                                {
-                                    new Message(Severity.Error, message)
-                                }
-                        };
-                        results.Add(failResult);
-                    }
-                    else
-                    {
-                        table.AddNew(newObj);
-                        var successResult = new OperationResult<string> { Success = true, Value = id };
-                        results.Add(successResult);
-                    }
-                }
+                var creationResults = createNewObjects(newObjArr, existingIds, table);
+                results.AddRange(creationResults);
 
                 context.SaveChanges();
             }
@@ -309,6 +309,17 @@ namespace Jalex.Repository.Cassandra
             context.CreateTablesIfNotExist();
         }
 
+        private CqlQuery<T> getCqlQueryForSingleId(string id, ContextTable<T> table)
+        {
+            var paramExpr = Expression.Parameter(typeof (T));
+            var idValueExpr = Expression.Constant(id);
+            var idEqualsValueExpr = Expression.Equal(_typeDescriptor.IdPropertyExpression, idValueExpr);
+            var lambda = Expression.Lambda<Func<T, bool>>(idEqualsValueExpr, paramExpr);
+
+            var results = table.Where(lambda);
+            return results;
+        }
+
         private CqlQuery<T> getCqlQueryForIds(IEnumerable<string> ids, ContextTable<T> table)
         {
             var idsExpr = Expression.Constant(ids);
@@ -329,6 +340,37 @@ namespace Jalex.Repository.Cassandra
             else if (!_idProvider.IsIdValid(id))
             {
                 throw new IdFormatException(id + " is not a valid identifier (validated using " + _idProvider.GetType().Name + ")");
+            }
+        }
+
+        private IEnumerable<OperationResult<string>> createNewObjects(IEnumerable<T> newObjArr, HashSet<string> existingIds, ContextTable<T> table)
+        {
+            foreach (var newObj in newObjArr)
+            {
+                string id = _typeDescriptor.GetId(newObj);
+                if (existingIds.Contains(id))
+                {
+                    string message = string.Format("Failed to create {0} with ID {1} because it already exists.", _typeDescriptor.TypeName, id);
+
+                    Logger.Info(message);
+
+                    var failResult = new OperationResult<string>
+                                     {
+                                         Success = false,
+                                         Value = null,
+                                         Messages = new[]
+                                                    {
+                                                        new Message(Severity.Error, message)
+                                                    }
+                                     };
+                    yield return failResult;
+                }
+                else
+                {
+                    table.AddNew(newObj);
+                    var successResult = new OperationResult<string> { Success = true, Value = id };
+                    yield return successResult;
+                }
             }
         }
     }

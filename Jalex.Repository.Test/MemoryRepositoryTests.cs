@@ -6,7 +6,7 @@ using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    public class MemoryRepositoryTests : IQueryableRepositoryTests
+    public class MemoryRepositoryTests : IQueryableRepositoryTests<TestObject>
     {
         public MemoryRepositoryTests()
             : base(createFixture())

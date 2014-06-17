@@ -3,12 +3,16 @@ using Jalex.Infrastructure.Repository;
 
 namespace Jalex.Repository.Test.Objects
 {
-    public class TestEntity
+    public class TestObjectWithClustering : IObjectWithIdAndName
     {
         public string Id { get; set; }
+
         [Indexed]
         public string Name { get; set; }
+
+        [Indexed(IsClustered = true)]
         public string RefId { get; set; }
+        [Indexed(IsClustered = true)]
         public int Number { get; set; }
     }
 }
