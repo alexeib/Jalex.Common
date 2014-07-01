@@ -87,6 +87,7 @@
     <Compile Include="Objects\InterfaceImpl.cs" />
     <Compile Include="Objects\InterfaceImpl2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Specifications\SpecificationsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
