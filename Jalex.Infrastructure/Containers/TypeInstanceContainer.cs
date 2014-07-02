@@ -40,6 +40,13 @@ namespace Jalex.Infrastructure.Containers
             return success;
         }
 
+        public bool Contains<TMetric>() where TMetric : class, T
+        {
+            var metricType = typeof(TMetric);
+            var contains = _metricDictionary.ContainsKey(metricType);
+            return contains;
+        }
+
         #region Implementation of IEnumerable
 
         public IEnumerator<T> GetEnumerator()

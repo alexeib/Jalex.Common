@@ -4,9 +4,9 @@ namespace Jalex.Infrastructure.Specifications
 {
     public class PredicateSpecification<T> : ISpecification<T>
     {
-        private readonly Predicate<T> _predicate;
+        private readonly Func<T, bool> _predicate;
 
-        public PredicateSpecification(Predicate<T> predicate)
+        public PredicateSpecification(Func<T, bool> predicate)
         {
             _predicate = predicate;
         }
@@ -20,7 +20,7 @@ namespace Jalex.Infrastructure.Specifications
         /// <returns>True if the instance satisifies the given specification</returns>
         public bool IsSatisfiedBy(T instance)
         {
-            return _predicate.Invoke(instance);
+            return _predicate(instance);
         }
 
         #endregion
