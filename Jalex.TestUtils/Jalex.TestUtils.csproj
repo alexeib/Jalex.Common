@@ -51,7 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dataflow\DataflowUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="xUnit\InlineConstructorDataAttribute.cs" />
   </ItemGroup>
