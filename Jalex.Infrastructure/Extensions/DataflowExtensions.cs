@@ -14,5 +14,13 @@ namespace Jalex.Infrastructure.Extensions
             pusherBlock.Completion.Wait();
             return results;
         }
+
+        public static void PostMany<T>(this ITargetBlock<T> target, IEnumerable<T> messages)
+        {
+            foreach (var message in messages)
+            {
+                target.Post(message);
+            }
+        }
     }
 }
