@@ -17,12 +17,12 @@ namespace Jalex.Infrastructure.ServiceComposition
             _composableServices = composableServices;
         }
 
-        public bool CanProcess(T item)
+        public virtual bool CanProcess(T item)
         {
             return _composableServices.Any(s => s.CanProcess(item));
         }
 
-        public void Process(T item)
+        public virtual void Process(T item)
         {
             var service = _composableServices.FirstOrDefault(s => s.CanProcess(item));
             if (service == null)
