@@ -8,7 +8,7 @@ namespace Jalex.Infrastructure.Extensions
     {
         public static IEnumerable<T> GetDataFromBlock<T>(this ISourceBlock<T> source)
         {
-            ConcurrentBag<T> results = new ConcurrentBag<T>();
+            var results = new ConcurrentBag<T>();
             var pusherBlock = new ActionBlock<T>(d => results.Add(d), new ExecutionDataflowBlockOptions { SingleProducerConstrained = true });
             source.LinkTo(pusherBlock, new DataflowLinkOptions { PropagateCompletion = true });
             pusherBlock.Completion.Wait();
@@ -21,6 +21,11 @@ namespace Jalex.Infrastructure.Extensions
             {
                 target.Post(message);
             }
+        }
+
+        public static void LinkWithCompletion<T>(this ISourceBlock<T> source, ITargetBlock<T> target)
+        {
+            source.LinkTo(target, new DataflowLinkOptions { PropagateCompletion = true });
         }
     }
 }
