@@ -61,6 +61,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.23.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.23\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
@@ -82,6 +86,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Containers\TypeInstanceContainerTests.cs" />
+    <Compile Include="Dataflow\FilterBlockTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
     <Compile Include="Objects\ChildEntity.cs" />
     <Compile Include="Objects\DtoEntity.cs" />

@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Containers\TypeInstanceContainer.cs" />
     <Compile Include="Containers\TypeInstanceContainerExtensions.cs" />
+    <Compile Include="Dataflow\FilterBlock.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />
     <Compile Include="Extensions\TimePeriodExtensions.cs" />
     <Compile Include="IO\DiscriminatingFileLoader.cs" />
