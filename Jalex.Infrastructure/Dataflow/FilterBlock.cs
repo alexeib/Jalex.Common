@@ -35,7 +35,7 @@ namespace Jalex.Infrastructure.Dataflow
                 return _bufferBlock.OfferMessage(messageHeader, messageValue, source, consumeToAccept);
             }
 
-            return DataflowMessageStatus.Declined;
+            return DataflowMessageStatus.Accepted;
         }
 
         /// <summary>

@@ -26,7 +26,7 @@ namespace Jalex.Infrastructure.Containers
 
         public void Set(T metric)
         {
-            ParameterChecker.CheckForVoid(() => metric);
+            ParameterChecker.CheckForNull(metric, "metric");
 
             var metricType = metric.GetType();
             _metricDictionary[metricType] = metric;
