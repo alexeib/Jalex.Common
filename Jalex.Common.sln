@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30219.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Infrastructure", "Jalex.Infrastructure\Jalex.Infrastructure.csproj", "{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}"
 EndProject
@@ -22,6 +22,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.TestUtils", "Jalex.TestUtils\Jalex.TestUtils.csproj", "{4D7290FB-0B59-4042-9748-F8ECCED81560}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Infrastructure.Test", "Jalex.Infrastructure.Test\Jalex.Infrastructure.Test.csproj", "{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Caching", "Jalex.Caching\Jalex.Caching.csproj", "{7E65DE97-C2FD-45DB-B207-AB0471563CEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Caching.Test", "Jalex.Caching.Test\Jalex.Caching.Test.csproj", "{E3DB150F-CEA7-4BFF-A1D0-E450FB015108}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{187A3A25-EDF2-4717-98AD-19ECDD95CD84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,8 +75,23 @@ Global
 		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E65DE97-C2FD-45DB-B207-AB0471563CEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E65DE97-C2FD-45DB-B207-AB0471563CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E65DE97-C2FD-45DB-B207-AB0471563CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E65DE97-C2FD-45DB-B207-AB0471563CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3DB150F-CEA7-4BFF-A1D0-E450FB015108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3DB150F-CEA7-4BFF-A1D0-E450FB015108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3DB150F-CEA7-4BFF-A1D0-E450FB015108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3DB150F-CEA7-4BFF-A1D0-E450FB015108}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E1619C88-B558-4AE2-B456-D640109B05D5} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
+		{B41D24C3-7ED8-4F65-BA63-8E4E9A631A3F} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
+		{7A6CEB43-B9E3-4BC0-A840-541408D9BC12} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
+		{7A6EABD0-C89E-438B-AD6F-DEADC1CB0BDE} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
+		{E3DB150F-CEA7-4BFF-A1D0-E450FB015108} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
 	EndGlobalSection
 EndGlobal
