@@ -11,7 +11,7 @@ namespace Jalex.Caching.Memory
     ///     MemCacheFactory implementation of cache factory.
     /// </summary>
     /// <remarks>
-    ///     MemCacheFactory will hold on and reuse all the instances returned via its Create factory method.
+    ///     MemCacheFactory will hold on and reuse all the instances returned via its Save factory method.
     /// </remarks>
     public class MemoryCacheFactory : ICacheFactory
     {

@@ -25,7 +25,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void RetrievesEntitiesByQueryingForAttribute()
         {
-            var createResult = _queryableRepository.Create(_sampleTestEntitys);
+            var createResult = _queryableRepository.SaveMany(_sampleTestEntitys);
             createResult.All(r => r.Success).ShouldBeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;
@@ -40,7 +40,7 @@ namespace Jalex.Repository.Test
         {
             var fakeName = _fixture.Create<string>();
 
-            var createResult = _queryableRepository.Create(_sampleTestEntitys);
+            var createResult = _queryableRepository.SaveMany(_sampleTestEntitys);
             createResult.All(r => r.Success).ShouldBeTrue();
 
             var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == fakeName).ToArray();
@@ -50,7 +50,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void Retrieves_First_Entity_Queried_By_Attribute()
         {
-            var createResult = _queryableRepository.Create(_sampleTestEntitys);
+            var createResult = _queryableRepository.SaveMany(_sampleTestEntitys);
             createResult.All(r => r.Success).ShouldBeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;

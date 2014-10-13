@@ -71,6 +71,7 @@
     <Compile Include="Containers\TypeInstanceContainerExtensions.cs" />
     <Compile Include="Dataflow\FilterBlock.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\TimePeriodExtensions.cs" />
     <Compile Include="IO\DiscriminatingFileLoader.cs" />
     <Compile Include="IO\FileLoadException.cs" />
@@ -91,7 +92,7 @@
     <Compile Include="Repository\IDeleter.cs" />
     <Compile Include="Repository\IdFormatException.cs" />
     <Compile Include="Repository\IFileRepository.cs" />
-    <Compile Include="Repository\IInserter.cs" />
+    <Compile Include="Repository\IWriter.cs" />
     <Compile Include="Repository\IndexedAttribute.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
@@ -109,10 +110,10 @@
     <Compile Include="Repository\IQueryableRepository.cs" />
     <Compile Include="Repository\IReader.cs" />
     <Compile Include="Repository\ISimpleRepository.cs" />
-    <Compile Include="Repository\IUpdater.cs" />
     <Compile Include="Repository\RepositoryConstants.cs" />
     <Compile Include="Repository\RepositoryException.cs" />
     <Compile Include="Repository\RepositoryExtensions.cs" />
+    <Compile Include="Repository\WriteMode.cs" />
     <Compile Include="ServiceComposition\ComposableServiceNotFoundException.cs" />
     <Compile Include="ServiceComposition\IComposableService.cs" />
     <Compile Include="ServiceComposition\ServiceComposer.cs" />

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,6 +10,7 @@ using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
 using Jalex.Repository.IdProviders;
+using Magnum;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq;
 
 namespace Jalex.Repository.MongoDB
 {
-    public class MongoDBRepository<T> : BaseMongoDBRepository, IQueryableRepository<T>
+    public sealed class MongoDBRepository<T> : BaseRepository<T>, IQueryableRepository<T>
     {
         private const string _defaultCollectionPrefix = "mongo-collection-";
 
@@ -34,32 +34,42 @@ namespace Jalex.Repository.MongoDB
 
         private bool _indicesEnsured;
 
-        private readonly IIdProvider _idProvider;
-        private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
+        private readonly MongoHelper _helper = new MongoHelper();
+
+        public string ConnectionString
+        {
+            get { return _helper.ConnectionString; }
+            set { _helper.ConnectionString = value; }
+        }
+
+        public string DatabaseName
+        {
+            get { return _helper.DatabaseName; }
+            set { _helper.DatabaseName = value; }
+        }
 
         public MongoDBRepository(
             IIdProvider idProvider,
             IReflectedTypeDescriptorProvider typeDescriptorProvider)
+            : base(idProvider, typeDescriptorProvider)
         {
-            _idProvider = idProvider;
-            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
-
             ensureInitialized();
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public string CollectionName { get; set; }
 
-        public IEnumerable<T> GetByIds(IEnumerable<string> ids)
+        public bool TryGetById(string id, out T item)
         {
-            ParameterChecker.CheckForVoid(() => ids);
-
-            string[] idsArr = ids.ToArray();
+            Guard.AgainstNull(id, "id");
 
             MongoCollection<T> collection = getMongoCollection();
 
-            IMongoQuery query = Query<T>.In(_typeDescriptor.IdGetterExpression, idsArr);
+            IMongoQuery query = Query<T>.EQ(_typeDescriptor.IdGetterExpression, id);
 
-            return collection.Find(query).SetLimit(idsArr.Length);
+            item = collection.FindOne(query);
+            // ReSharper disable once CompareNonConstrainedGenericWithNull
+            return item != null;
         }
 
         public IEnumerable<T> GetAll()
@@ -86,139 +96,94 @@ namespace Jalex.Repository.MongoDB
             return result;
         }
 
-        public IEnumerable<OperationResult<string>> Create(IEnumerable<T> newObjects)
+        public OperationResult Delete(string id)
         {
-            ParameterChecker.CheckForVoid(() => newObjects);
-
-            T[] objectArr = newObjects.ToArray();
-            HashSet<string> existingIds = new HashSet<string>();
-
-
-            foreach (var newObj in objectArr)
-            {
-                string id = _typeDescriptor.GetId(newObj);
-
-                if (!string.IsNullOrEmpty(id))
-                {
-                    if (!existingIds.Add(id))
-                    {
-                        throw new DuplicateIdException("Attempting to create multiple objects with id " + id + " is not allowed");
-                    }
-                }
-            }
-
+            ParameterChecker.CheckForNull(id, "id");
             MongoCollection<T> collection = getMongoCollection();
 
             try
             {
-                collection.InsertBatch(objectArr);
+                WriteConcernResult wcr = collection.Remove(Query<T>.EQ(_typeDescriptor.IdGetterExpression, id));
+
+                if (wcr.DocumentsAffected > 0)
+                {
+                    return new OperationResult(true);
+                }
+                return new OperationResult(false, Severity.Warning, "Could not delete {0} {1} as it was not found", _typeDescriptor.TypeName, id);
+            }
+            catch (WriteConcernException wce)
+            {
+                Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
+                return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName, id));
+            }
+
+
+        }
+
+        #region Implementation of IWriter<in T>
+
+        /// <summary>
+        /// Saves an object
+        /// </summary>
+        /// <param name="obj">object to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
+        public OperationResult<string> Save(T obj, WriteMode writeMode)
+        {
+            return SaveMany(new[] { obj }, writeMode).Single();
+        }
+
+        /// <summary>
+        /// Saves objects
+        /// </summary>
+        /// <param name="objects">objects to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
+        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        {
+            // ReSharper disable PossibleMultipleEnumeration
+            Guard.AgainstNull(objects, "objects");
+
+            MongoCollection<T> collection = getMongoCollection();
+            T[] objectArr = objects.ToArray();
+
+            try
+            {
+                switch (writeMode)
+                {
+                    case WriteMode.Insert:
+                        collection.InsertBatch(objectArr);
+                        return objectArr
+                                    .Select(r => new OperationResult<string>(true, _typeDescriptor.GetId(r)))
+                                    .ToArray();
+                    case WriteMode.Update:
+                        return createResults(writeMode, objectArr, doesObjectWithIdExist, obj => updateObject(obj, false, collection));
+                    case WriteMode.Upsert:
+                        return createResults(writeMode, objectArr, doesObjectWithIdExist, obj => updateObject(obj, true, collection));
+                    default:
+                        throw new ArgumentOutOfRangeException("writeMode");
+                }
+
             }
             catch (WriteConcernException wce)
             {
                 Logger.ErrorException(wce, "Error when creating " + _typeDescriptor.TypeName);
                 return objectArr.Select(r =>
-                                        new OperationResult<string>
-                                        {
-                                            Success = false,
-                                            Value = null,
-                                            Messages = new[]
-                                                       {
-                                                           new Message(Severity.Error,
-                                                                       string.Format("Failed to create {0} {1}",
-                                                                                     _typeDescriptor.TypeName,
-                                                                                     r.ToString()))
-                                                       }
-                                        }).ToArray();
+                                        new OperationResult<string>(
+                                            false,
+                                            null,
+                                            Severity.Error,
+                                            string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
+                                .ToArray();
             }
             catch (FormatException fe)
             {
                 Logger.ErrorException(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
                 throw new IdFormatException(fe.Message);
             }
-
-            return objectArr.Select(r => new OperationResult<string> { Success = true, Value = _typeDescriptor.GetId(r) }).ToArray();
         }
 
-        public IEnumerable<OperationResult> Update(IEnumerable<T> objectsToUpdate)
-        {
-            ParameterChecker.CheckForVoid(() => objectsToUpdate);
-
-            List<OperationResult> results = new List<OperationResult>();
-
-            MongoCollection<T> collection = getMongoCollection();
-
-            foreach (var objectToUpdate in objectsToUpdate)
-            {
-                OperationResult result;
-
-                try
-                {
-                    WriteConcernResult wcr = collection.Update(Query<T>.EQ(_typeDescriptor.IdGetterExpression, _typeDescriptor.GetId(objectToUpdate)),
-                                                               Update<T>.Replace(objectToUpdate));
-                    bool success = wcr.DocumentsAffected > 0;
-                    result = new OperationResult { Success = success };
-
-                    if (!success)
-                    {
-                        result.Messages = new[]
-                                      {
-                                          new Message(Severity.Warning,
-                                                      string.Format("Could not update {0} because it was not found", objectToUpdate))
-                                      };
-                    }
-                }
-                catch (WriteConcernException wce)
-                {
-                    Logger.ErrorException(wce, "Error when updating " + _typeDescriptor.TypeName);
-                    result = new OperationResult
-                           {
-                               Success = false,
-                               Messages = new[]
-                                          {
-                                              new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
-                                          }
-                           };
-                }
-
-                results.Add(result);
-            }
-
-            return results;
-        }
-
-        public IEnumerable<OperationResult> Delete(IEnumerable<string> ids)
-        {
-            ParameterChecker.CheckForVoid(() => ids);
-
-            string[] idsArr = ids.ToArray();
-
-            MongoCollection<T> collection = getMongoCollection();
-            bool success;
-
-            try
-            {
-                WriteConcernResult wcr = collection.Remove(Query<T>.In(_typeDescriptor.IdGetterExpression, idsArr));
-                success = wcr.DocumentsAffected > 0;
-            }
-            catch (WriteConcernException wce)
-            {
-                Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
-                return idsArr.Select(r =>
-                    new OperationResult
-                    {
-                        Success = false,
-                        Messages = new[]
-                        {
-                            new Message(Severity.Error,
-                                string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName,
-                                    r.ToString(CultureInfo.InvariantCulture)))
-                        }
-                    }).ToArray();
-            }
-
-            // TODO: success may not be really true if we are trying to delete multiple things
-            return idsArr.Select(i => new OperationResult { Success = success }).ToArray();
-        }
+        #endregion
 
         private void ensureInitialized()
         {
@@ -338,12 +303,12 @@ namespace Jalex.Repository.MongoDB
                                 builder,
                                 IndexOptions.Null);
                     mongoIndices.Add(mongoIndexTuple);
-                }                
+                }
             }
             return mongoIndices;
         }
 
-        protected virtual void ensureIndices(MongoCollection<T> collection)
+        private void ensureIndices(MongoCollection<T> collection)
         {
             if (!_indicesEnsured)
             {
@@ -358,17 +323,35 @@ namespace Jalex.Repository.MongoDB
             }
         }
 
-        protected MongoCollection<T> getMongoCollection()
+        private MongoCollection<T> getMongoCollection()
         {
             string collectionName = CollectionName ??
                                     ConfigurationManager.AppSettings[_defaultCollectionPrefix + _typeDescriptor.TypeName] ??
                                     string.Format("{0}s", _typeDescriptor.TypeName);
 
-            MongoDatabase db = getMongoDatabase();
+            MongoDatabase db = _helper.GetMongoDatabase();
             MongoCollection<T> collection = db.GetCollection<T>(collectionName);
             ensureIndices(collection);
 
             return collection;
+        }        
+
+        private bool doesObjectWithIdExist(string id)
+        {
+            T dummy;
+            return TryGetById(id, out dummy);
+        }
+
+        private bool updateObject(T obj, bool upsert, MongoCollection<T> collection)
+        {
+            WriteConcernResult wcr =
+                collection
+                .Update(
+                        Query<T>.EQ(_typeDescriptor.IdGetterExpression, _typeDescriptor.GetId(obj)),
+                        Update<T>.Replace(obj),
+                        upsert ? UpdateFlags.Upsert : UpdateFlags.None);
+            bool success = wcr.DocumentsAffected > 0;
+            return success;
         }
     }
 }

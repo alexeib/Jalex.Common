@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using Cassandra;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
 using Jalex.Repository.Cassandra.DataStax.Linq;
 using Jalex.Repository.IdProviders;
+using Magnum;
 
 namespace Jalex.Repository.Cassandra
 {
-    public class CassandraRepository<T> : BaseRepository, IQueryableRepository<T> where T : class
+    public class CassandraRepository<T> : BaseRepository<T>, IQueryableRepository<T> where T : class
     {
         private const string _defaultKeyspaceSettingNane = "cassandra-keyspace";
-
-        private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
@@ -26,14 +26,11 @@ namespace Jalex.Repository.Cassandra
 
         private readonly Session _session;
 
-        private readonly IIdProvider _idProvider;
-
         public CassandraRepository(
             IIdProvider idProvider,
             IReflectedTypeDescriptorProvider typeDescriptorProvider)
+            : base(idProvider, typeDescriptorProvider)
         {
-            _idProvider = idProvider;
-            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
             _session = getCassandraSession();
 
             createTableIfNotExist();
@@ -41,39 +38,28 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IReader<out T>
 
-        public IEnumerable<T> GetByIds(IEnumerable<string> ids)
+        public bool TryGetById(string id, out T obj)
         {
-            ParameterChecker.CheckForVoid(() => ids);
+            Guard.AgainstNull(id, "id");
 
             var context = new Context(_session);
             var table = context.AddTable<T>();
 
-            if (_typeDescriptor.HasClusteredIndices)
-            {
-                return getResultsByIdOneByOne(ids, table);
-            }
-            return getResultsByIdInBulk(ids, table);
-        }
+            var query = getCqlQueryForSingleId(id, table);
+            var resultArr = query.Execute().ToArrayEfficient();
 
-        private IEnumerable<T> getResultsByIdOneByOne(IEnumerable<string> ids, ContextTable<T> table)
-        {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var id in ids)
+            if (resultArr.Length == 1)
             {
-                var query = getCqlQueryForSingleId(id, table);
-                var result = query.Execute().FirstOrDefault();
-                if (result != null)
-                {
-                    yield return result;
-                }
+                obj = resultArr[0];
+                return true;
             }
-        }
+            if (resultArr.Length == 0)
+            {
+                obj = default(T);
+                return false;
+            }
 
-        private IEnumerable<T> getResultsByIdInBulk(IEnumerable<string> ids, ContextTable<T> table)
-        {
-            var query = getCqlQueryForIds(ids, table);
-            var results = query.Execute();
-            return results;
+            throw new InvalidDataException(string.Format("multiple items with id {0} were retrieved.", id));
         }
 
         public IEnumerable<T> GetAll()
@@ -88,21 +74,20 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IDeleter<T>
 
-        public IEnumerable<OperationResult> Delete(IEnumerable<string> ids)
+        public OperationResult Delete(string id)
         {
-            ParameterChecker.CheckForVoid(() => ids);
-            string[] idsArr = ids.ToArray();
+            T existingEntity;
+            var exists = TryGetById(id, out existingEntity);
 
-            var existingEntities = GetByIds(idsArr).ToArray();
-            var existingIds = new HashSet<string>(existingEntities.Select(e => _typeDescriptor.GetId(e)));
+            if (!exists)
+            {
+                return new OperationResult(false);
+            }
 
             var context = new Context(_session);
             var table = context.AddTable<T>();
 
-            foreach (var existingEntity in existingEntities)
-            {
-                table.Delete(existingEntity);
-            }
+            table.Delete(existingEntity);
 
             try
             {
@@ -111,149 +96,10 @@ namespace Jalex.Repository.Cassandra
             catch (CqlArgumentException cae)
             {
                 Logger.ErrorException(cae, "Error when deleting " + _typeDescriptor.TypeName);
-                return idsArr.Select(r =>
-                                     new OperationResult
-                                     {
-                                         Success = false,
-                                         Messages = new[]
-                                                    {
-                                                        new Message(Severity.Error,
-                                                                    string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName,
-                                                                                  r.ToString(CultureInfo.InvariantCulture)))
-                                                    }
-                                     }).ToArray();
+                return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName, id));
             }
 
-            var results = idsArr.Select(id => new OperationResult { Success = existingIds.Contains(id) }).ToArray();
-            return results;
-        }
-
-        #endregion
-
-        #region Implementation of IUpdater<in T>
-
-        public IEnumerable<OperationResult> Update(IEnumerable<T> objectsToUpdate)
-        {
-            ParameterChecker.CheckForVoid(() => objectsToUpdate);
-            List<OperationResult> results = new List<OperationResult>();
-
-            var objectsToUpdateArr = objectsToUpdate.ToArray();
-            var ids = objectsToUpdateArr.Select(_typeDescriptor.GetId).Where(id => !string.IsNullOrEmpty(id)).ToArray();
-            var entities = ids.Length > 0 ? GetByIds(ids) : new T[0];
-
-            var entitiesById = entities.ToDictionary(_typeDescriptor.GetId);
-
-            var context = new Context(_session);
-            var table = context.AddTable<T>();
-
-            foreach (var objectToUpdate in objectsToUpdateArr)
-            {
-                OperationResult result;
-                T entity;
-
-                var id = _typeDescriptor.GetId(objectToUpdate);
-
-                if (!string.IsNullOrEmpty(id) && entitiesById.TryGetValue(id, out entity))
-                {
-                    table.Attach(entity, EntityUpdateMode.ModifiedOnly);
-
-                    var mapper = EmitMapper.ObjectMapperManager.DefaultInstance.GetMapper<T, T>();
-                    mapper.Map(objectToUpdate, entity);
-
-                    result = new OperationResult(true);
-                }
-                else
-                {
-                    result = new OperationResult(false, new Message(Severity.Warning, string.Format("Could not update {0} because it was not found", objectToUpdate)));
-                }
-
-                results.Add(result);
-            }
-
-            try
-            {
-                context.SaveChanges();
-            }
-            catch (CqlArgumentException cae)
-            {
-                Logger.ErrorException(cae, "Error when updating " + _typeDescriptor.TypeName);
-                results = objectsToUpdateArr.Select(objectToUpdate => new OperationResult
-                    {
-                        Success = false,
-                        Messages = new[]
-                                {
-                                    new Message(Severity.Error, string.Format("Failed to update {0} {1}", _typeDescriptor.TypeName, objectToUpdate))
-                                }
-                    }).ToList();
-            }
-
-            return results;
-        }
-
-        #endregion
-
-        #region Implementation of IInserter<in T>
-
-        public IEnumerable<OperationResult<string>> Create(IEnumerable<T> newObjects)
-        {
-            ParameterChecker.CheckForVoid(() => newObjects);
-
-            var newObjArr = newObjects as T[] ?? newObjects.ToArray();
-            HashSet<string> existingIds = new HashSet<string>();
-
-            foreach (var newObj in newObjArr)
-            {
-                string id = _typeDescriptor.GetId(newObj);
-
-                if (!string.IsNullOrEmpty(id))
-                {
-                    if (!existingIds.Add(id))
-                    {
-                        throw new DuplicateIdException("Attempting to create multiple objects with id " + id + " is not allowed");
-                    }
-                }
-
-                if (_typeDescriptor.IsIdAutoGenerated)
-                {
-                    checkOrGenerateIdForEntity(id, newObj);
-                }
-            }
-
-            if (existingIds.Count > 0)
-            {
-                var existingEntities = GetByIds(existingIds);
-                existingIds = new HashSet<string>(existingEntities.Select(e => _typeDescriptor.GetId(e)));
-            }
-
-            List<OperationResult<string>> results = new List<OperationResult<string>>(newObjArr.Length);
-
-            var context = new Context(_session);
-            var table = context.AddTable<T>();
-
-            try
-            {
-                var creationResults = createNewObjects(newObjArr, existingIds, table);
-                results.AddRange(creationResults);
-
-                context.SaveChanges();
-            }
-            catch (CqlArgumentException cae)
-            {
-                Logger.ErrorException(cae, "Error when creating " + _typeDescriptor.TypeName);
-                return newObjArr.Select(r =>
-                    new OperationResult<string>
-                    {
-                        Success = false,
-                        Value = null,
-                        Messages = new[]
-                        {
-                            new Message(Severity.Error,
-                                string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString()))
-                        }
-                    }).ToArray();
-            }
-
-
+            var results = new OperationResult(true);
             return results;
         }
 
@@ -288,13 +134,77 @@ namespace Jalex.Repository.Cassandra
 
         #endregion
 
+        #region Implementation of IWriter<in T>
+
+        /// <summary>
+        /// Saves an object
+        /// </summary>
+        /// <param name="obj">object to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
+        public OperationResult<string> Save(T obj, WriteMode writeMode = WriteMode.Upsert)
+        {
+            return SaveMany(new[] {obj}, writeMode).Single();
+        }
+
+        /// <summary>
+        /// Saves objects
+        /// </summary>
+        /// <param name="objects">objects to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
+        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        {
+            ParameterChecker.CheckForNull(objects, "objects");
+
+            var context = new Context(_session);
+            var table = context.AddTable<T>();
+            var objectArr = objects as T[] ?? objects.ToArray();
+
+            var results = createResults(writeMode, objectArr, doesObjectWithIdExist, obj => writeObject(obj, table));
+
+            try
+            {
+                context.SaveChanges();
+            }
+            catch (CqlArgumentException cae)
+            {
+                Logger.ErrorException(cae, "Error when saving " + _typeDescriptor.TypeName);
+                return objectArr.Select(r =>
+                                        new OperationResult<string>(
+                                            false,
+                                            null,
+                                            Severity.Error,
+                                            string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
+                                .ToArray();
+            }
+
+
+            return results;
+        }        
+
+        #endregion
+
+        private bool doesObjectWithIdExist(string id)
+        {
+            T dummy;
+            return TryGetById(id, out dummy);
+        }
+
+        private bool writeObject(T obj, ContextTable<T> table)
+        {
+            table.AddNew(obj);
+            return true;
+        }
+
         private Session getCassandraSession()
         {
             string keyspace = Keyspace ?? ConfigurationManager.AppSettings[_defaultKeyspaceSettingNane];
 
             if (string.IsNullOrEmpty(keyspace))
             {
-                throw new InvalidOperationException("Must specify Cassandra keyspace by providing a value in the Keyspace property or populating the " + _defaultKeyspaceSettingNane + " app setting");
+                throw new InvalidOperationException("Must specify Cassandra keyspace by providing a value in the Keyspace property or populating the " + _defaultKeyspaceSettingNane +
+                                                    " app setting");
             }
 
             var session = CassandraSessionPool.GetSessionForKeyspace(keyspace);
@@ -318,60 +228,6 @@ namespace Jalex.Repository.Cassandra
 
             var results = table.Where(lambda);
             return results;
-        }
-
-        private CqlQuery<T> getCqlQueryForIds(IEnumerable<string> ids, ContextTable<T> table)
-        {
-            var idsExpr = Expression.Constant(ids);
-            var call = Expression.Call(typeof(Enumerable), "Contains", new[] { typeof(string) }, idsExpr, _typeDescriptor.IdPropertyExpression);
-            var lambda = Expression.Lambda<Func<T, bool>>(call, _typeDescriptor.TypeParameter);
-
-            var results = table.Where(lambda);
-            return results;
-        }
-
-        private void checkOrGenerateIdForEntity(string id, T newObj)
-        {
-            if (String.IsNullOrEmpty(id))
-            {
-                string generatedId = _idProvider.GenerateNewId();
-                _typeDescriptor.SetId(newObj, generatedId);
-            }
-            else if (!_idProvider.IsIdValid(id))
-            {
-                throw new IdFormatException(id + " is not a valid identifier (validated using " + _idProvider.GetType().Name + ")");
-            }
-        }
-
-        private IEnumerable<OperationResult<string>> createNewObjects(IEnumerable<T> newObjArr, HashSet<string> existingIds, ContextTable<T> table)
-        {
-            foreach (var newObj in newObjArr)
-            {
-                string id = _typeDescriptor.GetId(newObj);
-                if (existingIds.Contains(id))
-                {
-                    string message = string.Format("Failed to create {0} with ID {1} because it already exists.", _typeDescriptor.TypeName, id);
-
-                    Logger.Info(message);
-
-                    var failResult = new OperationResult<string>
-                                     {
-                                         Success = false,
-                                         Value = null,
-                                         Messages = new[]
-                                                    {
-                                                        new Message(Severity.Error, message)
-                                                    }
-                                     };
-                    yield return failResult;
-                }
-                else
-                {
-                    table.AddNew(newObj);
-                    var successResult = new OperationResult<string> { Success = true, Value = id };
-                    yield return successResult;
-                }
-            }
         }
     }
 }

@@ -24,8 +24,10 @@ namespace Jalex.Caching.Test
 
             sut.Set(item.Id, item);
 
-            var retrievedItem = sut.Get(item.Id);
+            TestEntity retrievedItem;
+            var success = sut.TryGet(item.Id, out retrievedItem);
 
+            success.Should().BeTrue();
             retrievedItem.ShouldBeEquivalentTo(item);
         }
 
@@ -35,8 +37,10 @@ namespace Jalex.Caching.Test
             var item = _fixture.Create<TestEntity>();
             var sut = _fixture.Create<ICache<string, TestEntity>>();
 
-            var retrievedItem = sut.Get(item.Id);
+            TestEntity retrievedItem;
+            var success = sut.TryGet(item.Id, out retrievedItem);
 
+            success.Should().BeFalse();
             retrievedItem.Should().BeNull();
         }
 
@@ -49,8 +53,10 @@ namespace Jalex.Caching.Test
             sut.Set(item.Id, item);
             sut.DeleteById(item.Id);
 
-            var retrievedItem = sut.Get(item.Id);
+            TestEntity retrievedItem;
+            var success = sut.TryGet(item.Id, out retrievedItem);
 
+            success.Should().BeFalse();
             retrievedItem.Should().BeNull();
         }
 
@@ -63,8 +69,10 @@ namespace Jalex.Caching.Test
             sut.Set(item.Id, item);
             sut.DeleteAll().Wait();
 
-            var retrievedItem = sut.Get(item.Id);
+            TestEntity retrievedItem;
+            var success = sut.TryGet(item.Id, out retrievedItem);
 
+            success.Should().BeFalse();
             retrievedItem.Should().BeNull();
         }
 

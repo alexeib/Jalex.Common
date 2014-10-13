@@ -17,8 +17,8 @@ namespace Jalex.Infrastructure.Caching
         /// <summary>
         ///     Gets a single entity by its unique identifier.
         /// </summary>
-        /// <returns>Null if no matching entity exists.</returns>
-        TItem Get(TKey key);
+        /// <returns>false if key is not in cache, true if it is</returns>
+        bool TryGet(TKey key, out TItem item);
 
         /// <summary>
         ///     Adds/updates an item from cache.
@@ -51,13 +51,13 @@ namespace Jalex.Infrastructure.Caching
         Task DeleteAll();
 
         /// <summary>
-        ///     Get all keys in the cache.
+        ///     TryGet all keys in the cache.
         /// </summary>
         /// <returns></returns>
         IEnumerable<TKey> GetKeys();
 
         /// <summary>
-        ///     Get number of items in the cache.
+        ///     TryGet number of items in the cache.
         /// </summary>
         /// <returns></returns>
         long GetSize();

@@ -69,15 +69,12 @@ namespace Jalex.Caching.Memory
         }
 
         /// <summary>
-        ///     Get cached object by key
+        ///     Gets a single entity by its unique identifier.
         /// </summary>
-        /// <param name="key">The key to search for.</param>
-        /// <returns></returns>
-        public TCacheItem Get(TKKey key)
+        /// <returns>false if key is not in cache, true if it is</returns>
+        public bool TryGet(TKKey key, out TCacheItem item)
         {
-            TCacheItem item;
-            _items.TryGetValue(key, out item);
-            return item;
+            return _items.TryGetValue(key, out item);
         }
 
         public void Set(TKKey key, TCacheItem item)

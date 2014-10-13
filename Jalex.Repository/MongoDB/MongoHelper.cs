@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Configuration;
-using Jalex.Logging;
 using MongoDB.Driver;
 
 namespace Jalex.Repository.MongoDB
 {
-    public abstract class BaseMongoDBRepository : BaseRepository
-    {        
+    public class MongoHelper
+    {
         private const string _defaultConnectionStringName = "mongo-default";
-        private const string _defaultDatabaseSettingName = "mongo-db";       
+        private const string _defaultDatabaseSettingName = "mongo-db";
 
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
 
-        protected MongoDatabase getMongoDatabase()
+        public MongoDatabase GetMongoDatabase()
         {
             string connectionString = ConnectionString ?? ConfigurationManager.ConnectionStrings[_defaultConnectionStringName].ConnectionString;
 
@@ -21,7 +20,7 @@ namespace Jalex.Repository.MongoDB
             {
                 throw new InvalidOperationException("Must specify MongoDB connection string by providing a value in the ConnectionString property or populating the " + _defaultConnectionStringName + " connection string setting in config file");
             }
-            
+
             string databaseName = DatabaseName ?? ConfigurationManager.AppSettings[_defaultDatabaseSettingName];
 
             if (string.IsNullOrEmpty(databaseName))

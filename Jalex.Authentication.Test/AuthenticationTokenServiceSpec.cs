@@ -18,27 +18,29 @@ namespace Jalex.Authentication.Test
 
         Establish context = () =>
         {
+            AuthenticationToken token;
+
             var mockRepository = Substitute.For<IQueryableRepository<AuthenticationToken>>();
             mockRepository
-                .GetByIds(Arg.Any<IEnumerable<string>>())
+                .TryGetById(Arg.Any<string>(), out token)
                 .Returns(ci =>
                          {
-                             var ids = ci.Arg<IEnumerable<string>>();
+                             var id = ci.Arg<string>();
 
-                             HashSet<string> hashedIds = new HashSet<string>(ids);
 
-                             List<AuthenticationToken> retList = new List<AuthenticationToken>();
-                             if (_sampleValidToken != null && hashedIds.Contains(_sampleValidToken.Id))
+                             if (_sampleValidToken != null && id == _sampleValidToken.Id)
                              {
-                                 retList.Add(_sampleValidToken);
+                                 ci[1] = _sampleValidToken;
+                                 return true;
                              }
 
-                             if (_sampleExpiredToken != null && hashedIds.Contains(_sampleExpiredToken.Id))
+                             if (_sampleExpiredToken != null && id == _sampleExpiredToken.Id)
                              {
-                                 retList.Add(_sampleExpiredToken);
+                                 ci[1] = _sampleExpiredToken;
+                                 return true;
                              }
 
-                             return retList;
+                             return false;
                          });
 
             mockRepository

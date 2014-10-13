@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
@@ -8,7 +9,6 @@ using Jalex.Logging.Loggers;
 using Jalex.Repository.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
-using Xunit.Should;
 
 namespace Jalex.Repository.Test
 {
@@ -28,7 +28,6 @@ namespace Jalex.Repository.Test
 
             _logger = new MemoryLogger();
 
-            //_fixture.Customize<DateTime>(c => c.FromSeed(s => DateTime.SpecifyKind(s, DateTimeKind.Utc)));
             _fixture.Inject<ILogger>(_logger);
             _testEntityRepository = _fixture.Create<ISimpleRepository<T>>();
 
@@ -37,43 +36,71 @@ namespace Jalex.Repository.Test
 
         public virtual void Dispose()
         {
-            _testEntityRepository.Delete(_sampleTestEntitys.Select(r => r.Id));
+            _testEntityRepository.DeleteMany(_sampleTestEntitys.Select(r => r.Id));
             _logger.Clear();
         }
 
 
         [Fact]
-        public void CreatesEntities()
+        public void CreatesEntity()
         {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys).ToArray();
+            var sampleEntity = _sampleTestEntitys.First();
 
-            createResult.All(r => r.Success).ShouldBeTrue();
-            createResult.All(r => !string.IsNullOrEmpty(r.Value)).ShouldBeTrue();
-            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).ShouldBeTrue();
-            createResult.All(r => !r.Messages.Any()).ShouldBeTrue();
-            _testEntityRepository.GetByIds(_sampleTestEntitys.Select(r => r.Id)).ShouldNotBeEmpty();
+            var createResult = _testEntityRepository.Save(sampleEntity);
+
+            createResult.Success.Should().BeTrue();
+            createResult.Value.Should().NotBeNullOrEmpty();
+            sampleEntity.Id.Should().NotBeNullOrEmpty();
+            createResult.Messages.Should().BeEmpty();
+
+            T retrieved;
+            var success = _testEntityRepository.TryGetById(sampleEntity.Id, out retrieved);
+
+            success.Should().Be(true);
+            retrieved.ShouldBeEquivalentTo(sampleEntity);
+        }
+
+        [Fact]
+        public void CreatesManyEntities()
+        {
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys).ToArray();
+
+            createResult.All(r => r.Success).Should().BeTrue();
+            createResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
+            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).Should().BeTrue();
+            createResult.All(r => !r.Messages.Any()).Should().BeTrue();
+
+            foreach (var entity in _sampleTestEntitys)
+            {
+                T retrieved;
+                var success = _testEntityRepository.TryGetById(entity.Id, out retrieved);
+
+                success.Should().Be(true);
+                retrieved.ShouldBeEquivalentTo(entity);
+            }
         }
 
 
         [Fact]
         public void DoesNotCreateExistingEntities()
         {
-            IEnumerable<OperationResult<string>> createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            var sampleEntity = _sampleTestEntitys.First();
 
-            var createResultExisting = _testEntityRepository.Create(_sampleTestEntitys).ToArray();
+            OperationResult<string> createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Insert);
+            createResult.Success.Should().BeTrue();
 
-            createResultExisting.All(r => !r.Success).ShouldBeTrue();
-            createResultExisting.All(r => string.IsNullOrEmpty(r.Value)).ShouldBeTrue();
-            createResultExisting.All(r => r.Messages.Any()).ShouldBeTrue();
-            _logger.Logs.ShouldNotBeEmpty();
+            var createResultExisting = _testEntityRepository.Save(sampleEntity, WriteMode.Insert);
+
+            createResultExisting.Success.Should().BeFalse();
+            createResultExisting.Messages.Should().NotBeEmpty();
+            _logger.Logs.Should().NotBeEmpty();
         }
 
         [Fact]
         public void DoesNotCreateEntitiesWithInvalidIds()
         {
-            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Create(new[] { new T { Id = "FakeId", Name = "FakeName" } }));
-            exception.ShouldNotBeNull();
+            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Save(new T { Id = "FakeId", Name = "FakeName"}));
+            exception.Should().NotBeNull();
         }
 
         [Fact]
@@ -81,132 +108,189 @@ namespace Jalex.Repository.Test
         {
             string id = _fixture.Create<string>();
 
-            var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.Create(new[]
+            var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.SaveMany(new[]
                                                                                                 {
                                                                                                     new T { Id = id, Name = "SameId" },
                                                                                                     new T { Id = id, Name = "SameId" }
                                                                                                 }));
-            exception.ShouldNotBeNull();
+            exception.Should().NotBeNull();
         }
 
         [Fact]
         public void DeletesExistingTestEntities()
         {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            var sampleEntity = _sampleTestEntitys.First();
 
-            var deleteResult = _testEntityRepository.Delete(_sampleTestEntitys.Select(r => r.Id)).ToArray();
+            var createResult = _testEntityRepository.Save(sampleEntity);
+            createResult.Success.Should().BeTrue();
 
-            deleteResult.All(r => r.Success).ShouldBeTrue();
-            deleteResult.All(r => !r.Messages.Any()).ShouldBeTrue();
-            _testEntityRepository.GetByIds(_sampleTestEntitys.Select(r => r.Id)).ShouldBeEmpty();
+            var deleteResult = _testEntityRepository.Delete(sampleEntity.Id);
+
+            deleteResult.Success.Should().BeTrue();
+            deleteResult.Messages.Should().BeEmpty();
+
+            T retrieved;
+            var success = _testEntityRepository.TryGetById(sampleEntity.Id, out retrieved);
+            success.Should().BeFalse();
+            retrieved.Should().BeNull();
         }
 
         [Fact]
         public void FailsToDeleteNonExistingEntities()
         {
-            var fakeEntityIds = _fixture.CreateMany<string>().ToArray();
-
-            var deleteResult = _testEntityRepository.Delete(fakeEntityIds).ToArray();
-
-            deleteResult.Length.ShouldBe(fakeEntityIds.Length);
-            deleteResult.All(r => !r.Success).ShouldBeTrue();
+            var fakeEntityId = _fixture.Create<string>();
+            var deleteResult = _testEntityRepository.Delete(fakeEntityId);
+            deleteResult.Success.Should().BeFalse();
         }
 
         [Fact]
         public void RetrievesOneEntityById()
         {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            createResult.All(r => r.Success).Should().BeTrue();
 
-            var targetTestEntityId = _sampleTestEntitys.First().Id;
+            var targetEntity = _sampleTestEntitys.First();
 
-            var retrievedTestEntitys = _testEntityRepository.GetById(targetTestEntityId);
+            T retrieved;
+            var success = _testEntityRepository.TryGetById(targetEntity.Id, out retrieved);
 
-            retrievedTestEntitys.ShouldNotBeNull();
-            retrievedTestEntitys.Id.ShouldBe(targetTestEntityId);
+            success.Should().BeTrue();
+            retrieved.ShouldBeEquivalentTo(targetEntity);
         }
 
         [Fact]
-        public void RetrievesSeveralEntitiesById()
-        {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
-
-            var retrievedTestEntitys = _testEntityRepository.GetByIds(_sampleTestEntitys.Select(r => r.Id)).ToArray();
-
-            retrievedTestEntitys.Length.ShouldBe(_sampleTestEntitys.Count());
-            retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldBe(_sampleTestEntitys.Count());
-        }
-
-        [Fact] 
         public void RetrievesAllEntities()
         {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            createResult.All(r => r.Success).Should().BeTrue();
 
             var retrievedTestEntitys = _testEntityRepository.GetAll().ToArray();
 
-            retrievedTestEntitys.Length.ShouldBeGreaterThanOrEqualTo(_sampleTestEntitys.Count());
-            retrievedTestEntitys.Select(r => r.Id).Intersect(_sampleTestEntitys.Select(r => r.Id)).Count().ShouldBe(_sampleTestEntitys.Count());
+            retrievedTestEntitys.Should().HaveCount(_sampleTestEntitys.Count());
+            retrievedTestEntitys.ShouldAllBeEquivalentTo(_sampleTestEntitys);
         }
 
         [Fact]
         public void DoesNotRetrieveNonExistantEntitiesById()
         {
-            var fakeEntityIds = _fixture.CreateMany<string>().ToArray();
-            var retrievedTestEntitys = _testEntityRepository.GetByIds(fakeEntityIds);
-            retrievedTestEntitys.ShouldBeEmpty();
+            var fakeEntityIds = _fixture.Create<string>();
+
+            T retrieved;
+            var success = _testEntityRepository.TryGetById(fakeEntityIds, out retrieved);
+            success.Should().BeFalse();
+            retrieved.Should().BeNull();
         }
 
         [Fact]
         public void UpdatesExistingEntity()
         {
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            createResult.All(r => r.Success).Should().BeTrue();
 
             var testEntityToUpdate = _sampleTestEntitys.Last();
             testEntityToUpdate.Name = "changed name";
 
-            var updateResult = _testEntityRepository.Update(testEntityToUpdate);
+            var updateResult = _testEntityRepository.Save(testEntityToUpdate, WriteMode.Update);
 
-            updateResult.Success.ShouldBeTrue();
-            updateResult.Messages.ShouldBeEmpty();
+            updateResult.Success.Should().BeTrue();
+            updateResult.Messages.Should().BeEmpty();
 
-            var retrievedTestEntity = _testEntityRepository.GetById(testEntityToUpdate.Id);
-            retrievedTestEntity.ShouldNotBeNull();
+            T retrievedTestEntity;
+             var success = _testEntityRepository.TryGetById(testEntityToUpdate.Id, out retrievedTestEntity);
 
-            retrievedTestEntity.Name.ShouldBe(testEntityToUpdate.Name);
+            success.Should().BeTrue();
+            retrievedTestEntity.Should().NotBeNull();
+
+            retrievedTestEntity.Name.Should().Be(testEntityToUpdate.Name);
         }
 
         [Fact]
-        public void UpdatesManyExistingEntities()
+        public void UpdatesExistingEntityWithUpsert()
         {
-            const string newName = "changed name!!!";
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            createResult.All(r => r.Success).Should().BeTrue();
 
-            var createResult = _testEntityRepository.Create(_sampleTestEntitys);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            var testEntityToUpdate = _sampleTestEntitys.Last();
+            testEntityToUpdate.Name = "changed name";
 
-            foreach (var testEntity in _sampleTestEntitys)
+            var updateResult = _testEntityRepository.Save(testEntityToUpdate, WriteMode.Upsert);
+
+            updateResult.Success.Should().BeTrue();
+            updateResult.Messages.Should().BeEmpty();
+
+            T retrievedTestEntity;
+            var success = _testEntityRepository.TryGetById(testEntityToUpdate.Id, out retrievedTestEntity);
+
+            success.Should().BeTrue();
+            retrievedTestEntity.Should().NotBeNull();
+
+            retrievedTestEntity.Name.Should().Be(testEntityToUpdate.Name);
+        }
+
+        [Fact]
+        public void CreatesManyEntitiesWithUpsert()
+        {
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert).ToArray();
+
+            createResult.All(r => r.Success).Should().BeTrue();
+            createResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
+            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).Should().BeTrue();
+            createResult.All(r => !r.Messages.Any()).Should().BeTrue();
+
+            foreach (var entity in _sampleTestEntitys)
             {
-                testEntity.Name = newName;
+                T retrieved;
+                var success = _testEntityRepository.TryGetById(entity.Id, out retrieved);
+
+                success.Should().Be(true);
+                retrieved.ShouldBeEquivalentTo(entity);
             }
+        }
 
-            var updateResults = _testEntityRepository.Update(_sampleTestEntitys);
+        [Fact]
+        public void CreatesNonExistingEntitiesAndUpdatesExistingWithUpsert()
+        {
+            var existingEntity = _sampleTestEntitys.First();
 
-            foreach (var updateResult in updateResults)
+            var createResult = _testEntityRepository.Save(existingEntity, WriteMode.Insert);
+            createResult.Success.Should().BeTrue();
+
+            existingEntity.Name = _fixture.Create<string>();
+
+            var upsertResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert).ToArray();
+
+            upsertResult.All(r => r.Success).Should().BeTrue();
+            upsertResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
+            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).Should().BeTrue();
+            upsertResult.All(r => !r.Messages.Any()).Should().BeTrue();
+
+            foreach (var entity in _sampleTestEntitys)
             {
-                updateResult.Success.ShouldBeTrue();
-                updateResult.Messages.ShouldBeEmpty();    
-            }
+                T retrieved;
+                var success = _testEntityRepository.TryGetById(entity.Id, out retrieved);
 
-            var retrievedTestEntities = _testEntityRepository.GetByIds(_sampleTestEntitys.Select(e => e.Id)).ToArray();
-            retrievedTestEntities.ShouldNotBeEmpty();
-
-            foreach (var retrievedTestEntity in retrievedTestEntities)
-            {
-                retrievedTestEntity.Name.ShouldBe(newName);
+                success.Should().Be(true);
+                retrieved.ShouldBeEquivalentTo(entity);
             }
+        }
+
+        [Fact]
+        public void InsertsNewEntityWithUpsert()
+        {
+            var sampleEntity = _sampleTestEntitys.First();
+
+            var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
+
+            createResult.Success.Should().BeTrue();
+            createResult.Value.Should().NotBeNullOrEmpty();
+            sampleEntity.Id.Should().NotBeNullOrEmpty();
+            createResult.Messages.Should().BeEmpty();
+
+            T retrieved;
+            var success = _testEntityRepository.TryGetById(sampleEntity.Id, out retrieved);
+
+            success.Should().Be(true);
+            retrieved.ShouldBeEquivalentTo(sampleEntity);
         }
 
         [Fact]
@@ -214,20 +298,17 @@ namespace Jalex.Repository.Test
         {
             var nonexistentEntity = _fixture.Create<T>();
 
-            var updateResult = _testEntityRepository.Update(nonexistentEntity);
+            var updateResult = _testEntityRepository.Save(nonexistentEntity, WriteMode.Update);
 
-            updateResult.Success.ShouldBeFalse();
-            updateResult.Messages.ShouldNotBeEmpty();
+            updateResult.Success.Should().BeFalse();
+            updateResult.Messages.Should().NotBeEmpty();
         }
 
         [Fact]
         public void FailsToUpdateEntityWithNullId()
         {
             var invalidIdTestEntity = new T { Id = null };
-            var updateResult = _testEntityRepository.Update(invalidIdTestEntity);
-
-            updateResult.Success.ShouldBeFalse();
-            updateResult.Messages.ShouldNotBeEmpty();
+            _testEntityRepository.Invoking(r => r.Save(invalidIdTestEntity, WriteMode.Update)).ShouldThrow<InvalidOperationException>();
         }
     }
 }

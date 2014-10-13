@@ -19,25 +19,22 @@ namespace Jalex.Infrastructure.Caching
         /// <param name="key"></param>
         /// <param name="ifMissing">factory callback to produce new instance if one with the specified key is missing</param>
         /// <returns></returns>
-        public static TItem Get<TKey,TItem>(this ICache<TKey, TItem> cache, TKey key, Func<TKey, TItem> ifMissing) where TItem : class
+        public static TItem Get<TKey, TItem>(this ICache<TKey, TItem> cache, TKey key, Func<TKey, TItem> ifMissing)
         {
             Guard.AgainstNull(cache, "cache");
             Guard.AgainstNull(ifMissing, "ifMissing");
 
-            var item = cache.Get(key);
-            if (item == default(TItem))
+            TItem item;
+            var success = cache.TryGet(key, out item);
+            if (!success)
             {
                 item = ifMissing(key);
-                if (item != default(TItem))
-                {
-                    cache.Set(key, item);
-                }
+                cache.Set(key, item);
             }
             return item;
         }
 
         public static Task SetMany<TKey, TItem>(this ICache<TKey, TItem> cache, IEnumerable<TItem> items, Func<TItem, TKey> getKey)
-            where TItem : class
         {
             Guard.AgainstNull(cache, "cache");
             // ReSharper disable once PossibleMultipleEnumeration
@@ -46,8 +43,23 @@ namespace Jalex.Infrastructure.Caching
 
             return Task.Factory.StartNew(() =>
             {
+                // ReSharper disable once PossibleMultipleEnumeration
                 foreach (var i in items)
                     cache.Set(getKey(i), i);
+            });
+        }
+
+        public static Task DeleteMany<TKey, TItem>(this ICache<TKey, TItem> cache, IEnumerable<TKey> keys)
+        {
+            Guard.AgainstNull(cache, "cache");
+            // ReSharper disable once PossibleMultipleEnumeration
+            Guard.AgainstNull(keys, "items");
+
+            return Task.Factory.StartNew(() =>
+            {
+                // ReSharper disable once PossibleMultipleEnumeration
+                foreach (var key in keys)
+                    cache.DeleteById(key);
             });
         }
     }

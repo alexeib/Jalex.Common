@@ -10,10 +10,23 @@ using MongoDB.Driver.GridFS;
 
 namespace Jalex.Repository.MongoDB
 {
-    public class MongoDBFileRepository : BaseMongoDBRepository, IFileRepository
+    public class MongoDBFileRepository : IFileRepository
     {
-        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private bool _indicesEnsured;
+        private readonly MongoHelper _helper = new MongoHelper();
+
+        public string ConnectionString
+        {
+            get { return _helper.ConnectionString; }
+            set { _helper.ConnectionString = value; }
+        }
+
+        public string DatabaseName
+        {
+            get { return _helper.DatabaseName; }
+            set { _helper.DatabaseName = value; }
+        }
 
         public OperationResult<string> Create(string fileName, Stream fileStream)
         {
@@ -70,9 +83,9 @@ namespace Jalex.Repository.MongoDB
             return new OperationResult(true);
         }
 
-        protected MongoGridFS getGridFS()
+        private MongoGridFS getGridFS()
         {
-            var db = getMongoDatabase();
+            var db = _helper.GetMongoDatabase();
             var fs = db.GridFS;
 
             if (!_indicesEnsured)
@@ -84,14 +97,14 @@ namespace Jalex.Repository.MongoDB
             return fs;
         }
 
-        protected void ensureIndices(MongoGridFS fs)
+        private void ensureIndices(MongoGridFS fs)
         {
 
             var fileNameIndex = new IndexKeysBuilder().Ascending("filename");
             fs.Files.CreateIndex(fileNameIndex, IndexOptions.SetUnique(true));
         }
 
-        protected OperationResult<Stream> getFileStreamFromInfo(MongoGridFSFileInfo fileInfo)
+        private OperationResult<Stream> getFileStreamFromInfo(MongoGridFSFileInfo fileInfo)
         {
             OperationResult<Stream> result = new OperationResult<Stream>();
             if (fileInfo == null)

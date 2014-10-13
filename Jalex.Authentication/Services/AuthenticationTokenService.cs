@@ -34,7 +34,7 @@ namespace Jalex.Authentication.Services
 
         public OperationResult<AuthenticationToken> GetExistingToken(string token)
         {
-            var deviceToken = _repository.GetById(token);
+            var deviceToken = _repository.GetByIdOrDefault(token);
             return createTokenOperationResult(deviceToken);
         }
 
@@ -60,7 +60,7 @@ namespace Jalex.Authentication.Services
                 Created = date
             };
 
-            var result = _repository.Create(deviceToken);
+            var result = _repository.Save(deviceToken);
             deviceToken.Id = result.Value;
 
             return new OperationResult<AuthenticationToken>(result.Success, deviceToken, result.Messages.ToArray());

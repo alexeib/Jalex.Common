@@ -3,10 +3,12 @@ using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.Memory;
+using Jalex.Repository.Test;
 using Jalex.Repository.Test.Objects;
+using Jalex.Services.Repository;
 using Ploeh.AutoFixture;
 
-namespace Jalex.Repository.Test
+namespace Jalex.Services.Test.Repository
 {
     public class MappingResponsibilityTests : IQueryableRepositoryTests<TestObject>
     {

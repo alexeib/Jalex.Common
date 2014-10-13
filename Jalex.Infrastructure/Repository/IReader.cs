@@ -2,14 +2,15 @@
 
 namespace Jalex.Infrastructure.Repository
 {
-    public interface IReader<out T>
+    public interface IReader<T>
     {
         /// <summary>
         /// Retrieves an object by Ids. 
         /// </summary>
-        /// <param name="ids">the ids of the objects to retrieve</param>
-        /// <returns>The requested objects (the ones that weren't found will not be included in the set)</returns>
-        IEnumerable<T> GetByIds(IEnumerable<string> ids);
+        /// <param name="id">the id of the objects to retrieve</param>
+        /// <param name="obj"> retrieved object</param>
+        /// <returns>True if retrieval succeeded, false otherwise</returns>
+        bool TryGetById(string id, out T obj);
 
         /// <summary>
         /// Retrieves all objects in the repository

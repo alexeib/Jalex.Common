@@ -20,6 +20,12 @@ namespace Jalex.Infrastructure.Objects
             
         }
 
+        public OperationResult(bool success, T value, Severity messageSeverity, params string[] messages)
+            : base(success, messageSeverity, messages)
+        {
+            Value = value;
+        }
+
         public OperationResult(bool success, T value, params Message[] messages)
             : base(success, messages)
         {

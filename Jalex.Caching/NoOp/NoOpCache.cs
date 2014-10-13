@@ -9,6 +9,16 @@ namespace Jalex.Caching.NoOp
         // ReSharper disable once StaticFieldInGenericType
         private static readonly Task _noOpDeleter = Task.Factory.StartNew(() => { });
 
+        /// <summary>
+        ///     Gets a single entity by its unique identifier.
+        /// </summary>
+        /// <returns>false if key is not in cache, true if it is</returns>
+        public bool TryGet(TKey key, out TItem item)
+        {
+            item = default(TItem);
+            return false;
+        }
+
         public void Set(TKey key, TItem item)
         {
         }
@@ -40,11 +50,6 @@ namespace Jalex.Caching.NoOp
         public IEnumerable<KeyValuePair<TKey, TItem>> GetMany(IEnumerable<TKey> keys)
         {
             yield break;
-        }
-
-        public TItem Get(TKey key)
-        {
-            return default(TItem);
         }
 
         #region Implementation of IDisposable

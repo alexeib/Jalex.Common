@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using EmitMapper;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
+using Magnum;
 
-namespace Jalex.Repository
+namespace Jalex.Services.Repository
 {
     public class MappingResponsibility<TClass, TEntity> : IQueryableRepository<TClass>
     {
@@ -34,11 +36,19 @@ namespace Jalex.Repository
 
         #region Implementation of IReader<out TClass>
 
-        public IEnumerable<TClass> GetByIds(IEnumerable<string> ids)
+        public bool TryGetById(string id, out TClass item)
         {
-            var entities = _entityRepository.GetByIds(ids);
-            var classes = entities.Select(_entityToClassMapper.Map).ToArray();
-            return classes;
+            TEntity entity;
+            bool success = _entityRepository.TryGetById(id, out entity);
+
+            if (success)
+            {
+                item = _entityToClassMapper.Map(entity);
+                return true;
+            }
+
+            item = default(TClass);
+            return false;
         }
 
         public IEnumerable<TClass> GetAll()
@@ -52,51 +62,10 @@ namespace Jalex.Repository
 
         #region Implementation of IDeleter<TClass>
 
-        public IEnumerable<OperationResult> Delete(IEnumerable<string> ids)
+        public OperationResult Delete(string id)
         {
-            var results = _entityRepository.Delete(ids);
-            return results;
-        }
-
-        #endregion
-
-        #region Implementation of IUpdater<in TClass>
-
-        public IEnumerable<OperationResult> Update(IEnumerable<TClass> objectsToUpdate)
-        {
-            ParameterChecker.CheckForVoid(() => objectsToUpdate);
-
-            var entities = objectsToUpdate.Select(_classToEntityMapper.Map).ToArray();
-            var results = _entityRepository.Update(entities);
-            return results;
-        }
-
-        #endregion
-
-        #region Implementation of IInserter<in TClass>
-
-        public IEnumerable<OperationResult<string>> Create(IEnumerable<TClass> newObjects)
-        {
-            ParameterChecker.CheckForVoid(() => newObjects);
-
-            var objArray = newObjects.ToArray();
-
-            var entities = objArray.Select(_classToEntityMapper.Map).ToArray();
-            var results = _entityRepository.Create(entities);
-
-            var entityDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TEntity>();
-            var classDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TClass>();
-
-            for (int i = 0; i < entities.Length; i++)
-            {
-                var entity = entities[i];
-                var @class = objArray[i];
-
-                var id = entityDescriptor.GetId(entity);
-                classDescriptor.SetId(@class, id);
-            }
-
-            return results;
+            var result = _entityRepository.Delete(id);
+            return result;
         }
 
         #endregion
@@ -134,6 +103,61 @@ namespace Jalex.Repository
             var entity = _entityRepository.FirstOrDefault(entityQuery);
             var @class = _entityToClassMapper.Map(entity);
             return @class;
+        }
+
+        #endregion
+
+        #region Implementation of IWriter<in TClass>
+
+        /// <summary>
+        /// Saves an object
+        /// </summary>
+        /// <param name="obj">object to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
+        public OperationResult<string> Save(TClass obj, WriteMode writeMode)
+        {
+            var entity = _classToEntityMapper.Map(obj);
+            var result = _entityRepository.Save(entity, writeMode);
+
+            if (result.Success)
+            {
+                var classDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TClass>();
+                classDescriptor.SetId(obj, result.Value);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Saves objects
+        /// </summary>
+        /// <param name="objects">objects to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
+        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<TClass> objects, WriteMode writeMode)
+        {
+            // ReSharper disable once PossibleMultipleEnumeration
+            Guard.AgainstNull(objects);
+
+            // ReSharper disable once PossibleMultipleEnumeration
+            var objArray = objects.ToArrayEfficient();
+
+            var entities = objArray.Select(_classToEntityMapper.Map).ToArray();
+            var results = _entityRepository.SaveMany(entities, writeMode);
+
+            var entityDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TEntity>();
+            var classDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TClass>();
+
+            for (int i = 0; i < entities.Length; i++)
+            {
+                var entity = entities[i];
+                var @class = objArray[i];
+
+                var id = entityDescriptor.GetId(entity);
+                classDescriptor.SetId(@class, id);
+            }
+
+            return results;
         }
 
         #endregion

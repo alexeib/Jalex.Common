@@ -6,10 +6,10 @@ namespace Jalex.Infrastructure.Repository
     public interface IDeleter<T>
     {
         /// <summary>
-        /// Deletes an existing objects
+        /// Deletes an existing object
         /// </summary>
-        /// <param name="ids">The ids of the objects to delete</param>
+        /// <param name="id">The id of the object to delete</param>
         /// <returns>the result of the delete operation</returns>
-        IEnumerable<OperationResult> Delete(IEnumerable<string> ids);
+        OperationResult Delete(string id);
     }
 }
