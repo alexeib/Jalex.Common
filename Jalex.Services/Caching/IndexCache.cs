@@ -23,10 +23,10 @@ namespace Jalex.Services.Caching
             IReflectedTypeDescriptorProvider typeDescriptorProvider)
         {
             // ReSharper disable once PossibleMultipleEnumeration
-            ParameterChecker.CheckForEmptyCollection(indexedProperties, "indexedProperties");
-            ParameterChecker.CheckForNull(cacheFactory, "cacheFactory");
-            ParameterChecker.CheckForNull(cacheConfiguration, "cacheConfiguration");
-            ParameterChecker.CheckForNull(typeDescriptorProvider, "typeDescriptorProvider");
+            Guard.AgainstEmpty(indexedProperties, "indexedProperties");
+            Guard.AgainstNull(cacheFactory, "cacheFactory");
+            Guard.AgainstNull(cacheConfiguration, "cacheConfiguration");
+            Guard.AgainstNull(typeDescriptorProvider, "typeDescriptorProvider");
 
             _cache = cacheFactory.Create<string, string>(cacheConfiguration);
             // ReSharper disable once PossibleMultipleEnumeration
@@ -38,7 +38,7 @@ namespace Jalex.Services.Caching
 
         public void Index(T obj)
         {
-            ParameterChecker.CheckForNull(obj, "obj");
+            Guard.AgainstNull(obj, "obj");
 
             var indexKey = getIndexKey(obj);
             var objId = _typeDescriptor.GetId(obj);
@@ -48,7 +48,7 @@ namespace Jalex.Services.Caching
 
         public void DeIndex(T obj)
         {
-            ParameterChecker.CheckForNull(obj, "obj");
+            Guard.AgainstNull(obj, "obj");
 
             var indexKey = getIndexKey(obj);
 
@@ -57,7 +57,7 @@ namespace Jalex.Services.Caching
 
         public void DeIndexByQuery(Expression<Func<T, bool>> query)
         {
-            ParameterChecker.CheckForNull(query, "query");
+            Guard.AgainstNull(query, "query");
 
             var indexKey = getIndexKeyFromQuery(query); 
 
@@ -69,7 +69,7 @@ namespace Jalex.Services.Caching
 
         public string FindIdByQuery(Expression<Func<T, bool>> query)
         {
-            ParameterChecker.CheckForNull(query, "query");
+            Guard.AgainstNull(query, "query");
 
             var indexKey = getIndexKeyFromQuery(query); 
             return indexKey != null ? _cache.GetOrDefault(indexKey) : null;

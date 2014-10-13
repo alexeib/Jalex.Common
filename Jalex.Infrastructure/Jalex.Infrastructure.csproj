@@ -129,7 +129,7 @@
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Expressions\ExpressionUtils.cs" />
     <Compile Include="Expressions\ExpressionTypeChangingVisitor.cs" />
-    <Compile Include="Utils\ParameterChecker.cs" />
+    <Compile Include="Utils\Guard.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace Jalex.Infrastructure.Specifications
 
         public NotSpecification(ISpecification<T> original)
         {
-            ParameterChecker.CheckForNull(original, "original");
+            Guard.AgainstNull(original, "original");
             _original = original;
         }
 

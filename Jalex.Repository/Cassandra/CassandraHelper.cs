@@ -19,7 +19,7 @@ namespace Jalex.Repository.Cassandra
 
         public CassandraHelper(Type entityType)
         {
-            ParameterChecker.CheckForNull(entityType, "entityType");
+            Guard.AgainstNull(entityType, "entityType");
 
             IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
             _typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);

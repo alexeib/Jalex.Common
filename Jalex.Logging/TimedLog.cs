@@ -18,7 +18,7 @@ namespace Jalex.Logging
 
         public TimedLog(ILogger logger, string message)
         {
-            ParameterChecker.CheckForVoid(() => logger);
+            Guard.AgainstNull(logger, "logger");
 
             _logger = logger;
             _message = message;

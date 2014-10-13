@@ -91,7 +91,7 @@ namespace Jalex.Repository.Memory
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
         public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
-            ParameterChecker.CheckForNull(objects, "objects");
+            Guard.AgainstNull(objects, "objects");
 
             var objectArr = objects as T[] ?? objects.ToArray();
             var results = createResults(

@@ -17,6 +17,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
+using Guard = Jalex.Infrastructure.Utils.Guard;
 
 namespace Jalex.Repository.MongoDB
 {
@@ -61,7 +62,7 @@ namespace Jalex.Repository.MongoDB
 
         public bool TryGetById(string id, out T item)
         {
-            Guard.AgainstNull(id, "id");
+            Magnum.Guard.AgainstNull(id, "id");
 
             MongoCollection<T> collection = getMongoCollection();
 
@@ -98,7 +99,7 @@ namespace Jalex.Repository.MongoDB
 
         public OperationResult Delete(string id)
         {
-            ParameterChecker.CheckForNull(id, "id");
+            Guard.AgainstNull(id, "id");
             MongoCollection<T> collection = getMongoCollection();
 
             try
@@ -142,7 +143,7 @@ namespace Jalex.Repository.MongoDB
         public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            Guard.AgainstNull(objects, "objects");
+            Magnum.Guard.AgainstNull(objects, "objects");
 
             MongoCollection<T> collection = getMongoCollection();
             T[] objectArr = objects.ToArray();

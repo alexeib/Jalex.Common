@@ -7,8 +7,8 @@ namespace Jalex.Infrastructure.Utils
     {
         public static IEnumerable<T> LockAndCreateNewCollectionWithItemAppended<T>(T itemToAdd, IEnumerable<T> collection, object lockObject)
         {
-            ParameterChecker.CheckForNull(collection, "collection");
-            ParameterChecker.CheckForNull(lockObject, "lockObject");
+            Guard.AgainstNull(collection, "collection");
+            Guard.AgainstNull(lockObject, "lockObject");
 
             lock (lockObject)
             {

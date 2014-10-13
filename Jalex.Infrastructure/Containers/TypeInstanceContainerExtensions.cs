@@ -7,7 +7,7 @@ namespace Jalex.Infrastructure.Containers
     {
         public static void SetMany<T>(this TypeInstanceContainer<T> metricContainer, IEnumerable<T> metrics) where T : class
         {
-            ParameterChecker.CheckForNull(metrics, "metrics");
+            Guard.AgainstNull(metrics, "metrics");
 
             foreach (var metric in metrics)
             {

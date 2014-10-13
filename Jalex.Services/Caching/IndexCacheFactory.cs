@@ -19,9 +19,9 @@ namespace Jalex.Services.Caching
             Action<ICacheStrategyConfiguration> cacheConfiguration,
             IReflectedTypeDescriptorProvider reflectedTypeDescriptorProvider)
         {
-            ParameterChecker.CheckForNull(cacheFactory, "cacheFactory");
-            ParameterChecker.CheckForNull(cacheConfiguration, "cacheConfiguration");
-            ParameterChecker.CheckForNull(reflectedTypeDescriptorProvider, "reflectedTypeDescriptorProvider");
+            Guard.AgainstNull(cacheFactory, "cacheFactory");
+            Guard.AgainstNull(cacheConfiguration, "cacheConfiguration");
+            Guard.AgainstNull(reflectedTypeDescriptorProvider, "reflectedTypeDescriptorProvider");
 
             _cacheFactory = cacheFactory;
             _cacheConfiguration = cacheConfiguration;

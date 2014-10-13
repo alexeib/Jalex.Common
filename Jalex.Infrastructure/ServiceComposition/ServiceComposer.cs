@@ -13,7 +13,7 @@ namespace Jalex.Infrastructure.ServiceComposition
 
         public ServiceComposer(IEnumerable<IComposableService<T>> composableServices)
         {
-            ParameterChecker.CheckForNull(composableServices, "composableServices");
+            Guard.AgainstNull(composableServices, "composableServices");
             _composableServices = composableServices;
         }
 

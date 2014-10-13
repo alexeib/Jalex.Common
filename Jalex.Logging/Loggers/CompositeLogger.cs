@@ -12,7 +12,7 @@ namespace Jalex.Logging.Loggers
 
         public CompositeLogger(IEnumerable<ILogger> loggers)
         {
-            ParameterChecker.CheckForVoid(() => loggers);
+            Guard.AgainstNull(loggers, "loggers");
             _loggers = loggers as ILogger[] ?? loggers.ToArray();
         }
 

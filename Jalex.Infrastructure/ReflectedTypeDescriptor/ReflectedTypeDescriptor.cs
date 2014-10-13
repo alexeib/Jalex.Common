@@ -48,7 +48,7 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 
         public string GetId(T target)
         {
-            ParameterChecker.CheckForNull(target, "target");
+            Guard.AgainstNull(target, "target");
             return _idGetter(target);
         }
 
@@ -59,8 +59,8 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 
         public object GetPropertyValue(string propertyName, T obj)
         {
-            ParameterChecker.CheckForNull(propertyName, "propertyName");
-            ParameterChecker.CheckForNull(propertyName, "obj");
+            Guard.AgainstNull(propertyName, "propertyName");
+            Guard.AgainstNull(propertyName, "obj");
 
             var propGetter = _propNameToGetter.GetOrAdd(propertyName, createGetter);
             var val = propGetter(obj);

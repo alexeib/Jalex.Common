@@ -12,7 +12,7 @@ namespace Jalex.Infrastructure.Dataflow
 
         public FilterBlock(Func<T, bool> predicate)
         {
-            ParameterChecker.CheckForNull(predicate, "predicate");
+            Guard.AgainstNull(predicate, "predicate");
 
             _predicate = predicate;
             _bufferBlock = new BufferBlock<T>();

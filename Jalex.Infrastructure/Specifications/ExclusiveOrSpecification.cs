@@ -9,8 +9,8 @@ namespace Jalex.Infrastructure.Specifications
 
         public ExclusiveOrSpecification(ISpecification<T> first, ISpecification<T> second)
         {
-            ParameterChecker.CheckForNull(first, "first");
-            ParameterChecker.CheckForNull(second, "second");
+            Guard.AgainstNull(first, "first");
+            Guard.AgainstNull(second, "second");
 
             _first = first;
             _second = second;
