@@ -34,6 +34,15 @@ namespace Jalex.Infrastructure.Caching
             return item;
         }
 
+        public static TItem GetOrDefault<TKey, TItem>(this ICache<TKey, TItem> cache, TKey key)
+        {
+            Guard.AgainstNull(cache, "cache");
+
+            TItem item;
+            cache.TryGet(key, out item);
+            return item;
+        }
+
         public static Task SetMany<TKey, TItem>(this ICache<TKey, TItem> cache, IEnumerable<TItem> items, Func<TItem, TKey> getKey)
         {
             Guard.AgainstNull(cache, "cache");

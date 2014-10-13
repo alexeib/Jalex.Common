@@ -46,7 +46,7 @@ namespace Jalex.Repository.Test
         {
             var sampleEntity = _sampleTestEntitys.First();
 
-            var createResult = _testEntityRepository.Save(sampleEntity);
+            var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
 
             createResult.Success.Should().BeTrue();
             createResult.Value.Should().NotBeNullOrEmpty();
@@ -63,7 +63,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void CreatesManyEntities()
         {
-            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys).ToArray();
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Insert).ToArray();
 
             createResult.All(r => r.Success).Should().BeTrue();
             createResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
@@ -99,7 +99,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void DoesNotCreateEntitiesWithInvalidIds()
         {
-            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Save(new T { Id = "FakeId", Name = "FakeName"}));
+            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Save(new T { Id = "FakeId", Name = "FakeName"}, WriteMode.Insert));
             exception.Should().NotBeNull();
         }
 
@@ -112,7 +112,7 @@ namespace Jalex.Repository.Test
                                                                                                 {
                                                                                                     new T { Id = id, Name = "SameId" },
                                                                                                     new T { Id = id, Name = "SameId" }
-                                                                                                }));
+                                                                                                }, WriteMode.Insert));
             exception.Should().NotBeNull();
         }
 
@@ -121,7 +121,7 @@ namespace Jalex.Repository.Test
         {
             var sampleEntity = _sampleTestEntitys.First();
 
-            var createResult = _testEntityRepository.Save(sampleEntity);
+            var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
             createResult.Success.Should().BeTrue();
 
             var deleteResult = _testEntityRepository.Delete(sampleEntity.Id);
@@ -146,7 +146,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void RetrievesOneEntityById()
         {
-            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
             createResult.All(r => r.Success).Should().BeTrue();
 
             var targetEntity = _sampleTestEntitys.First();
@@ -161,7 +161,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void RetrievesAllEntities()
         {
-            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
             createResult.All(r => r.Success).Should().BeTrue();
 
             var retrievedTestEntitys = _testEntityRepository.GetAll().ToArray();
@@ -184,7 +184,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void UpdatesExistingEntity()
         {
-            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
             createResult.All(r => r.Success).Should().BeTrue();
 
             var testEntityToUpdate = _sampleTestEntitys.Last();
@@ -207,7 +207,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void UpdatesExistingEntityWithUpsert()
         {
-            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys);
+            var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
             createResult.All(r => r.Success).Should().BeTrue();
 
             var testEntityToUpdate = _sampleTestEntitys.Last();

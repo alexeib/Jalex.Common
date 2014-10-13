@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 
-namespace Jalex.Infrastructure.Utils
+namespace Jalex.Infrastructure.Expressions
 {
     internal class ExpressionTypeChangingVisitor<TFrom, TTo> : ExpressionVisitor
     {

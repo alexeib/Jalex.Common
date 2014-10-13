@@ -43,12 +43,29 @@
     <Reference Include="EmitMapper">
       <HintPath>..\packages\EmitMapper.1.0.0\lib\EmitMapper.dll</HintPath>
     </Reference>
+    <Reference Include="FluentAssertions, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.1.7.2.0\lib\NET45\NSubstitute.dll</HintPath>
+    </Reference>
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\packages\AutoFixture.3.20.2\lib\net40\Ploeh.AutoFixture.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Choose>
@@ -60,13 +77,26 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Caching\IndexCacheFactoryTests.cs" />
+    <Compile Include="Fixtures\SimpleEntity.cs" />
+    <Compile Include="Fixtures\TestEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Caching\CacheResponsibilityTests.cs" />
+    <Compile Include="Caching\IndexCacheTests.cs" />
     <Compile Include="Repository\MappingResponsibilityTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Jalex.Caching\Jalex.Caching.csproj">
+      <Project>{7E65DE97-C2FD-45DB-B207-AB0471563CEE}</Project>
+      <Name>Jalex.Caching</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Jalex.Infrastructure\Jalex.Infrastructure.csproj">
       <Project>{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}</Project>
       <Name>Jalex.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Jalex.Logging\Jalex.Logging.csproj">
+      <Project>{2463F658-6A65-4951-B020-F7EA2E2033B6}</Project>
+      <Name>Jalex.Logging</Name>
     </ProjectReference>
     <ProjectReference Include="..\Jalex.Repository.Test\Jalex.Repository.Test.csproj">
       <Project>{E1619C88-B558-4AE2-B456-D640109B05D5}</Project>

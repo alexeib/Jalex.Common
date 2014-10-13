@@ -11,5 +11,7 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 
         string GetId(T target);
         void SetId(T target, string id);
+
+        object GetPropertyValue(string propertyName, T obj);
     }
 }

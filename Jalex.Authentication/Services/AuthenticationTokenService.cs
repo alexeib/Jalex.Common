@@ -14,7 +14,7 @@ namespace Jalex.Authentication.Services
 
         public TimeSpan TokenTimeout { get; private set; }
 
-        protected readonly IQueryableRepository<AuthenticationToken> _repository;
+        private readonly IQueryableRepository<AuthenticationToken> _repository;
         public AuthenticationTokenService(IQueryableRepository<AuthenticationToken> repository)
         {
             _repository = repository;
@@ -60,7 +60,7 @@ namespace Jalex.Authentication.Services
                 Created = date
             };
 
-            var result = _repository.Save(deviceToken);
+            var result = _repository.Save(deviceToken, WriteMode.Insert);
             deviceToken.Id = result.Value;
 
             return new OperationResult<AuthenticationToken>(result.Success, deviceToken, result.Messages.ToArray());

@@ -1,13 +1,15 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
+using Jalex.Infrastructure.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
 
-namespace Jalex.Repository.Test
+namespace Jalex.Infrastructure.Test.ReflectedTypeDescriptor
 {
     public class ReflectedTypeDescriptorTests
     {
-        private IFixture _fixture;
+        private readonly IFixture _fixture;
 
         public ReflectedTypeDescriptorTests()
         {
@@ -59,6 +61,42 @@ namespace Jalex.Repository.Test
             var provider = _fixture.Create<IReflectedTypeDescriptorProvider>();
             var sut = provider.GetReflectedTypeDescriptor<TestObject>();
             sut.IdPropertyName.Should().Be("Id");
+        }
+
+        [Fact]
+        public void Gets_Value_Of_Property_By_Name()
+        {
+            var provider = _fixture.Create<IReflectedTypeDescriptorProvider>();
+            
+            var obj = _fixture.Create<TestObject>();
+            var sut = provider.GetReflectedTypeDescriptor<TestObject>();
+
+            var propValue = sut.GetPropertyValue("RefId", obj);
+            propValue.Should().Be(obj.RefId);
+        }
+
+        [Fact]
+        public void Gets_Value_Of_Property_By_Name_If_Prop_Is_Number()
+        {
+            var provider = _fixture.Create<IReflectedTypeDescriptorProvider>();
+
+            var obj = _fixture.Create<TestObject>();
+            var sut = provider.GetReflectedTypeDescriptor<TestObject>();
+
+            var propValue = sut.GetPropertyValue("Number", obj);
+            propValue.Should().Be(obj.Number);
+        }
+
+        [Fact]
+        public void Throws_On_Invalid_Property()
+        {
+            var provider = _fixture.Create<IReflectedTypeDescriptorProvider>();
+
+            var obj = _fixture.Create<TestObject>();
+            var propName = _fixture.Create<string>();
+            var sut = provider.GetReflectedTypeDescriptor<TestObject>();
+
+            sut.Invoking(s => s.GetPropertyValue(propName, obj)).ShouldThrow<ArgumentException>();
         }
     }
 }

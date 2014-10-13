@@ -152,6 +152,7 @@ namespace Jalex.Repository.MongoDB
                 switch (writeMode)
                 {
                     case WriteMode.Insert:
+                        ensureObjectIds(writeMode, objectArr);
                         collection.InsertBatch(objectArr);
                         return objectArr
                                     .Select(r => new OperationResult<string>(true, _typeDescriptor.GetId(r)))

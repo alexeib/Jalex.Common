@@ -51,7 +51,7 @@ namespace Jalex.Repository
                     .ToList();
         }
 
-        private void ensureObjectIds(WriteMode writeMode, IEnumerable<T> objects)
+        protected void ensureObjectIds(WriteMode writeMode, IEnumerable<T> objects)
         {
             HashSet<string> ids = new HashSet<string>();
 

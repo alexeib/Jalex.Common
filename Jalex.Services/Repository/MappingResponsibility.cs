@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using EmitMapper;
+using Jalex.Infrastructure.Expressions;
 using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;

@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 
-namespace Jalex.Infrastructure.Utils
+namespace Jalex.Infrastructure.Expressions
 {
     public static class ExpressionUtils
     {
@@ -20,6 +20,11 @@ namespace Jalex.Infrastructure.Utils
 
             Expression propertyGetterExpression = Expression.Property(paramExpression, propertyName);
 
+            if (typeof (TProperty) != propertyGetterExpression.Type)
+            {
+                propertyGetterExpression = Expression.Convert(propertyGetterExpression, typeof (TProperty));
+            }
+            
             return Expression.Lambda<Func<TObject, TProperty>>(propertyGetterExpression, paramExpression);
         }
 
@@ -35,7 +40,7 @@ namespace Jalex.Infrastructure.Utils
             Action<TObject, TProperty> result = Expression.Lambda<Action<TObject, TProperty>>(
                 Expression.Assign(propertyGetterExpression, paramExpression2), paramExpression, paramExpression2
             ).Compile();
-
+            
             return result;
         }
 
@@ -47,6 +52,14 @@ namespace Jalex.Infrastructure.Utils
             var visitor = new ExpressionTypeChangingVisitor<TFrom, TTo>(parameter, reflectedTypeDescriptorProvider);
             Expression body = visitor.Visit(expression.Body);
             return Expression.Lambda<Func<TTo, TRet>>(body, parameter);
+        }
+
+        public static T GetExpressionValue<T>(Expression member)
+        {
+            var objectMember = Expression.Convert(member, typeof(T));
+            var getterLambda = Expression.Lambda<Func<T>>(objectMember);
+            var getter = getterLambda.Compile();
+            return getter();
         }
     }
 }

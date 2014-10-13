@@ -95,7 +95,9 @@
     <Compile Include="Objects\IInterface.cs" />
     <Compile Include="Objects\InterfaceImpl.cs" />
     <Compile Include="Objects\InterfaceImpl2.cs" />
+    <Compile Include="Objects\TestObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectedTypeDescriptor\ReflectedTypeDescriptorTests.cs" />
     <Compile Include="ServiceComposition\ServiceComposerTests.cs" />
     <Compile Include="Specifications\SpecificationsTests.cs" />
     <Compile Include="Utils\CollectionUtilsTests.cs" />
