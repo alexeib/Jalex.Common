@@ -16,5 +16,10 @@ namespace Jalex.Infrastructure.Repository
             T item;
             return repository.TryGetById(id, out item) ? item : default(T);
         }
+
+        public static IEnumerable<T> GetManyByIdOrDefault<T>(this IReader<T> repository, IEnumerable<string> ids)
+        {
+            return ids.Select(repository.GetByIdOrDefault);
+        }
     }
 }

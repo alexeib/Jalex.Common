@@ -36,8 +36,6 @@ namespace Jalex.Infrastructure.Expressions
             #endregion
         }
 
-
-
         public IEnumerable<Expression> FindExpressionNodes(Expression root, ExpressionType type)
         {
             var finder = new ExpressionNodeFindingVisitor(type);
