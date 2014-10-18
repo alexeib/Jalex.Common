@@ -35,6 +35,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="EmitMapper">
       <HintPath>..\packages\EmitMapper.1.0.0\lib\EmitMapper.dll</HintPath>
     </Reference>
@@ -62,6 +65,7 @@
     <Compile Include="Caching\CacheResponsibility.cs" />
     <Compile Include="Caching\IndexCache.cs" />
     <Compile Include="Repository\MappingResponsibility.cs" />
+    <Compile Include="ServicesModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jalex.Infrastructure\Jalex.Infrastructure.csproj">

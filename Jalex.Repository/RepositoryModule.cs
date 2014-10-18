@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
 using Jalex.Repository.IdProviders;
@@ -16,9 +15,6 @@ namespace Jalex.Repository
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<ReflectedTypeDescriptorProvider>()
-                                       .As<IReflectedTypeDescriptorProvider>()
-                                       .InstancePerLifetimeScope();
 
             switch (RepositoryType)
             {
@@ -26,10 +22,10 @@ namespace Jalex.Repository
 
                     builder.RegisterType<GuidIdProvider>()
                                        .As<IIdProvider>()
-                                       .InstancePerLifetimeScope();
+                                       .InstancePerLifetimeScope();                    
 
                     builder.RegisterGeneric(typeof(CassandraRepository<>))
-                                        .As(typeof(IQueryableRepository<>))
+                                        .Named("repository", typeof(IQueryableRepository<>))
                                         .InstancePerLifetimeScope();
 
                     break;
@@ -40,7 +36,7 @@ namespace Jalex.Repository
                                        .InstancePerLifetimeScope();
 
                     builder.RegisterGeneric(typeof(MongoDBRepository<>))
-                                        .As(typeof(IQueryableRepository<>))
+                                        .Named("repository", typeof(IQueryableRepository<>))
                                         .InstancePerLifetimeScope();
 
                     builder.RegisterType<MongoDBFileRepository>()
@@ -49,7 +45,7 @@ namespace Jalex.Repository
 
                     break;
                 default:
-                    throw new NotSupportedException("Repository of type " + RepositoryType + " is not supported");
+                    throw new ArgumentOutOfRangeException("Repository of type " + RepositoryType + " is not supported");
 
             }
         }
