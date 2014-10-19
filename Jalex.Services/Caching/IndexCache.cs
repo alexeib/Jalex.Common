@@ -105,7 +105,7 @@ namespace Jalex.Services.Caching
                 }
 
                 string propName = propExpr.Member.Name;
-                object val = ExpressionUtils.GetExpressionValue<object>(otherExpr);
+                object val = ExpressionUtils.GetExpressionValue(otherExpr);
 
                 equalityCheckedProps[propName] = val;
             }

@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
+using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Infrastructure.Expressions
 {
@@ -54,12 +57,56 @@ namespace Jalex.Infrastructure.Expressions
             return Expression.Lambda<Func<TTo, TRet>>(body, parameter);
         }
 
-        public static T GetExpressionValue<T>(Expression member)
+        public static object GetExpressionValue(Expression expression)
         {
-            var objectMember = Expression.Convert(member, typeof(T));
-            var getterLambda = Expression.Lambda<Func<T>>(objectMember);
-            var getter = getterLambda.Compile();
-            return getter();
+            Guard.AgainstNull(expression, "expression");
+
+            var ce = expression as ConstantExpression;
+            if (ce != null)
+            {
+                return ce.Value;
+            }
+
+            var ma = expression as MemberExpression;
+            if (ma != null)
+            {
+                var se = ma.Expression;
+                object val = null;
+                if (se != null)
+                {
+                    val = GetExpressionValue(se);
+                }
+
+                var fi = ma.Member as FieldInfo;
+                if (fi != null)
+                {
+                    return fi.GetValue(val);
+                }
+                var pi = ma.Member as PropertyInfo;
+                if (pi != null)
+                {
+                    return pi.GetValue(val);
+                }
+            }
+
+            var mce = expression as MethodCallExpression;
+            if (mce != null)
+            {
+                return mce.Method.Invoke(GetExpressionValue(mce.Object), mce.Arguments.Select(GetExpressionValue).ToArray());
+            }
+
+            var le = expression as LambdaExpression;
+            if (le != null)
+            {
+                if (le.Parameters.Count == 0)
+                {
+                    return GetExpressionValue(le.Body);
+                }
+                return le.Compile().DynamicInvoke();
+            }
+
+            var dynamicInvoke = Expression.Lambda(expression).Compile().DynamicInvoke();
+            return dynamicInvoke;
         }
     }
 }
