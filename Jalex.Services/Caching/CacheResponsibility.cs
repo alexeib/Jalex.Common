@@ -94,7 +94,16 @@ namespace Jalex.Services.Caching
 
             if (result.Success)
             {
-                _keyCache.DeleteById(id);
+                T obj;
+                if (_keyCache.TryGet(id, out obj))
+                {
+                    _keyCache.DeleteById(id);
+
+                    foreach (var indexCache in _indexCaches)
+                    {
+                        indexCache.DeIndex(obj);
+                    }
+                }
             }
 
             return result;
@@ -224,31 +233,41 @@ namespace Jalex.Services.Caching
                 return false;
             }
 
-            var compiledQuery = new Lazy<Func<T, bool>>(query.Compile);
-
             foreach (var indexCache in _indexCaches)
             {
                 var objId = indexCache.FindIdByQuery(query);
-                if (objId != null)
+                if (objId != null && TryGetById(objId, out retrieved))
                 {
-                    var success = TryGetById(objId, out retrieved);
-                    if (success)
-                    {
-                        if (compiledQuery.Value(retrieved))
-                        {
-                            //success
-                            return true;
-                        }
-
-                        // stale index
-                        indexCache.DeIndexByQuery(query);
-                        indexCache.Index(retrieved);
-                    }
+                    return true;
                 }
             }
 
             retrieved = default(T);
             return false;
+
+            // alternative implementation that checks for stale index
+            //var compiledQuery = new Lazy<Func<T, bool>>(query.Compile);
+
+            //foreach (var indexCache in _indexCaches)
+            //{
+            //    var objId = indexCache.FindIdByQuery(query);
+            //    if (objId != null)
+            //    {
+            //        var success = TryGetById(objId, out retrieved);
+            //        if (success)
+            //        {
+            //            if (compiledQuery.Value(retrieved))
+            //            {
+            //                //success
+            //                return true;
+            //            }
+
+            //            // stale index
+            //            indexCache.DeIndexByQuery(query);
+            //            indexCache.Index(retrieved);
+            //        }
+            //    }
+            //}
         }
     }
 }
