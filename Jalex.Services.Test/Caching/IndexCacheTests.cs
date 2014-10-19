@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting.Proxies;
 using FluentAssertions;
 using FluentAssertions.Common;
 using Jalex.Caching.Memory;
@@ -119,6 +118,47 @@ namespace Jalex.Services.Test.Caching
                 .GetAll()
                 .Should()
                 .BeEmpty();
+        }
+
+        [Fact]
+        public void Index_By_Query_With_Null_Adds_To_Cache()
+        {
+            var cache = _fixture.Freeze<ICache<string, string>>();
+            var indexCache = new IndexCache<TestEntity>(
+                new[] { "ClusteredKey", "ClusteredKey2" },
+                _fixture.Create<ICacheFactory>(),
+                _fixture.Create<Action<ICacheStrategyConfiguration>>(),
+                _fixture.Create<IReflectedTypeDescriptorProvider>());
+
+            string clusteredKeyVal = _fixture.Create<string>(), clusteredKeyVal2 = _fixture.Create<string>();
+
+            indexCache.IndexByQuery(e => e.ClusteredKey == clusteredKeyVal && e.ClusteredKey2 == clusteredKeyVal2, null);
+
+            cache
+                .GetAll()
+                .Should()
+                .ContainSingle(kvp => kvp.Value.IsSameOrEqualTo(null));
+        }
+
+        [Fact]
+        public void Index_By_Query_With_Specific_Id_Adds_To_Cache()
+        {
+            var cache = _fixture.Freeze<ICache<string, string>>();
+            var indexCache = new IndexCache<TestEntity>(
+                new[] { "ClusteredKey", "ClusteredKey2" },
+                _fixture.Create<ICacheFactory>(),
+                _fixture.Create<Action<ICacheStrategyConfiguration>>(),
+                _fixture.Create<IReflectedTypeDescriptorProvider>());
+
+            string clusteredKeyVal = _fixture.Create<string>(), clusteredKeyVal2 = _fixture.Create<string>();
+            string id = _fixture.Create<string>();
+
+            indexCache.IndexByQuery(e => e.ClusteredKey == clusteredKeyVal && e.ClusteredKey2 == clusteredKeyVal2, id);
+
+            cache
+                .GetAll()
+                .Should()
+                .ContainSingle(kvp => kvp.Value.IsSameOrEqualTo(id));
         }
 
         [Fact]

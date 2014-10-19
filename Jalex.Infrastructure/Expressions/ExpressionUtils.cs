@@ -92,7 +92,8 @@ namespace Jalex.Infrastructure.Expressions
             var mce = expression as MethodCallExpression;
             if (mce != null)
             {
-                return mce.Method.Invoke(GetExpressionValue(mce.Object), mce.Arguments.Select(GetExpressionValue).ToArray());
+                var obj = mce.Object != null ? GetExpressionValue(mce.Object) : null;
+                return mce.Method.Invoke(obj, mce.Arguments.Select(GetExpressionValue).ToArray());
             }
 
             var le = expression as LambdaExpression;

@@ -55,6 +55,18 @@ namespace Jalex.Services.Caching
             _cache.DeleteById(indexKey);
         }
 
+        public void IndexByQuery(Expression<Func<T, bool>> query, string id)
+        {
+            Guard.AgainstNull(query, "query");
+
+            var indexKey = getIndexKeyFromQuery(query);
+
+            if (indexKey != null)
+            {
+                _cache.Set(indexKey, id);
+            }
+        }
+
         public void DeIndexByQuery(Expression<Func<T, bool>> query)
         {
             Guard.AgainstNull(query, "query");

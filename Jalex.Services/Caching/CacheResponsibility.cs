@@ -121,6 +121,12 @@ namespace Jalex.Services.Caching
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
         public OperationResult<string> Save(T obj, WriteMode writeMode)
         {
+            if (writeMode != WriteMode.Insert)
+            {
+                string id = _typeDescriptor.GetId(obj);
+                deIndexItemWithId(id);
+            }
+
             var result = _repository.Save(obj, writeMode);
             if (result.Success)
             {
@@ -138,6 +144,16 @@ namespace Jalex.Services.Caching
         public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             var objArr = objects.ToArrayEfficient();
+
+            if (writeMode != WriteMode.Insert)
+            {
+                foreach (var obj in objArr)
+                {
+                    string id = _typeDescriptor.GetId(obj);
+                    deIndexItemWithId(id);
+                }
+            }
+
             var results = _repository.SaveMany(objArr, writeMode).ToArrayEfficient();
 
             if (objArr.Length != results.Length)
@@ -173,7 +189,7 @@ namespace Jalex.Services.Caching
             var items = _repository.Query(query);
             foreach (var item in items)
             {
-                cacheItem(item);
+                cacheItemAndIndexIfNull(item, query);
                 yield return item;
             }
         }
@@ -188,11 +204,42 @@ namespace Jalex.Services.Caching
             }
 
             var item = _repository.FirstOrDefault(query);
-            cacheItem(item);
+            cacheItemAndIndexIfNull(item, query);
             return item;
         }
 
         #endregion
+
+        private void cacheItemAndIndexIfNull(T item, Expression<Func<T, bool>> query)
+        {
+            var cached = cacheItem(item);
+
+            // item or key is null - index this fact
+            if (!cached)
+            {
+                foreach (var indexCache in _indexCaches)
+                {
+                    indexCache.IndexByQuery(query, null);
+                }
+            }
+        }
+
+        private void deIndexItemWithId(string id)
+        {
+            if (id == null)
+            {
+                return;
+            }
+
+            T obj;
+            if (_keyCache.TryGet(id, out obj))
+            {
+                foreach (var indexCache in _indexCaches)
+                {
+                    indexCache.DeIndex(obj);
+                }
+            }
+        }
 
         private bool tryGetFromRepositoryByIdAndCache(string id, out T entity)
         {
@@ -204,18 +251,18 @@ namespace Jalex.Services.Caching
             return success;
         }
 
-        private void cacheItem(T item)
+        private bool cacheItem(T item)
         {
             if (item == null)
             {
-                return;
+                return false;
             }
 
             var id = _typeDescriptor.GetId(item);
 
             if (id == null)
             {
-                return;
+                return false;
             }
 
             _keyCache.Set(id, item);
@@ -223,6 +270,8 @@ namespace Jalex.Services.Caching
             {
                 indexCache.Index(item);
             }
+
+            return true;
         }
 
         private bool tryGetCachedObjectFromQuery(Expression<Func<T, bool>> query, out T retrieved)
@@ -244,30 +293,6 @@ namespace Jalex.Services.Caching
 
             retrieved = default(T);
             return false;
-
-            // alternative implementation that checks for stale index
-            //var compiledQuery = new Lazy<Func<T, bool>>(query.Compile);
-
-            //foreach (var indexCache in _indexCaches)
-            //{
-            //    var objId = indexCache.FindIdByQuery(query);
-            //    if (objId != null)
-            //    {
-            //        var success = TryGetById(objId, out retrieved);
-            //        if (success)
-            //        {
-            //            if (compiledQuery.Value(retrieved))
-            //            {
-            //                //success
-            //                return true;
-            //            }
-
-            //            // stale index
-            //            indexCache.DeIndexByQuery(query);
-            //            indexCache.Index(retrieved);
-            //        }
-            //    }
-            //}
         }
     }
 }
