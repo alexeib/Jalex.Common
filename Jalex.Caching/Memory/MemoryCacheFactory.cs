@@ -49,7 +49,7 @@ namespace Jalex.Caching.Memory
 
             var key = cacheNameBuilder.ToString();
 
-            return _caches.GetOrAdd(key, new MemoryCache<TKey, TEntity>()) as MemoryCache<TKey, TEntity>;
+            return (MemoryCache<TKey, TEntity>)_caches.GetOrAdd(key, new MemoryCache<TKey, TEntity>());
         }
 
         public IEnumerable<string> GetCacheNames()

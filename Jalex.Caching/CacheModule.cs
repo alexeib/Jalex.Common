@@ -23,7 +23,7 @@ namespace Jalex.Caching
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<Action<ICacheStrategyConfiguration>>(context => (conf) => { })
+                .Register<Action<ICacheStrategyConfiguration>>(context => (conf) => conf.UseTypedScope())
                 .SingleInstance();
 
             switch (CacheType)
