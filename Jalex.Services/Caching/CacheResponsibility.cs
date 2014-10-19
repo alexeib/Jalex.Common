@@ -224,7 +224,7 @@ namespace Jalex.Services.Caching
                 return false;
             }
 
-            var compiledQuery = query.Compile();
+            var compiledQuery = new Lazy<Func<T, bool>>(query.Compile);
 
             foreach (var indexCache in _indexCaches)
             {
@@ -234,7 +234,7 @@ namespace Jalex.Services.Caching
                     var success = TryGetById(objId, out retrieved);
                     if (success)
                     {
-                        if (compiledQuery(retrieved))
+                        if (compiledQuery.Value(retrieved))
                         {
                             //success
                             return true;

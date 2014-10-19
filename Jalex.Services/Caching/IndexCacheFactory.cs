@@ -34,11 +34,16 @@ namespace Jalex.Services.Caching
         {
             var reflectedTypeDescrptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<T>();
             
+            List<IIndexCache<T>> indexCaches = new List<IIndexCache<T>>();
+
             // for now just index clustered indices. In the future we may support unique indices as well
             if (reflectedTypeDescrptor.HasClusteredIndices)
             {
-                yield return createClusteredIndexCache(reflectedTypeDescrptor);
+                var clusteredIndexCache = createClusteredIndexCache(reflectedTypeDescrptor);
+                indexCaches.Add(clusteredIndexCache);
             }
+
+            return indexCaches;
         }        
 
         #endregion
