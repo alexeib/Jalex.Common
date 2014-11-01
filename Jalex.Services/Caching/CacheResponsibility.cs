@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using Jalex.Infrastructure.Caching;
 using Jalex.Infrastructure.Extensions;
@@ -17,8 +16,7 @@ namespace Jalex.Services.Caching
     public class CacheResponsibility<T> : IQueryableRepository<T>
         where T : class
     {
-        private readonly ICache<string, T> _keyCache;
-        private readonly IEnumerable<IIndexCache<T>> _indexCaches;
+        private readonly ICache<string, T> _keyCache;        
         private readonly IQueryableRepository<T> _repository;
         private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
@@ -35,19 +33,16 @@ namespace Jalex.Services.Caching
         public CacheResponsibility(
             IQueryableRepository<T> repository,
             IReflectedTypeDescriptorProvider typeDescriptorProvider,
-            ICacheFactory cacheFactory,
-            IIndexCacheFactory indexCacheFactory,
+            ICacheFactory cacheFactory,            
             Action<ICacheStrategyConfiguration> cacheConfiguration)
         {
             Guard.AgainstNull(repository, "repository");
             Guard.AgainstNull(typeDescriptorProvider, "typeDescriptorProvider");
             Guard.AgainstNull(cacheFactory, "cacheFactory");
-            Guard.AgainstNull(indexCacheFactory, "indexCacheFactory");
             Guard.AgainstNull(cacheConfiguration, "cacheConfiguration");
 
             _repository = repository;
-            _keyCache = cacheFactory.Create<string, T>(cacheConfiguration);
-            _indexCaches = indexCacheFactory.CreateIndexCachesForType<T>();
+            _keyCache = cacheFactory.Create<string, T>(cacheConfiguration);            
             _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
         }
 
@@ -94,16 +89,7 @@ namespace Jalex.Services.Caching
 
             if (result.Success)
             {
-                T obj;
-                if (_keyCache.TryGet(id, out obj))
-                {
-                    _keyCache.DeleteById(id);
-
-                    foreach (var indexCache in _indexCaches)
-                    {
-                        indexCache.DeIndex(obj);
-                    }
-                }
+                _keyCache.DeleteById(id);
             }
 
             return result;
@@ -121,12 +107,6 @@ namespace Jalex.Services.Caching
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
         public OperationResult<string> Save(T obj, WriteMode writeMode)
         {
-            if (writeMode != WriteMode.Insert)
-            {
-                string id = _typeDescriptor.GetId(obj);
-                deIndexItemWithId(id);
-            }
-
             var result = _repository.Save(obj, writeMode);
             if (result.Success)
             {
@@ -144,15 +124,6 @@ namespace Jalex.Services.Caching
         public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             var objArr = objects.ToArrayEfficient();
-
-            if (writeMode != WriteMode.Insert)
-            {
-                foreach (var obj in objArr)
-                {
-                    string id = _typeDescriptor.GetId(obj);
-                    deIndexItemWithId(id);
-                }
-            }
 
             var results = _repository.SaveMany(objArr, writeMode).ToArrayEfficient();
 
@@ -178,68 +149,22 @@ namespace Jalex.Services.Caching
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {
-            T retrieved;
-            var success = tryGetCachedObjectFromQuery(query, out retrieved);
-            if (success)
-            {
-                yield return retrieved;
-                yield break;
-            }
-
             var items = _repository.Query(query);
             foreach (var item in items)
             {
-                cacheItemAndIndexIfNull(item, query);
+                cacheItem(item);
                 yield return item;
             }
         }
 
         public T FirstOrDefault(Expression<Func<T, bool>> query)
         {
-            T retrieved;
-            var success = tryGetCachedObjectFromQuery(query, out retrieved);
-            if (success)
-            {
-                return retrieved;
-            }
-
             var item = _repository.FirstOrDefault(query);
-            cacheItemAndIndexIfNull(item, query);
+            cacheItem(item);
             return item;
         }
 
         #endregion
-
-        private void cacheItemAndIndexIfNull(T item, Expression<Func<T, bool>> query)
-        {
-            var cached = cacheItem(item);
-
-            // item or key is null - index this fact
-            if (!cached)
-            {
-                foreach (var indexCache in _indexCaches)
-                {
-                    indexCache.IndexByQuery(query, null);
-                }
-            }
-        }
-
-        private void deIndexItemWithId(string id)
-        {
-            if (id == null)
-            {
-                return;
-            }
-
-            T obj;
-            if (_keyCache.TryGet(id, out obj))
-            {
-                foreach (var indexCache in _indexCaches)
-                {
-                    indexCache.DeIndex(obj);
-                }
-            }
-        }
 
         private bool tryGetFromRepositoryByIdAndCache(string id, out T entity)
         {
@@ -251,48 +176,21 @@ namespace Jalex.Services.Caching
             return success;
         }
 
-        private bool cacheItem(T item)
+        private void cacheItem(T item)
         {
             if (item == null)
             {
-                return false;
+                return;
             }
 
             var id = _typeDescriptor.GetId(item);
 
             if (id == null)
             {
-                return false;
+                return;
             }
 
             _keyCache.Set(id, item);
-            foreach (var indexCache in _indexCaches)
-            {
-                indexCache.Index(item);
-            }
-
-            return true;
-        }
-
-        private bool tryGetCachedObjectFromQuery(Expression<Func<T, bool>> query, out T retrieved)
-        {
-            if (!_indexCaches.Any())
-            {
-                retrieved = default(T);
-                return false;
-            }
-
-            foreach (var indexCache in _indexCaches)
-            {
-                var objId = indexCache.FindIdByQuery(query);
-                if (objId != null && TryGetById(objId, out retrieved))
-                {
-                    return true;
-                }
-            }
-
-            retrieved = default(T);
-            return false;
         }
     }
 }

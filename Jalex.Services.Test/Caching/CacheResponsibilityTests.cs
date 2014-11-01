@@ -157,32 +157,6 @@ namespace Jalex.Services.Test.Caching
         }
 
         [Fact]
-        public void FirstOrDefault_Uses_Cache()
-        {
-            var e1 = _fixture.Create<TestEntity>();
-            var e2 = _fixture.Create<TestEntity>();
-            var e3 = _fixture.Create<TestEntity>();
-
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
-            var indexCache = _fixture.Freeze<IIndexCache<TestEntity>>();
-            var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
-
-            indexCache.Index(e1);
-            indexCache.Index(e3);
-
-            cache.Set(e1.Id, e1);
-            cache.Set(e3.Id, e3);
-
-            repo.Save(e2, WriteMode.Insert);
-
-            var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
-
-            cacheResponsibility.FirstOrDefault(e => e.ClusteredKey == e1.ClusteredKey && e.ClusteredKey2 == e1.ClusteredKey2).ShouldBeEquivalentTo(e1);
-            cacheResponsibility.FirstOrDefault(e => e.ClusteredKey == e2.ClusteredKey && e.ClusteredKey2 == e2.ClusteredKey2).ShouldBeEquivalentTo(e2);
-            cacheResponsibility.FirstOrDefault(e => e.ClusteredKey == e3.ClusteredKey && e.ClusteredKey2 == e3.ClusteredKey2).ShouldBeEquivalentTo(e3);
-        }
-
-        [Fact]
         public void Query_Populates_Cache()
         {
             var entities = _fixture.CreateMany<TestEntity>().ToArray();
@@ -202,32 +176,6 @@ namespace Jalex.Services.Test.Caching
                 .GetAll()
                 .Should()
                 .ContainSingle(kvp => kvp.Key == retrieved.Id && kvp.Value.IsSameOrEqualTo(retrieved));
-        }
-
-        [Fact]
-        public void Query_Uses_Cache()
-        {
-            var e1 = _fixture.Create<TestEntity>();
-            var e2 = _fixture.Create<TestEntity>();
-            var e3 = _fixture.Create<TestEntity>();
-
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
-            var indexCache = _fixture.Freeze<IIndexCache<TestEntity>>();
-            var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
-
-            indexCache.Index(e1);
-            indexCache.Index(e3);
-
-            cache.Set(e1.Id, e1);
-            cache.Set(e3.Id, e3);
-
-            repo.Save(e2, WriteMode.Insert);
-
-            var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
-
-            cacheResponsibility.Query(e => e.ClusteredKey == e1.ClusteredKey && e.ClusteredKey2 == e1.ClusteredKey2).FirstOrDefault().ShouldBeEquivalentTo(e1);
-            cacheResponsibility.Query(e => e.ClusteredKey == e2.ClusteredKey && e.ClusteredKey2 == e2.ClusteredKey2).FirstOrDefault().ShouldBeEquivalentTo(e2);
-            cacheResponsibility.Query(e => e.ClusteredKey == e3.ClusteredKey && e.ClusteredKey2 == e3.ClusteredKey2).FirstOrDefault().ShouldBeEquivalentTo(e3);
         }
 
         [Fact]

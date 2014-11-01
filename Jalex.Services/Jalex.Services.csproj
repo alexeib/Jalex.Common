@@ -61,6 +61,7 @@
     <Compile Include="Caching\IIndexCache.cs" />
     <Compile Include="Caching\IIndexCacheFactory.cs" />
     <Compile Include="Caching\IndexCacheFactory.cs" />
+    <Compile Include="Caching\IndexCacheResponsibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Caching\CacheResponsibility.cs" />
     <Compile Include="Caching\IndexCache.cs" />

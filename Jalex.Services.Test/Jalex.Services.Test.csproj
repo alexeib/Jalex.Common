@@ -78,6 +78,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Caching\IndexCacheFactoryTests.cs" />
+    <Compile Include="Caching\IndexCacheResponsibilityTests.cs" />
     <Compile Include="Fixtures\SimpleEntity.cs" />
     <Compile Include="Fixtures\TestEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
