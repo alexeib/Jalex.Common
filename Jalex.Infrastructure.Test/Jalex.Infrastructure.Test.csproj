@@ -89,6 +89,7 @@
     <Compile Include="Dataflow\FilterBlockTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
     <Compile Include="Objects\ChildEntity.cs" />
+    <Compile Include="Objects\CustomTypeNamedInterface.cs" />
     <Compile Include="Objects\DtoEntity.cs" />
     <Compile Include="Objects\Entity.cs" />
     <Compile Include="Mapping\ExtendedEmitMapperConfigTests.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Objects\TestObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReflectedTypeDescriptor\ReflectedTypeDescriptorTests.cs" />
+    <Compile Include="Serialization\CustomTypeNameBinderTests.cs" />
     <Compile Include="ServiceComposition\ServiceComposerTests.cs" />
     <Compile Include="Specifications\SpecificationsTests.cs" />
     <Compile Include="Utils\CollectionUtilsTests.cs" />

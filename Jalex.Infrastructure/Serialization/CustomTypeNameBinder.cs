@@ -2,7 +2,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
+using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Infrastructure.Serialization
 {
@@ -15,11 +17,18 @@ namespace Jalex.Infrastructure.Serialization
 
         static CustomTypeNameBinder()
         {
+            HashSet<string> seenNames = new HashSet<string>();
+
             // warm cache
             foreach (var typeAndAttr in getTypesWithCustomTypeNameAttribute())
             {
                 var type = typeAndAttr.Item1;
                 var typeName = typeAndAttr.Item2.CustomTypeName;
+
+                if (!seenNames.Add(typeName))
+                {
+                    throw new InvalidOperationException(string.Format("Custom type name {0} is applied twice", typeName));
+                }
 
                 _typeToNameDict[type] = typeName;
                 _nameToTypeDict[typeName] = type;
@@ -30,7 +39,7 @@ namespace Jalex.Infrastructure.Serialization
 
         public override Type BindToType(string assemblyName, string typeName)
         {
-            var type = _nameToTypeDict.GetOrAdd(typeName, getTypeFromName);
+            var type = _nameToTypeDict.GetOrAdd(typeName, n => getTypeFromName(assemblyName, n));
             return type;
         }
 
@@ -42,9 +51,9 @@ namespace Jalex.Infrastructure.Serialization
 
         #endregion
 
-        private Type getTypeFromName(string name)
+        private Type getTypeFromName(string assemblyName, string typeName)
         {
-            return _nameToTypeDict.GetOrAdd(name, getTypeEx);
+            return _nameToTypeDict.GetOrAdd(typeName, n => getTypeFromAssembly(assemblyName, n));
         }
 
         private string getNameFromType(Type type)
@@ -63,12 +72,23 @@ namespace Jalex.Infrastructure.Serialization
             return typesWithMyAttribute;
         }
 
-        private static Type getTypeEx(string fullTypeName)
+        private static Type getTypeFromAssembly(string assemblyName, string fullTypeName)
         {
-            return Type.GetType(fullTypeName) ??
-                   AppDomain.CurrentDomain.GetAssemblies()
-                            .Select(a => a.GetType(fullTypeName))
-                            .FirstOrDefault(t => t != null);
+            var type = Type.GetType(fullTypeName);
+
+            if (type == null)
+            {
+                if (!string.IsNullOrEmpty(assemblyName))
+                {
+                    type = Assembly.Load(assemblyName).GetType(fullTypeName);
+                }
+                else
+                {
+                    type = TypeUtils.GetTypeFromLoadedAssemblies(fullTypeName);
+                }
+            }
+
+            return type;
         }
     }
 }
