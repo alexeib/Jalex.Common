@@ -70,8 +70,8 @@
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Caching\ICacheFactory.cs" />
     <Compile Include="Caching\ICacheStrategyConfiguration.cs" />
-    <Compile Include="Containers\TypeInstanceContainer.cs" />
-    <Compile Include="Containers\TypeInstanceContainerExtensions.cs" />
+    <Compile Include="Containers\ContainerExtensions.cs" />
+    <Compile Include="Containers\TypedInstanceContainer.cs" />
     <Compile Include="Dataflow\FilterBlock.cs" />
     <Compile Include="Expressions\ExpressionNodeFinder.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />

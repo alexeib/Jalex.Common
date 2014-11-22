@@ -2,5 +2,6 @@
 {
     public interface IInterface
     {
+        string Id { get; set; }
     }
 }
