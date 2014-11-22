@@ -18,8 +18,7 @@ namespace Jalex.Caching
         /// <remarks>
         /// Note that the ContainerBuilder parameter is unique to this module.
         /// </remarks>
-        /// <param name="builder">The builder through which components can be
-        ///             registered.</param>
+        /// <param name="builder">The builder through which components can be registered.</param>
         protected override void Load(ContainerBuilder builder)
         {
             builder

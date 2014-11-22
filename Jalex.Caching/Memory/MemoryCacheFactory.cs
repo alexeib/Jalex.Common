@@ -8,11 +8,8 @@ using Jalex.Infrastructure.Caching;
 namespace Jalex.Caching.Memory
 {
     /// <summary>
-    ///     MemCacheFactory implementation of cache factory.
+    ///     MemoryCacheFactory implementation of cache factory.
     /// </summary>
-    /// <remarks>
-    ///     MemCacheFactory will hold on and reuse all the instances returned via its Save factory method.
-    /// </remarks>
     public class MemoryCacheFactory : ICacheFactory
     {
         private readonly ConcurrentDictionary<string, object> _caches = new ConcurrentDictionary<string, object>();
@@ -35,22 +32,10 @@ namespace Jalex.Caching.Memory
                 throw new InvalidOperationException("Cache name cannot be empty");
             }
 
-            StringBuilder cacheNameBuilder = new StringBuilder(conf.CacheName);
-
-            if (!string.IsNullOrEmpty(conf.NamedScope))
-            {
-                cacheNameBuilder.AppendFormat(".{0}", conf.NamedScope);
-            }
-
-            if (conf.IsUsingTypedScope)
-            {
-                cacheNameBuilder.AppendFormat(".{0}", typeof(TEntity).FullName);
-            }
-
-            var key = cacheNameBuilder.ToString();
+            var key = getCacheName<TEntity>(conf);
 
             return (MemoryCache<TKey, TEntity>)_caches.GetOrAdd(key, new MemoryCache<TKey, TEntity>());
-        }
+        }        
 
         public IEnumerable<string> GetCacheNames()
         {
@@ -73,6 +58,23 @@ namespace Jalex.Caching.Memory
 
                 _isDisposed = true;
             }
-        }        
+        }
+
+        private static string getCacheName<TEntity>(MemoryCacheConfiguration conf) where TEntity : class
+        {
+            StringBuilder cacheNameBuilder = new StringBuilder(conf.CacheName);
+
+            if (!string.IsNullOrEmpty(conf.NamedScope))
+            {
+                cacheNameBuilder.AppendFormat(".{0}", conf.NamedScope);
+            }
+
+            if (conf.IsUsingTypedScope)
+            {
+                cacheNameBuilder.AppendFormat(".{0}", typeof(TEntity).FullName);
+            }
+
+            return cacheNameBuilder.ToString();
+        }
     }
 }

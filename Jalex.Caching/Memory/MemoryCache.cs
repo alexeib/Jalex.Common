@@ -6,8 +6,7 @@ using Jalex.Infrastructure.Caching;
 namespace Jalex.Caching.Memory
 {
     /// <summary>
-    ///     A simple in memory cache for objects that will expire 
-    ///     after a given period of inactivity.
+    /// A simple in memory cache
     /// </summary>
     /// <typeparam name="TCacheItem">The type of the object to cache.</typeparam>
     /// <typeparam name="TKKey">The type of key to use.</typeparam>

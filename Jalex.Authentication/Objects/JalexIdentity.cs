@@ -6,7 +6,7 @@ namespace Jalex.Authentication.Objects
     [DebuggerDisplay("{Token}")]
     public class JalexIdentity : GenericIdentity
     {
-        public JalexIdentity EmptyIdentity
+        public static JalexIdentity EmptyIdentity
         {
             get
             {
