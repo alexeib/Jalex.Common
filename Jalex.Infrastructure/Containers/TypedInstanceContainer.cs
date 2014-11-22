@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Jalex.Infrastructure.Serialization;
 using Jalex.Infrastructure.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Jalex.Infrastructure.Containers
 {
@@ -15,19 +18,47 @@ namespace Jalex.Infrastructure.Containers
         private readonly TKey _defaultKey;
         private readonly ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>> _instanceDictionary;
 
+        // ReSharper disable once StaticFieldInGenericType
+        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+                                            {
+                                                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                                                NullValueHandling = NullValueHandling.Ignore,
+                                                DefaultValueHandling = DefaultValueHandling.Ignore,
+                                                Converters = new List<JsonConverter>
+                                                {
+                                                    new StringEnumConverter()
+                                                },
+                                                TypeNameHandling = TypeNameHandling.Objects,
+                                                Binder = new CustomTypeNameBinder()
+                                            };
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="getKey">Function that can provide a unique object key. This function should never return null</param>
         /// <param name="defaultKey">The default key to use if one was not provided. This should not be null</param>
         public TypedInstanceContainer(Func<TInstance, TKey> getKey, TKey defaultKey)
+            : this(getKey, defaultKey, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="getKey">Function that can provide a unique object key. This function should never return null</param>
+        /// <param name="defaultKey">The default key to use if one was not provided. This should not be null</param>
+        /// <param name="serializedState">String representation of data to initialize the container. Null or empty string means empty container.</param>
+        public TypedInstanceContainer(Func<TInstance, TKey> getKey, TKey defaultKey, string serializedState)
         {
             Guard.AgainstNull(getKey, "getKey");
             Guard.AgainstNull(defaultKey, "defaultKey");
 
             _getKey = getKey;
             _defaultKey = defaultKey;
-            _instanceDictionary = new ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>>();
+
+            _instanceDictionary = string.IsNullOrEmpty(serializedState)
+                ? new ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>>()
+                : JsonConvert.DeserializeObject<ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>>>(serializedState, _serializerSettings);
         }
 
         /// <summary>
@@ -145,6 +176,12 @@ namespace Jalex.Infrastructure.Containers
 
             var contains = instancesByKey.ContainsKey(key);
             return contains;
+        }
+
+        public string SerializeToString()
+        {
+            var str = JsonConvert.SerializeObject(_instanceDictionary, _serializerSettings);
+            return str;
         }
 
         #region Implementation of IEnumerable

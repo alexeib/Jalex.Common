@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.ComponentModel;
+using System.Linq;
 using FluentAssertions;
 using Jalex.Infrastructure.Containers;
 using Jalex.Infrastructure.Test.Objects;
@@ -156,6 +157,21 @@ namespace Jalex.Infrastructure.Test.Containers
             sut.SetMany(testObjects);
 
             sut.Should().Contain(testObjects);
+        }
+
+        [Fact]
+        public void CanBeRehydratedFromJson()
+        {
+            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var testObjects = _fixture.CreateMany<InterfaceImpl>().ToList();
+
+            sut.SetMany(testObjects);
+
+            var str = sut.SerializeToString();
+
+            var containerFromStr = new TypedInstanceContainer<string, IInterface>(i => i.Id, string.Empty, str);
+
+            containerFromStr.ShouldAllBeEquivalentTo(sut);
         }
     }
 }

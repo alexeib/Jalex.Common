@@ -85,7 +85,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Containers\TypeInstanceContainerTests.cs" />
+    <Compile Include="Containers\TypedInstanceContainerTests.cs" />
     <Compile Include="Dataflow\FilterBlockTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
     <Compile Include="Objects\ChildEntity.cs" />
