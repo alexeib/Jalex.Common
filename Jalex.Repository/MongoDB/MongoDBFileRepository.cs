@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
@@ -38,7 +39,7 @@ namespace Jalex.Repository.MongoDB
                 // ReSharper disable once SpecifyACultureInStringConversionExplicitly
                 return new OperationResult<string>(true, fileInfo.Id.ToString());
             }
-            catch (WriteConcernException wce)
+            catch (Exception wce)
             {
                 _logger.ErrorException(wce, "Error when creating file " + fileName);
                 return new OperationResult<string>

@@ -8,16 +8,16 @@ using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Utils;
 using Jalex.Repository.IdProviders;
 using Magnum;
+using Magnum.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
-using Guard = Jalex.Infrastructure.Utils.Guard;
 
 namespace Jalex.Repository.MongoDB
 {
@@ -62,7 +62,7 @@ namespace Jalex.Repository.MongoDB
 
         public bool TryGetById(string id, out T item)
         {
-            Magnum.Guard.AgainstNull(id, "id");
+            Guard.AgainstNull(id, "id");
 
             MongoCollection<T> collection = getMongoCollection();
 
@@ -99,7 +99,7 @@ namespace Jalex.Repository.MongoDB
 
         public OperationResult Delete(string id)
         {
-            Guard.AgainstNull(id, "id");
+            Infrastructure.Utils.Guard.AgainstNull(id, "id");
             MongoCollection<T> collection = getMongoCollection();
 
             try
@@ -112,7 +112,7 @@ namespace Jalex.Repository.MongoDB
                 }
                 return new OperationResult(false, Severity.Warning, "Could not delete {0} {1} as it was not found", _typeDescriptor.TypeName, id);
             }
-            catch (WriteConcernException wce)
+            catch (Exception wce)
             {
                 Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
                 return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName, id));
@@ -143,7 +143,7 @@ namespace Jalex.Repository.MongoDB
         public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            Magnum.Guard.AgainstNull(objects, "objects");
+            Guard.AgainstNull(objects, "objects");
 
             MongoCollection<T> collection = getMongoCollection();
             T[] objectArr = objects.ToArray();
@@ -167,7 +167,12 @@ namespace Jalex.Repository.MongoDB
                 }
 
             }
-            catch (WriteConcernException wce)
+            catch (FormatException fe)
+            {
+                Logger.ErrorException(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
+                throw new IdFormatException(fe.Message);
+            }
+            catch (Exception wce)
             {
                 Logger.ErrorException(wce, "Error when creating " + _typeDescriptor.TypeName);
                 return objectArr.Select(r =>
@@ -177,12 +182,7 @@ namespace Jalex.Repository.MongoDB
                                             Severity.Error,
                                             string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
                                 .ToArray();
-            }
-            catch (FormatException fe)
-            {
-                Logger.ErrorException(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
-                throw new IdFormatException(fe.Message);
-            }
+            }            
         }
 
         #endregion
@@ -222,7 +222,7 @@ namespace Jalex.Repository.MongoDB
                     {
                         if (provider is ObjectIdIdProvider)
                         {
-                            cm.IdMemberMap.SetRepresentation(BsonType.ObjectId);
+                            cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                         }
                         cm.IdMemberMap.SetIdGenerator(provider);
                     }
@@ -240,9 +240,11 @@ namespace Jalex.Repository.MongoDB
 
             entityConventionPack.AddMemberMapConvention("Enum as string", m =>
             {
-                if (m.MemberType.GetNullableUnderlyingType().IsEnum)
+                var type = m.MemberType.GetNullableUnderlyingType();
+                if (type.IsEnum)
                 {
-                    m.SetRepresentation(BsonType.String);
+                    var serializer = (IBsonSerializer)FastActivator.Create(typeof (EnumSerializer<>), new[] {type}, BsonType.String);
+                    m.SetSerializer(serializer);
                 }
             });
 

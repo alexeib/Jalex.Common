@@ -9,10 +9,8 @@ using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Utils;
 using Jalex.Repository.Cassandra.DataStax.Linq;
 using Jalex.Repository.IdProviders;
-using Magnum;
 using Guard = Jalex.Infrastructure.Utils.Guard;
 
 namespace Jalex.Repository.Cassandra

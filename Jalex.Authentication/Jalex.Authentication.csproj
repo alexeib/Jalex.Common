@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWSSDK">
-      <HintPath>..\packages\AWSSDK.2.2.4.0\lib\net45\AWSSDK.dll</HintPath>
+      <HintPath>..\packages\AWSSDK.2.3.29.0\lib\net45\AWSSDK.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

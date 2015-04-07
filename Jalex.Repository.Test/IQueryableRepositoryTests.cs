@@ -5,7 +5,6 @@ using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
-using Xunit.Should;
 
 namespace Jalex.Repository.Test
 {
@@ -26,13 +25,13 @@ namespace Jalex.Repository.Test
         public void RetrievesEntitiesByQueryingForAttribute()
         {
             var createResult = _queryableRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            createResult.All(r => r.Success).Should().BeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;
             var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == nameToFind).ToArray();
 
-            retrievedTestEntitys.Length.ShouldBe(1);
-            retrievedTestEntitys.First().Name.ShouldBe(nameToFind);
+            retrievedTestEntitys.Length.Should().Be(1);
+            retrievedTestEntitys.First().Name.Should().Be(nameToFind);
         }
 
         [Fact]
@@ -41,17 +40,17 @@ namespace Jalex.Repository.Test
             var fakeName = _fixture.Create<string>();
 
             var createResult = _queryableRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            createResult.All(r => r.Success).Should().BeTrue();
 
             var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == fakeName).ToArray();
-            retrievedTestEntitys.ShouldBeEmpty();
+            retrievedTestEntitys.Should().BeEmpty();
         }
 
         [Fact]
         public void Retrieves_First_Entity_Queried_By_Attribute()
         {
             var createResult = _queryableRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
-            createResult.All(r => r.Success).ShouldBeTrue();
+            createResult.All(r => r.Success).Should().BeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;
             var retrievedTestEntitys = _queryableRepository.FirstOrDefault(r => r.Name == nameToFind);
