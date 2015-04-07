@@ -5,7 +5,7 @@ namespace Jalex.Repository.Test.Objects
 {
     public class TestObjectWithClustering : IObjectWithIdAndName
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [Indexed]
         public string Name { get; set; }

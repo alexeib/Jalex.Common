@@ -6,7 +6,7 @@ namespace Jalex.Caching.NoOp
 {
     public class NoOpCacheFactory : ICacheFactory
     {
-        public ICache<TKey, TItem> Create<TKey, TItem>(Action<ICacheStrategyConfiguration> configure) where TItem : class
+        public ICache<TKey, TItem> Create<TKey, TItem>(Action<ICacheStrategyConfiguration> configure)
         {
             return new NoOpCache<TKey, TItem>();
         }

@@ -1,4 +1,5 @@
-﻿using Jalex.Infrastructure.Logging;
+﻿using System;
+using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
@@ -35,7 +36,7 @@ namespace Jalex.Repository.Test
             GuidIdProvider idProvider = new GuidIdProvider();
 
             // ReSharper disable once RedundantTypeArgumentsOfMethod
-            fixture.Register<string>(idProvider.GenerateNewId);
+            fixture.Register<Guid>(idProvider.GenerateNewId);
 
             return fixture;
         }

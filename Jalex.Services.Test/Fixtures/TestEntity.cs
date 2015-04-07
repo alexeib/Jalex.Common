@@ -1,10 +1,11 @@
-﻿using Jalex.Infrastructure.Repository;
+﻿using System;
+using Jalex.Infrastructure.Repository;
 
 namespace Jalex.Services.Test.Fixtures
 {
     public class TestEntity
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public double NumValue { get; set; }
 

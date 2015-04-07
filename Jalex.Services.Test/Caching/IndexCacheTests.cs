@@ -35,11 +35,11 @@ namespace Jalex.Services.Test.Caching
 
         private void registerCache()
         {
-            _fixture.Register<ICache<string, string>>(_fixture.Create<MemoryCache<string, string>>);
-            var cache = _fixture.Freeze<ICache<string, string>>();
+            _fixture.Register<ICache<string, Guid>>(_fixture.Create<MemoryCache<string, Guid>>);
+            var cache = _fixture.Freeze<ICache<string, Guid>>();
 
             var cacheFactory = Substitute.For<ICacheFactory>();
-            cacheFactory.Create<string, string>(null).ReturnsForAnyArgs(cache);
+            cacheFactory.Create<string, Guid>(null).ReturnsForAnyArgs(cache);
             _fixture.Inject(cacheFactory);
         }
 
@@ -63,7 +63,7 @@ namespace Jalex.Services.Test.Caching
         public void Index_Adds_To_Cache()
         {
             var entity = _fixture.Create<TestEntity>();
-            var cache = _fixture.Freeze<ICache<string, string>>();
+            var cache = _fixture.Freeze<ICache<string, Guid>>();
             var indexCache = new IndexCache<TestEntity>(
                 new[] {"ClusteredKey", "ClusteredKey2"},
                 _fixture.Create<ICacheFactory>(),
@@ -82,7 +82,7 @@ namespace Jalex.Services.Test.Caching
         public void DeIndex_Removes_From_Cache()
         {
             var entity = _fixture.Create<TestEntity>();
-            var cache = _fixture.Freeze<ICache<string, string>>();
+            var cache = _fixture.Freeze<ICache<string, Guid>>();
             var indexCache = new IndexCache<TestEntity>(
                 new[] { "ClusteredKey", "ClusteredKey2" },
                 _fixture.Create<ICacheFactory>(),
@@ -102,7 +102,7 @@ namespace Jalex.Services.Test.Caching
         public void DeIndex_By_Query_Removes_From_Cache()
         {
             var entity = _fixture.Create<TestEntity>();
-            var cache = _fixture.Freeze<ICache<string, string>>();
+            var cache = _fixture.Freeze<ICache<string, Guid>>();
             var indexCache = new IndexCache<TestEntity>(
                 new[] { "ClusteredKey", "ClusteredKey2" },
                 _fixture.Create<ICacheFactory>(),
@@ -123,7 +123,7 @@ namespace Jalex.Services.Test.Caching
         [Fact]
         public void Index_By_Query_With_Null_Adds_To_Cache()
         {
-            var cache = _fixture.Freeze<ICache<string, string>>();
+            var cache = _fixture.Freeze<ICache<string, Guid>>();
             var indexCache = new IndexCache<TestEntity>(
                 new[] { "ClusteredKey", "ClusteredKey2" },
                 _fixture.Create<ICacheFactory>(),
@@ -132,18 +132,18 @@ namespace Jalex.Services.Test.Caching
 
             string clusteredKeyVal = _fixture.Create<string>(), clusteredKeyVal2 = _fixture.Create<string>();
 
-            indexCache.IndexByQuery(e => e.ClusteredKey == clusteredKeyVal && e.ClusteredKey2 == clusteredKeyVal2, null);
+            indexCache.IndexByQuery(e => e.ClusteredKey == clusteredKeyVal && e.ClusteredKey2 == clusteredKeyVal2, Guid.Empty);
 
             cache
                 .GetAll()
                 .Should()
-                .ContainSingle(kvp => kvp.Value.IsSameOrEqualTo(null));
+                .ContainSingle(kvp => kvp.Value.IsSameOrEqualTo(Guid.Empty));
         }
 
         [Fact]
         public void Index_By_Query_With_Specific_Id_Adds_To_Cache()
         {
-            var cache = _fixture.Freeze<ICache<string, string>>();
+            var cache = _fixture.Freeze<ICache<string, Guid>>();
             var indexCache = new IndexCache<TestEntity>(
                 new[] { "ClusteredKey", "ClusteredKey2" },
                 _fixture.Create<ICacheFactory>(),
@@ -151,7 +151,7 @@ namespace Jalex.Services.Test.Caching
                 _fixture.Create<IReflectedTypeDescriptorProvider>());
 
             string clusteredKeyVal = _fixture.Create<string>(), clusteredKeyVal2 = _fixture.Create<string>();
-            string id = _fixture.Create<string>();
+            Guid id = _fixture.Create<Guid>();
 
             indexCache.IndexByQuery(e => e.ClusteredKey == clusteredKeyVal && e.ClusteredKey2 == clusteredKeyVal2, id);
 
@@ -196,7 +196,7 @@ namespace Jalex.Services.Test.Caching
             indexCache
                 .FindIdByQuery(e => e.ClusteredKey == _fixture.Create<string>() && e.ClusteredKey2 == entity.ClusteredKey2)
                 .Should()
-                .BeNull();
+                .BeEmpty();
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace Jalex.Services.Test.Caching
             indexCache
                 .FindIdByQuery(e => e.NumValue >= entity.NumValue)
                 .Should()
-                .BeNull();
+                .BeEmpty();
         }
 
         [Fact]

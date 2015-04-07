@@ -25,7 +25,7 @@ namespace Jalex.Services.Test.Caching
         {
             _fixture = new Fixture();
 
-            _fixture.Register(() => _fixture.Build<TestEntity>().With(e => e.Id, Guid.NewGuid().ToString("N")).Create());
+            _fixture.Register(() => _fixture.Build<TestEntity>().With(e => e.Id, Guid.NewGuid()).Create());
             _fixture.Register<ILogger>(_fixture.Create<MemoryLogger>);
             _fixture.Register<IIdProvider>(_fixture.Create<GuidIdProvider>);
             _fixture.Register<IReflectedTypeDescriptorProvider>(_fixture.Create<ReflectedTypeDescriptorProvider>);
@@ -43,12 +43,12 @@ namespace Jalex.Services.Test.Caching
 
         private void registerCache()
         {
-            _fixture.Register<ICache<string, string>>(_fixture.Create<MemoryCache<string, string>>);
+            _fixture.Register<ICache<string, Guid>>(_fixture.Create<MemoryCache<string, Guid>>);
 
-            var cacheForIndex = _fixture.Freeze<ICache<string, string>>();
+            var cacheForIndex = _fixture.Freeze<ICache<string, Guid>>();
 
             var cacheFactory = Substitute.For<ICacheFactory>();
-            cacheFactory.Create<string, string>(null).ReturnsForAnyArgs(cacheForIndex);
+            cacheFactory.Create<string, Guid>(null).ReturnsForAnyArgs(cacheForIndex);
             _fixture.Inject(cacheFactory);
         }
 

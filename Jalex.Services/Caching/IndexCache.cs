@@ -13,7 +13,7 @@ namespace Jalex.Services.Caching
     public class IndexCache<T> : IIndexCache<T>
     {
         private readonly SortedSet<string> _indexedProperties;
-        private readonly ICache<string, string> _cache;
+        private readonly ICache<string, Guid> _cache;
         private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
         public IndexCache(
@@ -28,7 +28,7 @@ namespace Jalex.Services.Caching
             Guard.AgainstNull(cacheConfiguration, "cacheConfiguration");
             Guard.AgainstNull(typeDescriptorProvider, "typeDescriptorProvider");
 
-            _cache = cacheFactory.Create<string, string>(cacheConfiguration);
+            _cache = cacheFactory.Create<string, Guid>(cacheConfiguration);
             // ReSharper disable once PossibleMultipleEnumeration
             _indexedProperties = new SortedSet<string>(indexedProperties);
             _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
@@ -55,7 +55,7 @@ namespace Jalex.Services.Caching
             _cache.DeleteById(indexKey);
         }
 
-        public void IndexByQuery(Expression<Func<T, bool>> query, string id)
+        public void IndexByQuery(Expression<Func<T, bool>> query, Guid id)
         {
             Guard.AgainstNull(query, "query");
 
@@ -79,12 +79,12 @@ namespace Jalex.Services.Caching
             }
         }
 
-        public string FindIdByQuery(Expression<Func<T, bool>> query)
+        public Guid FindIdByQuery(Expression<Func<T, bool>> query)
         {
             Guard.AgainstNull(query, "query");
 
             var indexKey = getIndexKeyFromQuery(query); 
-            return indexKey != null ? _cache.GetOrDefault(indexKey) : null;
+            return indexKey != null ? _cache.GetOrDefault(indexKey) : Guid.Empty;
         }        
 
         private IDictionary<string, object> getEqualityCheckedProps(Expression<Func<T, bool>> query)

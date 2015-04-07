@@ -9,7 +9,7 @@ namespace Jalex.Infrastructure.Caching
         ///     Save new or return existing cache matching parameters.
         /// </summary>
         // ReSharper disable once IdentifierTypo
-        ICache<TKey, TItem> Create<TKey, TItem>(Action<ICacheStrategyConfiguration> configure) where TItem : class;
+        ICache<TKey, TItem> Create<TKey, TItem>(Action<ICacheStrategyConfiguration> configure);
 
         /// <summary>
         ///     Obtain list of available named caches.

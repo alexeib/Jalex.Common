@@ -26,7 +26,7 @@ namespace Jalex.Services.Test.Caching
         {
             _fixture = new Fixture();            
 
-            _fixture.Register(() => _fixture.Build<TestEntity>().With(e => e.Id, Guid.NewGuid().ToString("N")).Create());
+            _fixture.Register(() => _fixture.Build<TestEntity>().With(e => e.Id, Guid.NewGuid()).Create());
             _fixture.Register<ILogger>(_fixture.Create<MemoryLogger>);
             _fixture.Register<IIdProvider>(_fixture.Create<GuidIdProvider>);
             _fixture.Register<IReflectedTypeDescriptorProvider>(_fixture.Create<ReflectedTypeDescriptorProvider>);
@@ -54,15 +54,15 @@ namespace Jalex.Services.Test.Caching
 
         private void registerCache()
         {
-            _fixture.Register<ICache<string, TestEntity>>(_fixture.Create<MemoryCache<string, TestEntity>>);
-            _fixture.Register<ICache<string, string>>(_fixture.Create<MemoryCache<string, string>>);
+            _fixture.Register<ICache<Guid, TestEntity>>(_fixture.Create<MemoryCache<Guid, TestEntity>>);
+            _fixture.Register<ICache<string, Guid>>(_fixture.Create<MemoryCache<string, Guid>>);
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
-            var cacheForIndex = _fixture.Freeze<ICache<string, string>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
+            var cacheForIndex = _fixture.Freeze<ICache<string, Guid>>();
 
             var cacheFactory = Substitute.For<ICacheFactory>();
-            cacheFactory.Create<string, TestEntity>(null).ReturnsForAnyArgs(cache);
-            cacheFactory.Create<string, string>(null).ReturnsForAnyArgs(cacheForIndex);
+            cacheFactory.Create<Guid, TestEntity>(null).ReturnsForAnyArgs(cache);
+            cacheFactory.Create<string, Guid>(null).ReturnsForAnyArgs(cacheForIndex);
             _fixture.Inject(cacheFactory);
         }
 
@@ -71,7 +71,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entities = _fixture.CreateMany<TestEntity>().ToArray();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
@@ -97,7 +97,7 @@ namespace Jalex.Services.Test.Caching
             var e2 = _fixture.Create<TestEntity>();
             var e3 = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             cache.Set(e1.Id, e1);
@@ -117,7 +117,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entities = _fixture.CreateMany<TestEntity>().ToArray();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
@@ -139,7 +139,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entities = _fixture.CreateMany<TestEntity>().ToArray();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
@@ -161,7 +161,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entities = _fixture.CreateMany<TestEntity>().ToArray();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
@@ -183,7 +183,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entities = _fixture.CreateMany<TestEntity>().ToArray();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
@@ -207,7 +207,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entity = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
             cacheResponsibility.Save(entity, WriteMode.Insert);
@@ -222,7 +222,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entity = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
             cacheResponsibility.Save(entity, WriteMode.Upsert);
@@ -237,7 +237,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entity = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
@@ -257,7 +257,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entity = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
             cacheResponsibility.SaveMany(new[] { entity }, WriteMode.Insert);
@@ -272,7 +272,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entity = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
             cacheResponsibility.SaveMany(new[] { entity }, WriteMode.Upsert);
@@ -287,7 +287,7 @@ namespace Jalex.Services.Test.Caching
         {
             var entity = _fixture.Create<TestEntity>();
 
-            var cache = _fixture.Freeze<ICache<string, TestEntity>>();
+            var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var repo = _fixture.Freeze<IQueryableRepository<TestEntity>>();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();

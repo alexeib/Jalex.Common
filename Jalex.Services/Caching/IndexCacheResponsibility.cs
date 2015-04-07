@@ -43,7 +43,7 @@ namespace Jalex.Services.Caching
         /// <param name="id">the id of the objects to retrieve</param>
         /// <param name="obj"> retrieved object</param>
         /// <returns>True if retrieval succeeded, false otherwise</returns>
-        public bool TryGetById(string id, out T obj)
+        public bool TryGetById(Guid id, out T obj)
         {
             var success = _repository.TryGetById(id, out obj);
             if (success)
@@ -75,7 +75,7 @@ namespace Jalex.Services.Caching
         /// </summary>
         /// <param name="id">The id of the object to delete</param>
         /// <returns>the result of the delete operation</returns>
-        public OperationResult Delete(string id)
+        public OperationResult Delete(Guid id)
         {
             deIndexItemWithId(id);
             var result = _repository.Delete(id);
@@ -92,11 +92,11 @@ namespace Jalex.Services.Caching
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<string> Save(T obj, WriteMode writeMode)
+        public OperationResult<Guid> Save(T obj, WriteMode writeMode)
         {
             if (writeMode != WriteMode.Insert)
             {
-                string id = _typeDescriptor.GetId(obj);
+                Guid id = _typeDescriptor.GetId(obj);
                 deIndexItemWithId(id);
             }
 
@@ -114,7 +114,7 @@ namespace Jalex.Services.Caching
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             var objArr = objects.ToArrayEfficient();
 
@@ -122,7 +122,7 @@ namespace Jalex.Services.Caching
             {
                 foreach (var obj in objArr)
                 {
-                    string id = _typeDescriptor.GetId(obj);
+                    Guid id = _typeDescriptor.GetId(obj);
                     deIndexItemWithId(id);
                 }
             }
@@ -222,9 +222,9 @@ namespace Jalex.Services.Caching
             return true;
         }
 
-        private void deIndexItemWithId(string id)
+        private void deIndexItemWithId(Guid id)
         {
-            if (id == null)
+            if (id == Guid.Empty)
             {
                 return;
             }
@@ -248,7 +248,7 @@ namespace Jalex.Services.Caching
             {
                 foreach (var indexCache in _indexCaches)
                 {
-                    indexCache.IndexByQuery(query, null);
+                    indexCache.IndexByQuery(query, Guid.Empty);
                 }
             }
         }
@@ -264,7 +264,7 @@ namespace Jalex.Services.Caching
             foreach (var indexCache in _indexCaches)
             {
                 var objId = indexCache.FindIdByQuery(query);
-                if (objId != null && _repository.TryGetById(objId, out retrieved))
+                if (objId != Guid.Empty && _repository.TryGetById(objId, out retrieved))
                 {
                     return true;
                 }

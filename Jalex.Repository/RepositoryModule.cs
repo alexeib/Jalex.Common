@@ -15,26 +15,19 @@ namespace Jalex.Repository
 
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<GuidIdProvider>()
+                                       .As<IIdProvider>()
+                                       .InstancePerLifetimeScope();   
 
             switch (RepositoryType)
             {
                 case RepositoryType.Cassandra:
-
-                    builder.RegisterType<GuidIdProvider>()
-                                       .As<IIdProvider>()
-                                       .InstancePerLifetimeScope();                    
-
                     builder.RegisterGeneric(typeof(CassandraRepository<>))
                                         .Named("repository", typeof(IQueryableRepository<>))
                                         .InstancePerLifetimeScope();
 
                     break;
                 case RepositoryType.Mongo:
-
-                    builder.RegisterType<ObjectIdIdProvider>()
-                                       .As<IIdProvider>()
-                                       .InstancePerLifetimeScope();
-
                     builder.RegisterGeneric(typeof(MongoDBRepository<>))
                                         .Named("repository", typeof(IQueryableRepository<>))
                                         .InstancePerLifetimeScope();

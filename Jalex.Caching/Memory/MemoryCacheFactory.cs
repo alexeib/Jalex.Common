@@ -19,7 +19,6 @@ namespace Jalex.Caching.Memory
         ///     Creates or gets a new cache factory for a given entity type.
         /// </summary>
         public virtual ICache<TKey, TEntity> Create<TKey, TEntity>(Action<ICacheStrategyConfiguration> configure)
-            where TEntity : class
         {
             if (_isDisposed)
                 throw new ObjectDisposedException(GetType().Name);            
@@ -60,7 +59,7 @@ namespace Jalex.Caching.Memory
             }
         }
 
-        private static string getCacheName<TEntity>(MemoryCacheConfiguration conf) where TEntity : class
+        private static string getCacheName<TEntity>(MemoryCacheConfiguration conf)
         {
             StringBuilder cacheNameBuilder = new StringBuilder(conf.CacheName);
 

@@ -38,7 +38,7 @@ namespace Jalex.Services.Repository
 
         #region Implementation of IReader<out TClass>
 
-        public bool TryGetById(string id, out TClass item)
+        public bool TryGetById(Guid id, out TClass item)
         {
             TEntity entity;
             bool success = _entityRepository.TryGetById(id, out entity);
@@ -64,7 +64,7 @@ namespace Jalex.Services.Repository
 
         #region Implementation of IDeleter<TClass>
 
-        public OperationResult Delete(string id)
+        public OperationResult Delete(Guid id)
         {
             var result = _entityRepository.Delete(id);
             return result;
@@ -117,7 +117,7 @@ namespace Jalex.Services.Repository
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public virtual OperationResult<string> Save(TClass obj, WriteMode writeMode)
+        public virtual OperationResult<Guid> Save(TClass obj, WriteMode writeMode)
         {
             var entity = _classToEntityMapper.Map(obj);
             var result = _entityRepository.Save(entity, writeMode);
@@ -136,7 +136,7 @@ namespace Jalex.Services.Repository
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public virtual IEnumerable<OperationResult<string>> SaveMany(IEnumerable<TClass> objects, WriteMode writeMode)
+        public virtual IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<TClass> objects, WriteMode writeMode)
         {
             // ReSharper disable once PossibleMultipleEnumeration
             Guard.AgainstNull(objects);

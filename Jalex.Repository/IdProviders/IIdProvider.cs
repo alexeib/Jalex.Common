@@ -1,8 +1,10 @@
-﻿namespace Jalex.Repository.IdProviders
+﻿using System;
+
+namespace Jalex.Repository.IdProviders
 {
     public interface IIdProvider
     {
-        string GenerateNewId();
-        bool IsIdValid(string id);
+        Guid GenerateNewId();
+        bool IsIdValid(Guid id);
     }
 }

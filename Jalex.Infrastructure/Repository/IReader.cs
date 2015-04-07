@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Jalex.Infrastructure.Repository
 {
@@ -10,7 +11,7 @@ namespace Jalex.Infrastructure.Repository
         /// <param name="id">the id of the objects to retrieve</param>
         /// <param name="obj"> retrieved object</param>
         /// <returns>True if retrieval succeeded, false otherwise</returns>
-        bool TryGetById(string id, out T obj);
+        bool TryGetById(Guid id, out T obj);
 
         /// <summary>
         /// Retrieves all objects in the repository

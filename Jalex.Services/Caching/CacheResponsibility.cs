@@ -16,7 +16,7 @@ namespace Jalex.Services.Caching
     public class CacheResponsibility<T> : IQueryableRepository<T>
         where T : class
     {
-        private readonly ICache<string, T> _keyCache;        
+        private readonly ICache<Guid, T> _keyCache;        
         private readonly IQueryableRepository<T> _repository;
         private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
@@ -42,7 +42,7 @@ namespace Jalex.Services.Caching
             Guard.AgainstNull(cacheConfiguration, "cacheConfiguration");
 
             _repository = repository;
-            _keyCache = cacheFactory.Create<string, T>(cacheConfiguration);            
+            _keyCache = cacheFactory.Create<Guid, T>(cacheConfiguration);            
             _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
         }
 
@@ -55,7 +55,7 @@ namespace Jalex.Services.Caching
         /// <param name="id">the id of the objects to retrieve</param>
         /// <param name="entity">the retrieved object</param>
         /// <returns>True if retrieval succeeded, false otherwise</returns>
-        public bool TryGetById(string id, out T entity)
+        public bool TryGetById(Guid id, out T entity)
         {
             var success = _keyCache.TryGet(id, out entity);
             if (!success)
@@ -83,7 +83,7 @@ namespace Jalex.Services.Caching
 
         #region Implementation of IDeleter<TEntity>
 
-        public OperationResult Delete(string id)
+        public OperationResult Delete(Guid id)
         {
             var result = _repository.Delete(id);
 
@@ -105,7 +105,7 @@ namespace Jalex.Services.Caching
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<string> Save(T obj, WriteMode writeMode)
+        public OperationResult<Guid> Save(T obj, WriteMode writeMode)
         {
             var result = _repository.Save(obj, writeMode);
             if (result.Success)
@@ -121,7 +121,7 @@ namespace Jalex.Services.Caching
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             var objArr = objects.ToArrayEfficient();
 
@@ -166,7 +166,7 @@ namespace Jalex.Services.Caching
 
         #endregion
 
-        private bool tryGetFromRepositoryByIdAndCache(string id, out T entity)
+        private bool tryGetFromRepositoryByIdAndCache(Guid id, out T entity)
         {
             var success = _repository.TryGetById(id, out entity);
             if (success)
@@ -185,7 +185,7 @@ namespace Jalex.Services.Caching
 
             var id = _typeDescriptor.GetId(item);
 
-            if (id == null)
+            if (id == Guid.Empty)
             {
                 return;
             }

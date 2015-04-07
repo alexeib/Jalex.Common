@@ -5,12 +5,12 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 {
     public interface IReflectedTypeDescriptor<T> : IReflectedTypeDescriptor
     {
-        Expression<Func<T, string>> IdGetterExpression { get; }
+        Expression<Func<T, Guid>> IdGetterExpression { get; }
         ParameterExpression TypeParameter { get; }
         MemberExpression IdPropertyExpression { get; }
 
-        string GetId(T target);
-        void SetId(T target, string id);
+        Guid GetId(T target);
+        void SetId(T target, Guid id);
 
         object GetPropertyValue(string propertyName, T obj);
     }

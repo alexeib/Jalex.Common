@@ -22,10 +22,10 @@ namespace Jalex.Authentication.Test
 
             var mockRepository = Substitute.For<IQueryableRepository<AuthenticationToken>>();
             mockRepository
-                .TryGetById(Arg.Any<string>(), out token)
+                .TryGetById(Arg.Any<Guid>(), out token)
                 .Returns(ci =>
                          {
-                             var id = ci.Arg<string>();
+                             var id = ci.Arg<Guid>();
 
 
                              if (_sampleValidToken != null && id == _sampleValidToken.Id)
@@ -69,7 +69,7 @@ namespace Jalex.Authentication.Test
             _sampleValidToken = new AuthenticationToken
             {
                 Created = DateTime.Now,
-                Id = "test1",
+                Id = Guid.NewGuid(),
                 UserId = "user1",
                 DeviceId = "device1"
             };
@@ -77,7 +77,7 @@ namespace Jalex.Authentication.Test
             _sampleExpiredToken = new AuthenticationToken
             {
                 Created = DateTime.Now.Subtract(_authenticationTokenService.TokenTimeout),
-                Id = "test2",
+                Id = Guid.NewGuid(),
                 UserId = "user2",
                 DeviceId = "device2"
             };

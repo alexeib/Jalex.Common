@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Jalex.Infrastructure.Objects;
 
 namespace Jalex.Infrastructure.Repository
@@ -10,6 +11,6 @@ namespace Jalex.Infrastructure.Repository
         /// </summary>
         /// <param name="id">The id of the object to delete</param>
         /// <returns>the result of the delete operation</returns>
-        OperationResult Delete(string id);
+        OperationResult Delete(Guid id);
     }
 }

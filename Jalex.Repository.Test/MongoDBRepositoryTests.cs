@@ -21,7 +21,7 @@ namespace Jalex.Repository.Test
         {
             IFixture fixture = new Fixture();
 
-            fixture.Register<IIdProvider>(fixture.Create<ObjectIdIdProvider>);
+            fixture.Register<IIdProvider>(fixture.Create<GuidIdProvider>);
             fixture.Register<IReflectedTypeDescriptorProvider>(fixture.Create<ReflectedTypeDescriptorProvider>);
             fixture.Register<IQueryableRepository<TestObject>>(() =>
                                                                {

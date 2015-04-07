@@ -1,10 +1,11 @@
-﻿using Jalex.Infrastructure.Repository;
+﻿using System;
+using Jalex.Infrastructure.Repository;
 
 namespace Jalex.Infrastructure.Test.Objects
 {
     public class TestObject
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         [Indexed]
         public string Name { get; set; }
         public string RefId { get; set; }

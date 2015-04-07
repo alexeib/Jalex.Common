@@ -100,7 +100,6 @@
     <Compile Include="Cassandra\DataStax.Linq\VisitingParam.cs" />
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
-    <Compile Include="IdProviders\ObjectIdIdProvider.cs" />
     <Compile Include="Memory\MemoryRepository.cs" />
     <Compile Include="MongoDB\MongoDBFileRepository.cs" />
     <Compile Include="MongoDB\MongoHelper.cs" />

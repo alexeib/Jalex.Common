@@ -47,7 +47,7 @@ namespace Jalex.Infrastructure.Test.ReflectedTypeDescriptor
             var provider = _fixture.Create<IReflectedTypeDescriptorProvider>();
 
             var obj = _fixture.Create<TestObject>();
-            string newId = obj.Id + "x";
+            Guid newId = _fixture.Create<Guid>();
 
             var sut = provider.GetReflectedTypeDescriptor<TestObject>();
 

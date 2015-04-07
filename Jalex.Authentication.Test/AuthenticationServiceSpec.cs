@@ -21,7 +21,7 @@ namespace Jalex.Authentication.Test
 
         Establish context = () =>
         {
-            _setToken = new AuthenticationToken {Created = DateTime.UtcNow, DeviceId = "d", UserId = "u", Id = "i"};
+            _setToken = new AuthenticationToken { Created = DateTime.UtcNow, DeviceId = "d", UserId = "u", Id = Guid.NewGuid() };
             JalexIdentity identity = new JalexIdentity(_setToken);
             JalexPrincipal principal = new JalexPrincipal(identity);
             Thread.CurrentPrincipal = principal;
@@ -40,7 +40,7 @@ namespace Jalex.Authentication.Test
 
         Establish context = () =>
         {
-            _token = new AuthenticationToken { Created = DateTime.UtcNow, DeviceId = "d", UserId = "u", Id = "i" };
+            _token = new AuthenticationToken { Created = DateTime.UtcNow, DeviceId = "d", UserId = "u", Id = Guid.NewGuid() };
             JalexIdentity identity = new JalexIdentity(_token);
             JalexPrincipal principal = new JalexPrincipal(identity);
             Thread.CurrentPrincipal = principal;

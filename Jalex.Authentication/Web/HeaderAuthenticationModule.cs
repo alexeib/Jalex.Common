@@ -25,10 +25,11 @@ namespace Jalex.Authentication.Web
         {
             HttpApplication application = (HttpApplication)sender;
             string tokenAuthHeaderValue = application.Request.Headers[AuthenticationConstants.AuthTokenHeader];
+            Guid tokenAsGuid;
 
-            if (!string.IsNullOrEmpty(tokenAuthHeaderValue))
+            if (Guid.TryParse(tokenAuthHeaderValue, out tokenAsGuid))
             {
-                var tokenResult = _tokenService.GetExistingToken(tokenAuthHeaderValue);
+                var tokenResult = _tokenService.GetExistingToken(tokenAsGuid);
 
                 if (tokenResult.Success)
                 {

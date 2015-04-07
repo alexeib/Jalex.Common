@@ -49,8 +49,9 @@ namespace Jalex.Repository.Test
             var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
 
             createResult.Success.Should().BeTrue();
-            createResult.Value.Should().NotBeNullOrEmpty();
-            sampleEntity.Id.Should().NotBeNullOrEmpty();
+            createResult.Value.Should()
+                        .NotBeEmpty();
+            sampleEntity.Id.Should().NotBeEmpty();
             createResult.Messages.Should().BeEmpty();
 
             T retrieved;
@@ -66,8 +67,8 @@ namespace Jalex.Repository.Test
             var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Insert).ToArray();
 
             createResult.All(r => r.Success).Should().BeTrue();
-            createResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
-            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).Should().BeTrue();
+            createResult.All(r => r.Value != Guid.Empty).Should().BeTrue();
+            _sampleTestEntitys.All(r => r.Id != Guid.Empty).Should().BeTrue();
             createResult.All(r => !r.Messages.Any()).Should().BeTrue();
 
             foreach (var entity in _sampleTestEntitys)
@@ -86,7 +87,7 @@ namespace Jalex.Repository.Test
         {
             var sampleEntity = _sampleTestEntitys.First();
 
-            OperationResult<string> createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Insert);
+            OperationResult<Guid> createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Insert);
             createResult.Success.Should().BeTrue();
 
             var createResultExisting = _testEntityRepository.Save(sampleEntity, WriteMode.Insert);
@@ -97,16 +98,9 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void DoesNotCreateEntitiesWithInvalidIds()
-        {
-            var exception = Assert.Throws<IdFormatException>(() => _testEntityRepository.Save(new T { Id = "FakeId", Name = "FakeName"}, WriteMode.Insert));
-            exception.Should().NotBeNull();
-        }
-
-        [Fact]
         public void DoesNotCreateEntitiesWithDuplicateIds()
         {
-            string id = _fixture.Create<string>();
+            Guid id = _fixture.Create<Guid>();
 
             var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.SaveMany(new[]
                                                                                                 {
@@ -138,7 +132,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void FailsToDeleteNonExistingEntities()
         {
-            var fakeEntityId = _fixture.Create<string>();
+            var fakeEntityId = _fixture.Create<Guid>();
             var deleteResult = _testEntityRepository.Delete(fakeEntityId);
             deleteResult.Success.Should().BeFalse();
         }
@@ -173,7 +167,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void DoesNotRetrieveNonExistantEntitiesById()
         {
-            var fakeEntityIds = _fixture.Create<string>();
+            var fakeEntityIds = _fixture.Create<Guid>();
 
             T retrieved;
             var success = _testEntityRepository.TryGetById(fakeEntityIds, out retrieved);
@@ -233,8 +227,8 @@ namespace Jalex.Repository.Test
             var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert).ToArray();
 
             createResult.All(r => r.Success).Should().BeTrue();
-            createResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
-            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).Should().BeTrue();
+            createResult.All(r => r.Value != Guid.Empty).Should().BeTrue();
+            _sampleTestEntitys.All(r => r.Id != Guid.Empty).Should().BeTrue();
             createResult.All(r => !r.Messages.Any()).Should().BeTrue();
 
             foreach (var entity in _sampleTestEntitys)
@@ -260,8 +254,8 @@ namespace Jalex.Repository.Test
             var upsertResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert).ToArray();
 
             upsertResult.All(r => r.Success).Should().BeTrue();
-            upsertResult.All(r => !string.IsNullOrEmpty(r.Value)).Should().BeTrue();
-            _sampleTestEntitys.All(r => !string.IsNullOrEmpty(r.Id)).Should().BeTrue();
+            upsertResult.All(r => r.Value != Guid.Empty).Should().BeTrue();
+            _sampleTestEntitys.All(r => r.Id != Guid.Empty).Should().BeTrue();
             upsertResult.All(r => !r.Messages.Any()).Should().BeTrue();
 
             foreach (var entity in _sampleTestEntitys)
@@ -282,8 +276,8 @@ namespace Jalex.Repository.Test
             var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
 
             createResult.Success.Should().BeTrue();
-            createResult.Value.Should().NotBeNullOrEmpty();
-            sampleEntity.Id.Should().NotBeNullOrEmpty();
+            createResult.Value.Should().NotBeEmpty();
+            sampleEntity.Id.Should().NotBeEmpty();
             createResult.Messages.Should().BeEmpty();
 
             T retrieved;
@@ -307,7 +301,7 @@ namespace Jalex.Repository.Test
         [Fact]
         public void FailsToUpdateEntityWithNullId()
         {
-            var invalidIdTestEntity = new T { Id = null };
+            var invalidIdTestEntity = new T { Id = Guid.Empty };
             _testEntityRepository.Invoking(r => r.Save(invalidIdTestEntity, WriteMode.Update)).ShouldThrow<InvalidOperationException>();
         }
     }

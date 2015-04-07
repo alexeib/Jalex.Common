@@ -13,19 +13,19 @@ namespace Jalex.Repository.Memory
 {
     public class MemoryRepository<T> : BaseRepository<T>, IQueryableRepository<T> where T : class
     {
-        private readonly ConcurrentDictionary<string, T> _objectDictionary;
+        private readonly ConcurrentDictionary<Guid, T> _objectDictionary;
 
         public MemoryRepository(
             IIdProvider idProvider,
             IReflectedTypeDescriptorProvider typeDescriptorProvider)
             : base(idProvider, typeDescriptorProvider)
         {
-            _objectDictionary = new ConcurrentDictionary<string, T>();
+            _objectDictionary = new ConcurrentDictionary<Guid, T>();
         }
 
         #region Implementation of IReader<out T>
 
-        public bool TryGetById(string id, out T obj)
+        public bool TryGetById(Guid id, out T obj)
         {
             return _objectDictionary.TryGetValue(id, out obj);
         }
@@ -40,7 +40,7 @@ namespace Jalex.Repository.Memory
 
         #region Implementation of IDeleter<T>
 
-        public OperationResult Delete(string id)
+        public OperationResult Delete(Guid id)
         {
             T obj;
             bool success = _objectDictionary.TryRemove(id, out obj);
@@ -78,7 +78,7 @@ namespace Jalex.Repository.Memory
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<string> Save(T obj, WriteMode writeMode)
+        public OperationResult<Guid> Save(T obj, WriteMode writeMode)
         {
             return SaveMany(new[] { obj }, writeMode).Single();
         }
@@ -89,7 +89,7 @@ namespace Jalex.Repository.Memory
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             Guard.AgainstNull(objects, "objects");
 

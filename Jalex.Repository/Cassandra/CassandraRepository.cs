@@ -37,10 +37,8 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IReader<out T>
 
-        public bool TryGetById(string id, out T obj)
+        public bool TryGetById(Guid id, out T obj)
         {
-            Magnum.Guard.AgainstNull(id, "id");
-
             var context = new Context(_session);
             var table = context.AddTable<T>();
 
@@ -73,7 +71,7 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IDeleter<T>
 
-        public OperationResult Delete(string id)
+        public OperationResult Delete(Guid id)
         {
             T existingEntity;
             var exists = TryGetById(id, out existingEntity);
@@ -141,7 +139,7 @@ namespace Jalex.Repository.Cassandra
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<string> Save(T obj, WriteMode writeMode = WriteMode.Upsert)
+        public OperationResult<Guid> Save(T obj, WriteMode writeMode = WriteMode.Upsert)
         {
             return SaveMany(new[] {obj}, writeMode).Single();
         }
@@ -152,7 +150,7 @@ namespace Jalex.Repository.Cassandra
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             Guard.AgainstNull(objects, "objects");
 
@@ -170,9 +168,9 @@ namespace Jalex.Repository.Cassandra
             {
                 Logger.ErrorException(cae, "Error when saving " + _typeDescriptor.TypeName);
                 return objectArr.Select(r =>
-                                        new OperationResult<string>(
+                                        new OperationResult<Guid>(
                                             false,
-                                            null,
+                                            Guid.Empty,
                                             Severity.Error,
                                             string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
                                 .ToArray();
@@ -184,7 +182,7 @@ namespace Jalex.Repository.Cassandra
 
         #endregion
 
-        private bool doesObjectWithIdExist(string id)
+        private bool doesObjectWithIdExist(Guid id)
         {
             T dummy;
             return TryGetById(id, out dummy);
@@ -218,7 +216,7 @@ namespace Jalex.Repository.Cassandra
             context.CreateTablesIfNotExist();
         }
 
-        private CqlQuery<T> getCqlQueryForSingleId(string id, ContextTable<T> table)
+        private CqlQuery<T> getCqlQueryForSingleId(Guid id, ContextTable<T> table)
         {
             var paramExpr = Expression.Parameter(typeof (T));
             var idValueExpr = Expression.Constant(id);

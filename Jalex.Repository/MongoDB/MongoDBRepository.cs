@@ -60,10 +60,8 @@ namespace Jalex.Repository.MongoDB
         // ReSharper disable once MemberCanBePrivate.Global
         public string CollectionName { get; set; }
 
-        public bool TryGetById(string id, out T item)
+        public bool TryGetById(Guid id, out T item)
         {
-            Guard.AgainstNull(id, "id");
-
             MongoCollection<T> collection = getMongoCollection();
 
             IMongoQuery query = Query<T>.EQ(_typeDescriptor.IdGetterExpression, id);
@@ -97,7 +95,7 @@ namespace Jalex.Repository.MongoDB
             return result;
         }
 
-        public OperationResult Delete(string id)
+        public OperationResult Delete(Guid id)
         {
             Infrastructure.Utils.Guard.AgainstNull(id, "id");
             MongoCollection<T> collection = getMongoCollection();
@@ -110,9 +108,9 @@ namespace Jalex.Repository.MongoDB
                 {
                     return new OperationResult(true);
                 }
-                return new OperationResult(false, Severity.Warning, "Could not delete {0} {1} as it was not found", _typeDescriptor.TypeName, id);
+                return new OperationResult(false, Severity.Warning, "Could not delete {0} {1} as it was not found", _typeDescriptor.TypeName, id.ToString());
             }
-            catch (Exception wce)
+            catch (MongoWriteConcernException wce)
             {
                 Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
                 return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName, id));
@@ -129,7 +127,7 @@ namespace Jalex.Repository.MongoDB
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<string> Save(T obj, WriteMode writeMode)
+        public OperationResult<Guid> Save(T obj, WriteMode writeMode)
         {
             return SaveMany(new[] { obj }, writeMode).Single();
         }
@@ -140,7 +138,7 @@ namespace Jalex.Repository.MongoDB
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<string>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
         {
             // ReSharper disable PossibleMultipleEnumeration
             Guard.AgainstNull(objects, "objects");
@@ -156,7 +154,7 @@ namespace Jalex.Repository.MongoDB
                         ensureObjectIds(writeMode, objectArr);
                         collection.InsertBatch(objectArr);
                         return objectArr
-                                    .Select(r => new OperationResult<string>(true, _typeDescriptor.GetId(r)))
+                                    .Select(r => new OperationResult<Guid>(true, _typeDescriptor.GetId(r)))
                                     .ToArray();
                     case WriteMode.Update:
                         return createResults(writeMode, objectArr, doesObjectWithIdExist, obj => updateObject(obj, false, collection));
@@ -172,13 +170,13 @@ namespace Jalex.Repository.MongoDB
                 Logger.ErrorException(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
                 throw new IdFormatException(fe.Message);
             }
-            catch (Exception wce)
+            catch (MongoWriteConcernException wce)
             {
                 Logger.ErrorException(wce, "Error when creating " + _typeDescriptor.TypeName);
                 return objectArr.Select(r =>
-                                        new OperationResult<string>(
+                                        new OperationResult<Guid>(
                                             false,
-                                            null,
+                                            Guid.Empty,
                                             Severity.Error,
                                             string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
                                 .ToArray();
@@ -220,10 +218,6 @@ namespace Jalex.Repository.MongoDB
                     var provider = _idProvider as IIdGenerator;
                     if (provider != null)
                     {
-                        if (provider is ObjectIdIdProvider)
-                        {
-                            cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
-                        }
                         cm.IdMemberMap.SetIdGenerator(provider);
                     }
                     else
@@ -338,9 +332,9 @@ namespace Jalex.Repository.MongoDB
             ensureIndices(collection);
 
             return collection;
-        }        
+        }
 
-        private bool doesObjectWithIdExist(string id)
+        private bool doesObjectWithIdExist(Guid id)
         {
             T dummy;
             return TryGetById(id, out dummy);

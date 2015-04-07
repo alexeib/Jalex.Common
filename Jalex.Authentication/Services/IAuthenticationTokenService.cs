@@ -19,7 +19,7 @@ namespace Jalex.Authentication.Services
         /// </summary>
         /// <param name="token">the token for which to retrieve the device token</param>
         /// <returns>the full token stored for the given token string, if any</returns>
-        OperationResult<AuthenticationToken> GetExistingToken(string token);
+        OperationResult<AuthenticationToken> GetExistingToken(Guid token);
 
         /// <summary>
         /// Retrieves an existing device token, if any
@@ -42,6 +42,6 @@ namespace Jalex.Authentication.Services
         /// </summary>
         /// <param name="tokenId">The id of the token to delete</param>
         /// <returns>result of the operation</returns>
-        OperationResult DeleteToken(string tokenId);
+        OperationResult DeleteToken(Guid tokenId);
     }
 }
