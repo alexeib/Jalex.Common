@@ -76,6 +76,7 @@
     <Compile Include="Expressions\ExpressionNodeFinder.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\GuidExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TimePeriodExtensions.cs" />
     <Compile Include="InfrastructureModule.cs" />
