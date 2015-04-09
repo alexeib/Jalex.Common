@@ -23,23 +23,27 @@ namespace Jalex.Repository.Cassandra
         // ReSharper disable once MemberCanBePrivate.Global
         public string Keyspace { get; set; }
 
-        private readonly Session _session;
+        private readonly Lazy<Session> _session;
 
         public CassandraRepository(
             IIdProvider idProvider,
             IReflectedTypeDescriptorProvider typeDescriptorProvider)
             : base(idProvider, typeDescriptorProvider)
         {
-            _session = getCassandraSession();
-
-            createTableIfNotExist();
+            _session = new Lazy<Session>(() =>
+                                         {
+                                             var session = getCassandraSession();
+                                             createTableIfNotExist(session);
+                                             return session;
+                                         }); 
+            
         }
 
         #region Implementation of IReader<out T>
 
         public bool TryGetById(Guid id, out T obj)
         {
-            var context = new Context(_session);
+            var context = new Context(_session.Value);
             var table = context.AddTable<T>();
 
             var query = getCqlQueryForSingleId(id, table);
@@ -61,7 +65,7 @@ namespace Jalex.Repository.Cassandra
 
         public IEnumerable<T> GetAll()
         {
-            var context = new Context(_session);
+            var context = new Context(_session.Value);
             var table = context.AddTable<T>();
             var results = table.Execute();
             return results;
@@ -81,7 +85,7 @@ namespace Jalex.Repository.Cassandra
                 return new OperationResult(false);
             }
 
-            var context = new Context(_session);
+            var context = new Context(_session.Value);
             var table = context.AddTable<T>();
 
             table.Delete(existingEntity);
@@ -106,7 +110,7 @@ namespace Jalex.Repository.Cassandra
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {
-            var context = new Context(_session);
+            var context = new Context(_session.Value);
             var table = context.AddTable<T>();
 
             var queryCommand = table.Where(query);
@@ -121,7 +125,7 @@ namespace Jalex.Repository.Cassandra
         /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
         public T FirstOrDefault(Expression<Func<T, bool>> query)
         {
-            var context = new Context(_session);
+            var context = new Context(_session.Value);
             var table = context.AddTable<T>();
 
             var firstOrDefaultCommand = table.FirstOrDefault(query);
@@ -154,7 +158,7 @@ namespace Jalex.Repository.Cassandra
         {
             Guard.AgainstNull(objects, "objects");
 
-            var context = new Context(_session);
+            var context = new Context(_session.Value);
             var table = context.AddTable<T>();
             var objectArr = objects as T[] ?? objects.ToArray();
 
@@ -209,9 +213,9 @@ namespace Jalex.Repository.Cassandra
             return session;
         }
 
-        private void createTableIfNotExist()
+        private void createTableIfNotExist(Session session)
         {
-            var context = new Context(_session);
+            var context = new Context(session);
             context.AddTable<T>();
             context.CreateTablesIfNotExist();
         }

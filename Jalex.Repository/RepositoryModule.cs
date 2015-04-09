@@ -16,8 +16,8 @@ namespace Jalex.Repository
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<GuidIdProvider>()
-                                       .As<IIdProvider>()
-                                       .InstancePerLifetimeScope();   
+                   .As<IIdProvider>()
+                   .InstancePerLifetimeScope();
 
             switch (RepositoryType)
             {
