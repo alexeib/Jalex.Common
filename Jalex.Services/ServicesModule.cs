@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Autofac;
+using Autofac.Core;
 using Jalex.Infrastructure.Repository;
 using Jalex.Services.Caching;
 
@@ -25,12 +26,14 @@ namespace Jalex.Services
                 .InstancePerLifetimeScope();
 
             builder
-                .RegisterGenericDecorator(typeof (CacheResponsibility<>),
-                                          typeof (IQueryableRepository<>),
+                .RegisterGenericDecorator(typeof(CacheResponsibility<>),
+                                          typeof(IQueryableRepository<>),
                                           fromKey: "repository");
 
             builder.RegisterGeneric(typeof (CacheResponsibility<>))
-                   .As(typeof (IReader<>), typeof (ISimpleRepository<>), typeof (IWriter<>), typeof (IDeleter<>))
+                   .WithParameter(new ResolvedParameter((ci, cc) => ci.ParameterType.IsGenericType && ci.ParameterType.GetGenericTypeDefinition() == typeof(IQueryableRepository<>),
+                                                        (ci, cc) => cc.ResolveNamed("repository", ci.ParameterType)))
+                   .As(typeof (IReader<>), typeof (ISimpleRepository<>),  typeof (IWriter<>), typeof (IDeleter<>))
                    .InstancePerLifetimeScope();
         }
 
