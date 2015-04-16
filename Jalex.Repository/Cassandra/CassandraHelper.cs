@@ -11,7 +11,6 @@ namespace Jalex.Repository.Cassandra
     internal class CassandraHelper
     {
         private readonly IReflectedTypeDescriptor _typeDescriptor;
-        private string _partitionKey;
         private Dictionary<string, IndexedAttribute> _clusteredIndices;
         private Dictionary<string, IndexedAttribute> _secondaryIndices;
         
@@ -28,10 +27,6 @@ namespace Jalex.Repository.Cassandra
 
         public bool IsPropertyPartitionKey(string propName)
         {
-            if (HasClusteredIndices)
-            {
-                return _partitionKey == propName;
-            }
             return _typeDescriptor.IdPropertyName == propName;
         }
 
@@ -62,13 +57,8 @@ namespace Jalex.Repository.Cassandra
 
             HasClusteredIndices = indexedPropAndAttrArr.Any(c => c.Attribute.IsClustered);
 
-            if (HasClusteredIndices)
-            {
-                _partitionKey = _typeDescriptor.IdPropertyName;
-            }
-
             _clusteredIndices = indexedPropAndAttrArr
-                .Where(c => c.Attribute.IsClustered && c.PropName != _partitionKey)
+                .Where(c => c.Attribute.IsClustered && c.PropName != _typeDescriptor.IdPropertyName)
                 .ToDictionary(x => x.PropName, x => x.Attribute);
 
             _secondaryIndices = indexedPropAndAttrArr
