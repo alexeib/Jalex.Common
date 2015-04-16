@@ -69,7 +69,8 @@ namespace Jalex.Repository
                     id = checkOrGenerateIdForEntity(id, obj);
                 }
 
-                if (!ids.Add(id))
+                // skip dupe check if there are clustered indices
+                if (!_typeDescriptor.HasClusteredIndices && !ids.Add(id))
                 {
                     throw new DuplicateIdException("Attempting to create multiple objects with id " + id + " is not allowed");
                 }

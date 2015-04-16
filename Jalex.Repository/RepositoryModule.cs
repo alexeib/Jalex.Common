@@ -23,13 +23,13 @@ namespace Jalex.Repository
             {
                 case RepositoryType.Cassandra:
                     builder.RegisterGeneric(typeof(CassandraRepository<>))
-                                        .Named("repository", typeof(IQueryableRepository<>))
+                                        .Named("raw-repository", typeof(IQueryableRepository<>))
                                         .InstancePerLifetimeScope();
 
                     break;
                 case RepositoryType.Mongo:
                     builder.RegisterGeneric(typeof(MongoDBRepository<>))
-                                        .Named("repository", typeof(IQueryableRepository<>))
+                                        .Named("raw-repository", typeof(IQueryableRepository<>))
                                         .InstancePerLifetimeScope();
 
                     builder.RegisterType<MongoDBFileRepository>()

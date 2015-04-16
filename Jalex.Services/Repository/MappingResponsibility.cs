@@ -9,8 +9,6 @@ using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Utils;
-using Magnum;
 using Guard = Magnum.Guard;
 
 namespace Jalex.Services.Repository

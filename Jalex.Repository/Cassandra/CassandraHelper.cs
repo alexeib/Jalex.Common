@@ -42,10 +42,6 @@ namespace Jalex.Repository.Cassandra
 
         public bool IsPropertySecondaryIndex(string propName)
         {
-            if (HasClusteredIndices && _typeDescriptor.IdPropertyName == propName)
-            {
-                return true;
-            }
             return _secondaryIndices.ContainsKey(propName);
         }
 
@@ -68,11 +64,7 @@ namespace Jalex.Repository.Cassandra
 
             if (HasClusteredIndices)
             {
-                _partitionKey = 
-                    indexedPropAndAttrArr
-                    .Where(c => c.Attribute.IsClustered)
-                    .Select(c => c.PropName)
-                    .FirstOrDefault();
+                _partitionKey = _typeDescriptor.IdPropertyName;
             }
 
             _clusteredIndices = indexedPropAndAttrArr
