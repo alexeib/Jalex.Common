@@ -14,5 +14,7 @@ namespace Jalex.Repository.Test.Objects
         public string RefId { get; set; }
         [Indexed(IsClustered = true)]
         public int Number { get; set; }
+
+        public TestObject NestedObject { get; set; }
     }
 }

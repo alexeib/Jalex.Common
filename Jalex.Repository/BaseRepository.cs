@@ -39,9 +39,7 @@ namespace Jalex.Repository
             Guard.AgainstNull(typeDescriptorProvider, "typeDescriptorProvider");
 
             _idProvider = idProvider;
-            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
-
-            ensureInitialized();
+            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();            
         }
 
         protected IEnumerable<OperationResult<Guid>> createResults(
@@ -171,7 +169,7 @@ namespace Jalex.Repository
             // no-op in base
         }
 
-        private void ensureInitialized()
+        protected void ensureInitialized()
         {
             if (!_isInitialized)
             {

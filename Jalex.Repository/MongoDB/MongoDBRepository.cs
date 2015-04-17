@@ -49,6 +49,7 @@ namespace Jalex.Repository.MongoDB
             IReflectedTypeDescriptorProvider typeDescriptorProvider)
             : base(idProvider, typeDescriptorProvider)
         {
+            ensureInitialized();
         }
 
         // ReSharper disable once MemberCanBePrivate.Global

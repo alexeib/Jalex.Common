@@ -68,6 +68,19 @@ namespace Jalex.Services.Repository
             return result;
         }
 
+        /// <summary>
+        /// Deletes all items that match a given expression
+        /// </summary>
+        /// <param name="expression">The expression to match</param>
+        /// <returns>Whether the operation executed successfully or not</returns>
+        public OperationResult DeleteWhere(Expression<Func<TClass, bool>> expression)
+        {
+            var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(expression, _reflectedTypeDescriptorProvider);
+
+            var result = _entityRepository.DeleteWhere(entityQuery);
+            return result;
+        }
+
         #endregion
 
         #region Implementation of IInjectableLogger

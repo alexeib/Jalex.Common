@@ -95,6 +95,27 @@ namespace Jalex.Services.Caching
             return result;
         }
 
+        /// <summary>
+        /// Deletes all items that match a given expression
+        /// </summary>
+        /// <param name="expression">The expression to match</param>
+        /// <returns>Whether the operation executed successfully or not</returns>
+        public OperationResult DeleteWhere(Expression<Func<T, bool>> expression)
+        {
+            var items = _repository.Query(expression);
+            var result = _repository.DeleteWhere(expression);
+
+            if (result.Success)
+            {
+                foreach (var item in items)
+                {
+                    _keyCache.DeleteById(_typeDescriptor.GetId(item));
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Implementation of IWriter<in TEntity>

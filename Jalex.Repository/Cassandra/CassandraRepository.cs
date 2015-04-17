@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
+using System.Reflection;
 using Cassandra;
 using Cassandra.Data.Linq;
 using Cassandra.Mapping;
@@ -21,6 +23,31 @@ namespace Jalex.Repository.Cassandra
     {
         private const string _defaultKeyspaceSettingNane = "cassandra-keyspace";
 
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly HashSet<Type> _nativelySupportedTypes = new HashSet<Type>
+                                                                        {
+                                                                            typeof (string),
+                                                                            typeof (long),
+                                                                            typeof (byte[]),
+                                                                            typeof (bool),
+                                                                            typeof (double),
+                                                                            typeof (float),
+                                                                            typeof (IPAddress),
+                                                                            typeof (int),
+                                                                            typeof (DateTimeOffset),
+                                                                            typeof (DateTime),
+                                                                            typeof (Guid),
+                                                                            typeof (TimeUuid),
+                                                                            TypeAdapters.DecimalTypeAdapter.GetDataType(),
+                                                                            TypeAdapters.VarIntTypeAdapter.GetDataType()
+                                                                        };
+
+        static CassandraRepository()
+        {
+            CassandraSetup.EnsureInitialized();
+        }
+
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
         public string Keyspace { get; set; }
@@ -34,11 +61,11 @@ namespace Jalex.Repository.Cassandra
         {
             _session = new Lazy<ISession>(() =>
                                          {
-                                             var session = getCassandraSession();
+                                             ensureInitialized();
+                                             var session = getCassandraSession();                                             
                                              createTableIfNotExist(session);
                                              return session;
-                                         });
-
+                                         });            
         }
 
         #region Implementation of IReader<out T>
@@ -257,48 +284,10 @@ namespace Jalex.Repository.Cassandra
 
             var helper = new CassandraHelper(_typeDescriptor);
 
-            var map = new Map<T>();
-
-            foreach (var prop in _typeDescriptor.Properties)
-            {
-                if (helper.IsPropertyPartitionKey(prop.Name))
-                {
-                    map.PartitionKey(prop.Name);
-                }
-                else if (helper.IsPropertyClusteringKey(prop.Name))
-                {
-                    var clusteringAttribs = helper.GetClusteringKeyAttribute(prop.Name);
-                    SortOrder sortOrder;
-                    switch (clusteringAttribs.SortOrder)
-                    {
-                        case IndexedAttribute.Order.Ascending:
-                            sortOrder = SortOrder.Ascending;
-                            break;
-                        case IndexedAttribute.Order.Descending:
-                            sortOrder = SortOrder.Descending;
-                            break;
-                        case IndexedAttribute.Order.Unspecified:
-                            sortOrder = SortOrder.Unspecified;
-                            break;
-                        default:
-                            throw new IndexOutOfRangeException(clusteringAttribs.SortOrder.ToString());
-                    }
-
-                    map.ClusteringKey(Tuple.Create(prop.Name, sortOrder));
-                }
-
-                if (helper.IsPropertySecondaryIndex(prop.Name))
-                {
-                    var expr = ExpressionUtils.GetPropertyGetterExpression<T, object>(prop.Name);
-                    map.Column(expr, cc => cc.WithSecondaryIndex());
-                }
-            }
-
-            MappingConfiguration.Global.Define(map);
+            defineMap(helper);
         }
 
         #endregion
-
 
         private ISession getCassandraSession()
         {
@@ -328,6 +317,79 @@ namespace Jalex.Repository.Cassandra
             var idEqualsValueExpr = Expression.Equal(_typeDescriptor.IdPropertyExpression, idValueExpr);
             var lambda = Expression.Lambda<Func<T, bool>>(idEqualsValueExpr, paramExpr);
             return lambda;
+        }
+
+        private void defineMap(CassandraHelper helper)
+        {
+            var map = new Map<T>();
+
+            foreach (var prop in _typeDescriptor.Properties)
+            {
+                if (helper.IsPropertyPartitionKey(prop.Name))
+                {
+                    map.PartitionKey(prop.Name);
+                }
+                else if (helper.IsPropertyClusteringKey(prop.Name))
+                {
+                    mapClusteringKey(helper, prop, map);
+                }
+
+                if (helper.IsPropertySecondaryIndex(prop.Name))
+                {
+                    mapSecondaryIndex(prop, map);
+                }
+
+                var propType = getEnumerableGenericProperty(prop.PropertyType) ?? prop.PropertyType.GetNullableUnderlyingType();
+                if (!_nativelySupportedTypes.Contains(propType))
+                {
+                    mapAsJson(prop, map);
+                }
+            }
+            
+            MappingConfiguration.Global.Define(map);
+        }
+
+        private static void mapClusteringKey(CassandraHelper helper, PropertyInfo prop, Map<T> map)
+        {
+            var clusteringAttribs = helper.GetClusteringKeyAttribute(prop.Name);
+            SortOrder sortOrder;
+            switch (clusteringAttribs.SortOrder)
+            {
+                case IndexedAttribute.Order.Ascending:
+                    sortOrder = SortOrder.Ascending;
+                    break;
+                case IndexedAttribute.Order.Descending:
+                    sortOrder = SortOrder.Descending;
+                    break;
+                case IndexedAttribute.Order.Unspecified:
+                    sortOrder = SortOrder.Unspecified;
+                    break;
+                default:
+                    throw new IndexOutOfRangeException(clusteringAttribs.SortOrder.ToString());
+            }
+
+            map.ClusteringKey(Tuple.Create(prop.Name, sortOrder));
+        }
+
+        private static void mapSecondaryIndex(PropertyInfo prop, Map<T> map)
+        {
+            var expr = ExpressionUtils.GetPropertyGetterExpression<T, object>(prop.Name);
+            map.Column(expr, cc => cc.WithSecondaryIndex());
+        }
+
+        private void mapAsJson(PropertyInfo prop, Map<T> map)
+        {
+            var expr = ExpressionUtils.GetPropertyGetterExpression<T, object>(prop.Name);
+            map.Column(expr, cc => cc.WithDbType<string>());
+        }
+
+        private Type getEnumerableGenericProperty(Type propertyType)
+        {
+            if (propertyType.IsGenericType && propertyType.GetInterface("IEnumerable`1") != null)
+            {
+                return propertyType.GetGenericArguments()[0];
+            }
+            return null;
         }
     }
 }
