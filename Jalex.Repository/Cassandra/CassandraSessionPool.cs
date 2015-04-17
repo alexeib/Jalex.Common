@@ -14,11 +14,11 @@ namespace Jalex.Repository.Cassandra
     {
         private const string _defaultContactsSettingName = "cassandra-contacts";
 
-        private static readonly ConcurrentDictionary<string, Session> _keyspaceToSession = new ConcurrentDictionary<string, Session>();
+        private static readonly ConcurrentDictionary<string, ISession> _keyspaceToSession = new ConcurrentDictionary<string, ISession>();
 
         internal static IEnumerable<string> Contacts { get; set; }
 
-        internal static Session GetSessionForKeyspace(string keyspace)
+        internal static ISession GetSessionForKeyspace(string keyspace)
         {
             var session = _keyspaceToSession.GetOrAdd(keyspace, createSessionForKeyspace);
             return session;
@@ -26,7 +26,7 @@ namespace Jalex.Repository.Cassandra
 
         internal static void DestroySessionForKeyspace(string keyspace)
         {
-            Session session;
+            ISession session;
             var removed = _keyspaceToSession.TryRemove(keyspace, out session);
             if (removed)
             {
@@ -43,7 +43,7 @@ namespace Jalex.Repository.Cassandra
             }
         }
 
-        private static Session createSessionForKeyspace(string keyspace)
+        private static ISession createSessionForKeyspace(string keyspace)
         {
             string[] contacts = getContacts();
             Builder builder = Cluster.Builder();
@@ -52,7 +52,7 @@ namespace Jalex.Repository.Cassandra
 
             Cluster cluster = builder.Build();
 
-            Session session = cluster.ConnectAndCreateDefaultKeyspaceIfNotExists();
+            ISession session = cluster.ConnectAndCreateDefaultKeyspaceIfNotExists();
 
             return session;
         }

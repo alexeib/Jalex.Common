@@ -37,17 +37,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Cassandra">
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.dll</HintPath>
-    </Reference>
-    <Reference Include="Cassandra.Data">
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Cassandra.DSE">
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.DSE.dll</HintPath>
+    <Reference Include="Cassandra, Version=2.5.0.0, Culture=neutral, PublicKeyToken=10b231fbfc8c4b4d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CassandraCSharpDriver.2.5.2\lib\net40\Cassandra.dll</HintPath>
     </Reference>
     <Reference Include="EmitMapper">
       <HintPath>..\packages\EmitMapper.1.0.0\lib\EmitMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="LZ4">
+      <HintPath>..\packages\lz4net.1.0.5.93\lib\net40-client\LZ4.dll</HintPath>
     </Reference>
     <Reference Include="Magnum, Version=2.1.3.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -88,16 +86,6 @@
     <Compile Include="Cassandra\CassandraHelper.cs" />
     <Compile Include="Cassandra\CassandraRepository.cs" />
     <Compile Include="Cassandra\CassandraSessionPool.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\Batch.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\Context.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\CqlExpressionVisitor.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\CqlQuery.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\CqlQueryExtensions.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\CqlQueryTools.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\MutationTracker.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\SessionExtensions.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\Table.cs" />
-    <Compile Include="Cassandra\DataStax.Linq\VisitingParam.cs" />
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
     <Compile Include="Memory\MemoryRepository.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
@@ -45,6 +46,23 @@ namespace Jalex.Repository.Memory
             T obj;
             bool success = _objectDictionary.TryRemove(id, out obj);
             return new OperationResult(success);
+        }
+
+        /// <summary>
+        /// Deletes all items that match a given expression
+        /// </summary>
+        /// <param name="expression">The expression to match</param>
+        /// <returns>Whether the operation executed successfully or not</returns>
+        public OperationResult DeleteWhere(Expression<Func<T, bool>> expression)
+        {
+            var items = Query(expression)
+                .ToCollection();
+            foreach (var item in items)
+            {
+                var id = _typeDescriptor.GetId(item);
+                Delete(id);
+            }
+            return new OperationResult(true);
         }
 
         #endregion

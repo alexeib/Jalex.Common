@@ -14,14 +14,11 @@ namespace Jalex.Repository.Cassandra
         private Dictionary<string, IndexedAttribute> _clusteredIndices;
         private Dictionary<string, IndexedAttribute> _secondaryIndices;
         
-        public bool HasClusteredIndices { get; private set; }
-
-        public CassandraHelper(Type entityType)
+        public CassandraHelper(IReflectedTypeDescriptor reflectedTypeDescriptor)
         {
-            Guard.AgainstNull(entityType, "entityType");
+            Guard.AgainstNull(reflectedTypeDescriptor, "reflectedTypeDescriptor");
 
-            IReflectedTypeDescriptorProvider provider = new ReflectedTypeDescriptorProvider();
-            _typeDescriptor = provider.GetReflectedTypeDescriptor(entityType);
+            _typeDescriptor = reflectedTypeDescriptor;
             initClusteredIndices(_typeDescriptor.Properties);
         }
 
@@ -54,8 +51,6 @@ namespace Jalex.Repository.Cassandra
                                      where indexedAttribute != null
                                      orderby indexedAttribute.Index
                                      select new {PropName = prop.Name, Attribute = indexedAttribute}).ToArray();
-
-            HasClusteredIndices = indexedPropAndAttrArr.Any(c => c.Attribute.IsClustered);
 
             _clusteredIndices = indexedPropAndAttrArr
                 .Where(c => c.Attribute.IsClustered && c.PropName != _typeDescriptor.IdPropertyName)

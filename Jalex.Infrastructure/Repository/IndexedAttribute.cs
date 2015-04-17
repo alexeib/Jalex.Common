@@ -7,13 +7,14 @@ namespace Jalex.Infrastructure.Repository
     {
         public enum Order
         {
+            Unspecified,
             Ascending,
             Descending
         }
 
         public IndexedAttribute()
         {
-            SortOrder = Order.Ascending;
+            SortOrder = Order.Unspecified;
             Index = -1;
         }
 

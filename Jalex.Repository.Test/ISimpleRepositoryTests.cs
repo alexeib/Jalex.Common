@@ -40,7 +40,6 @@ namespace Jalex.Repository.Test
             _logger.Clear();
         }
 
-
         [Fact]
         public void CreatesEntity()
         {
@@ -94,20 +93,42 @@ namespace Jalex.Repository.Test
 
             createResultExisting.Success.Should().BeFalse();
             createResultExisting.Messages.Should().NotBeEmpty();
-            _logger.Logs.Should().NotBeEmpty();
         }
 
         [Fact]
         public void DoesNotCreateEntitiesWithDuplicateIds()
         {
             Guid id = _fixture.Create<Guid>();
+            var obj1 = _fixture.Create<T>();
+            var obj2 = _fixture.Create<T>();
 
-            var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.SaveMany(new[]
-                                                                                                {
-                                                                                                    new T { Id = id, Name = "SameId" },
-                                                                                                    new T { Id = id, Name = "SameId" }
-                                                                                                }, WriteMode.Insert));
-            exception.Should().NotBeNull();
+            obj1.Id = id;
+            obj2.Id = id;
+
+            if (typeof (T) == typeof (TestObjectWithClustering))
+            {
+                var results = _testEntityRepository.SaveMany(new[]
+                                               {
+                                                   obj1,
+                                                   obj2
+                                               },
+                                               WriteMode.Insert);
+                results.Should()
+                       .OnlyContain(r => r.Success);
+
+                _testEntityRepository.Delete(id);
+            }
+            else
+            {
+                var exception = Assert.Throws<DuplicateIdException>(() => _testEntityRepository.SaveMany(new[]
+                                                                                                         {
+                                                                                                             obj1,
+                                                                                                             obj2
+                                                                                                         },
+                                                                                                         WriteMode.Insert));
+                exception.Should()
+                         .NotBeNull();
+            }
         }
 
         [Fact]
@@ -135,6 +156,25 @@ namespace Jalex.Repository.Test
             var fakeEntityId = _fixture.Create<Guid>();
             var deleteResult = _testEntityRepository.Delete(fakeEntityId);
             deleteResult.Success.Should().BeFalse();
+        }
+
+        [Fact]
+        public void DeletesEntitiesUsingQuery()
+        {
+            var sampleEntity = _sampleTestEntitys.First();
+
+            var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
+            createResult.Success.Should().BeTrue();
+
+            var deleteResult = _testEntityRepository.DeleteWhere(e => e.Id == sampleEntity.Id);
+
+            deleteResult.Success.Should().BeTrue();
+            deleteResult.Messages.Should().BeEmpty();
+
+            T retrieved;
+            var success = _testEntityRepository.TryGetById(sampleEntity.Id, out retrieved);
+            success.Should().BeFalse();
+            retrieved.Should().BeNull();
         }
 
         [Fact]
