@@ -1,12 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using Cassandra.Mapping.TypeConversion;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Jalex.Repository.Cassandra
 {
     public class ComplexTypeConverter : TypeConverter
     {
-        #region Overrides of TypeConverter
+        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+                                                                             {
+                                                                                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                                                                                 MissingMemberHandling = MissingMemberHandling.Ignore,
+                                                                                 NullValueHandling = NullValueHandling.Ignore,
+                                                                                 DefaultValueHandling = DefaultValueHandling.Ignore,
+                                                                                 Converters = new List<JsonConverter>
+                                                                                              {
+                                                                                                  new StringEnumConverter()
+                                                                                              }
+                                                                             };
+    #region Overrides of TypeConverter
 
         /// <summary>
         /// Gets any user defined conversion functions that can convert a value of type <typeparamref name="TDatabase"/> (coming from Cassandra) to a
@@ -22,7 +35,7 @@ namespace Jalex.Repository.Cassandra
             {
                 return null;
             }
-            return dbObj => JsonConvert.DeserializeObject<TPoco>(dbObj as string);
+            return dbObj => JsonConvert.DeserializeObject<ComplexTypeContainer<TPoco>>(dbObj as string, _serializerSettings).Object;
         }
 
         /// <summary>
@@ -40,7 +53,12 @@ namespace Jalex.Repository.Cassandra
             {
                 return null;
             }
-            return obj => (TDatabase)(object)JsonConvert.SerializeObject(obj);
+
+            return obj => (TDatabase) (object) JsonConvert.SerializeObject(new ComplexTypeContainer<TPoco>
+                                                                           {
+                                                                               Object = obj
+                                                                           },
+                                                                           _serializerSettings);
         }
 
         #endregion

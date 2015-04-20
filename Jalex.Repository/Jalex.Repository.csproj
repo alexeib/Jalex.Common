@@ -87,6 +87,7 @@
     <Compile Include="Cassandra\CassandraRepository.cs" />
     <Compile Include="Cassandra\CassandraSessionPool.cs" />
     <Compile Include="Cassandra\CassandraSetup.cs" />
+    <Compile Include="Cassandra\ComplexTypeContainer.cs" />
     <Compile Include="Cassandra\ComplexTypeConverter.cs" />
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
