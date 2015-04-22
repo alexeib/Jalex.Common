@@ -14,8 +14,13 @@ namespace Jalex.Infrastructure.Repository
 
         public static T GetByIdOrDefault<T>(this IReader<T> repository, Guid id)
         {
+            return repository.GetByIdOrDefault(id, default(T));
+        }
+
+        public static T GetByIdOrDefault<T>(this IReader<T> repository, Guid id, T defaultValue)
+        {
             T item;
-            return repository.TryGetById(id, out item) ? item : default(T);
+            return repository.TryGetById(id, out item) ? item : defaultValue;
         }
 
         public static IEnumerable<T> GetManyByIdOrDefault<T>(this IReader<T> repository, IEnumerable<Guid> ids)

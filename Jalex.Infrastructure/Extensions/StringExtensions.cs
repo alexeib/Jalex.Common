@@ -13,5 +13,10 @@ namespace Jalex.Infrastructure.Extensions
         {
             return Guid.Parse(s);
         }
+
+        public static string Params(this string s, params object[] args)
+        {
+            return string.Format(s, args);
+        }
     }
 }

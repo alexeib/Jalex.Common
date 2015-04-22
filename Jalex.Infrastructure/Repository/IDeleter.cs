@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using Jalex.Infrastructure.Objects;
 
 namespace Jalex.Infrastructure.Repository
@@ -12,12 +11,5 @@ namespace Jalex.Infrastructure.Repository
         /// <param name="id">The id of the object to delete</param>
         /// <returns>the result of the delete operation</returns>
         OperationResult Delete(Guid id);
-
-        /// <summary>
-        /// Deletes all items that match a given expression
-        /// </summary>
-        /// <param name="expression">The expression to match</param>
-        /// <returns>Whether the operation executed successfully or not</returns>
-        OperationResult DeleteWhere(Expression<Func<T, bool>> expression);
     }
 }
