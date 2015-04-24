@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Jalex.Infrastructure.Extensions
 {
@@ -6,9 +7,22 @@ namespace Jalex.Infrastructure.Extensions
     {
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
+            return dictionary.GetValueOrDefault(key, default(TValue));
+        }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
+        {
+            return dictionary.GetValueOrDefault(key, () => defaultValue);
+        }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> defaultValueFunc)
+        {
             TValue value;
-            dictionary.TryGetValue(key, out value);
-            return value;
+            if (dictionary.TryGetValue(key, out value))
+            {
+                return value;
+            }
+            return defaultValueFunc();
         }
     }
 }
