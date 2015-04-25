@@ -117,6 +117,27 @@ namespace Jalex.Infrastructure.Containers
         }
 
         /// <summary>
+        /// Adds or replaces an instance
+        /// </summary>
+        /// <param name="instance">The instance to add or replace</param>
+        public void SetDefault(TInstance instance)
+        {
+            Guard.AgainstNull(instance, "instance");
+
+            var instanceType = instance.GetType();
+            var key = _defaultKey;
+
+            // ReSharper disable once CompareNonConstrainedGenericWithNull
+            if (key == null)
+            {
+                throw new InvalidOperationException("instance key cannot be null");
+            }
+
+            var instancesByKey = _instanceDictionary.GetOrAdd(instanceType, new ConcurrentDictionary<TKey, TInstance>());
+            instancesByKey[key] = instance;
+        }
+
+        /// <summary>
         /// Adds removes the instance with default key
         /// </summary>
         /// <typeparam name="T">The type of instance to remove</typeparam>

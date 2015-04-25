@@ -89,6 +89,10 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Configuration\Configuration1.cs" />
+    <Compile Include="Configuration\Configuration2.cs" />
+    <Compile Include="Configuration\Configuration3.cs" />
+    <Compile Include="Configuration\ConfigurationProviderTests.cs" />
     <Compile Include="Containers\TypedInstanceContainerTests.cs" />
     <Compile Include="Dataflow\FilterBlockTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
