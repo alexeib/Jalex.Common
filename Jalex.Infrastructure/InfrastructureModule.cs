@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Jalex.Infrastructure.Configuration;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 
 namespace Jalex.Infrastructure
@@ -19,6 +20,10 @@ namespace Jalex.Infrastructure
         {
             builder.RegisterType<ReflectedTypeDescriptorProvider>()
                            .As<IReflectedTypeDescriptorProvider>()
+                           .InstancePerLifetimeScope();
+
+            builder.RegisterType<ConfigurationProvider>()
+                           .As<IConfigurationProvider>()
                            .InstancePerLifetimeScope();
         }
 
