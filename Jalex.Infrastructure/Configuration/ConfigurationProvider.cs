@@ -29,7 +29,12 @@ namespace Jalex.Infrastructure.Configuration
 
         public TConfiguration GetConfiguration<TConfiguration>() where TConfiguration : class, IConfiguration
         {
-            return _configurationsContainer.Value.GetDefault<TConfiguration>();
+            var configuration = _configurationsContainer.Value.GetDefault<TConfiguration>();
+            if (configuration == null)
+            {
+                throw new ConfigurationMissingException(typeof(TConfiguration));
+            }
+            return configuration;
         }
 
         #endregion

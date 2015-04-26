@@ -2,9 +2,9 @@
 
 namespace Jalex.Infrastructure.Objects
 {
-    public class JalexException : ApplicationException
+    public abstract class JalexException : Exception
     {
-        public JalexException(string message)
+        protected JalexException(string message)
             : base(message)
         {
             

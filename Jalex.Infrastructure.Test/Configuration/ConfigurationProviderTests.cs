@@ -54,9 +54,9 @@ namespace Jalex.Infrastructure.Test.Configuration
         public void Does_Not_Return_Configuration3()
         {
             var sut = _fixture.Create<IConfigurationProvider>();
-            var conf = sut.GetConfiguration<Configuration3>();
-            conf.Should()
-                .BeNull();
+
+            sut.Invoking(s => sut.GetConfiguration<Configuration3>())
+               .ShouldThrow<ConfigurationMissingException>();
         }
     }
 }

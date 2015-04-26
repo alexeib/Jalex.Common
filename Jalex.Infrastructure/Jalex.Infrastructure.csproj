@@ -70,6 +70,7 @@
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Caching\ICacheFactory.cs" />
     <Compile Include="Caching\ICacheStrategyConfiguration.cs" />
+    <Compile Include="Configuration\ConfigurationMissingException.cs" />
     <Compile Include="Configuration\ConfigurationProvider.cs" />
     <Compile Include="Configuration\IConfiguration.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />
