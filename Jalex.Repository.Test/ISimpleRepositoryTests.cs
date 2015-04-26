@@ -159,25 +159,6 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void DeletesEntitiesUsingQuery()
-        {
-            var sampleEntity = _sampleTestEntitys.First();
-
-            var createResult = _testEntityRepository.Save(sampleEntity, WriteMode.Upsert);
-            createResult.Success.Should().BeTrue();
-
-            var deleteResult = _testEntityRepository.DeleteWhere(e => e.Id == sampleEntity.Id);
-
-            deleteResult.Success.Should().BeTrue();
-            deleteResult.Messages.Should().BeEmpty();
-
-            T retrieved;
-            var success = _testEntityRepository.TryGetById(sampleEntity.Id, out retrieved);
-            success.Should().BeFalse();
-            retrieved.Should().BeNull();
-        }
-
-        [Fact]
         public void RetrievesOneEntityById()
         {
             var createResult = _testEntityRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);

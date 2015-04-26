@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Jalex.Infrastructure.Extensions
 {
@@ -33,6 +34,16 @@ namespace Jalex.Infrastructure.Extensions
             if (typeToCheck == targetType) return true;
             if (typeToCheck.BaseType == null) return false;
             return IsDerivedFrom(typeToCheck.BaseType, targetType);
+        }
+
+        public static bool IsDynamicType(this Type type)
+        {
+            if (type.Name.StartsWith("<>") && !type.Name.Contains("AnonymousType") && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

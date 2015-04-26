@@ -70,5 +70,24 @@ namespace Jalex.Repository.Test
 
             retrievedTestEntity.Should().BeNull();
         }
+
+        [Fact]
+        public void DeletesEntitiesUsingQuery()
+        {
+            var sampleEntity = _sampleTestEntitys.First();
+
+            var createResult = _queryableRepository.Save(sampleEntity, WriteMode.Upsert);
+            createResult.Success.Should().BeTrue();
+
+            var deleteResult = _queryableRepository.DeleteWhere(e => e.Id == sampleEntity.Id);
+
+            deleteResult.Success.Should().BeTrue();
+            deleteResult.Messages.Should().BeEmpty();
+
+            T retrieved;
+            var success = _queryableRepository.TryGetById(sampleEntity.Id, out retrieved);
+            success.Should().BeFalse();
+            retrieved.Should().BeNull();
+        }
     }
 }
