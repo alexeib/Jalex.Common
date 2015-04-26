@@ -16,55 +16,65 @@ namespace Jalex.Infrastructure.Net
         #region Implementation of IHttpCommunicator
 
         /// <summary>
-        /// Gets http response converted to type TRet for a given URI, with the given parameters
+        /// Gets http response converted to type TRet for a given URI, with the given stream
         /// </summary>
         /// <typeparam name="TRet">The return type of the request</typeparam>
-        /// <typeparam name="TParam">The parameters for the request</typeparam>
+        /// <typeparam name="TParam">The type of parameters</typeparam>
         /// <param name="uri">The uri to which to send the request</param>
-        /// <param name="parameters">The parameters to include in the request</param>
+        /// <param name="parameters">The stream to include in the request</param>
         /// <param name="method">The HTTP method to use</param>
         /// <param name="timeout">The timeout for the request</param>
         /// <returns>The response retrieved from the remote server</returns>
         public TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout)
         {
-            if (new[] { HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete }.All(m => m != method))
+            if (!(new[] { HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete }.Contains(method)))
             {
                 throw new NotSupportedException(string.Format("HttpMethod '{0}' is not supported.", method));
             }
 
-            // embed parameters(s) into URL into Get and Delete methods
+            // embed stream(s) into URL into Get and Delete methods
             if (method == HttpMethod.Get || method == HttpMethod.Delete)
             {
                 uri = addQueryStringParameters(uri, parameters);
             }
 
+            return getHttpResponse<TRet>(uri, req => writeBody(parameters, req), method, timeout);
+        }
+
+        public TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout)
+        {
+            if (stream == null) throw new ArgumentNullException("stream");
+
+            if (!(new[] { HttpMethod.Post, HttpMethod.Put }.Contains(method)))
+            {
+                throw new NotSupportedException(string.Format("HttpMethod '{0}' is not supported.", method));
+            }
+
+            return getHttpResponse<TRet>(uri, req => writeStream(stream, req), method, timeout);
+        }
+
+        #endregion
+
+        private TRet getHttpResponse<TRet>(Uri uri, Action<HttpWebRequest> writeRequestBody, HttpMethod method, TimeSpan timeout)
+        {           
             // setup http client
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri);
             webRequest.Timeout = (int)timeout.TotalMilliseconds;
             webRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             webRequest.Method = method.ToString();
 
-            if (method == HttpMethod.Post ||
-                method == HttpMethod.Put)
+            if (method == HttpMethod.Post || method == HttpMethod.Put)
             {
-                if (typeof(TParam) == typeof(Stream))
-                {
-                    writeStream(parameters, webRequest);
-                }
-                else
-                {
-                    writeBody<TRet, TParam>(parameters, webRequest);
-                }
+                writeRequestBody(webRequest);
             }
 
             try
             {
                 using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse())
                 {
-
                     var webResponseContent = retrieveWebResponseContent(webResponse);
                     if (isSuccessfull(webResponse))
-                    {                        
+                    {
                         return webResponseContent.FromJson<TRet>();
                     }
 
@@ -79,8 +89,6 @@ namespace Jalex.Infrastructure.Net
             }
         }
 
-        #endregion
-
         private static Uri addQueryStringParameters<T>(Uri baseUri, T parameters)
         {
             UriBuilder builder = new UriBuilder(baseUri);
@@ -91,26 +99,26 @@ namespace Jalex.Infrastructure.Net
                 return builder.Uri;
             }
 
-            Type type = typeof (T);
+            Type type = typeof(T);
             if (type.IsSubclassOf(typeof(ValueType)) || type == typeof(string) || type == typeof(DateTime))
             {
                 builder.Path += "/" + HttpUtility.UrlEncode(parameters is DateTime ? ((DateTime)(object)parameters).ToString("O") : parameters.ToString());
                 return builder.Uri;
             }
 
-            var members = type.IsDynamicType()
+            var members = type.IsAnonymousType()
                               ? type.GetFields()
                                     .Select(f => new
-                                                 {
-                                                     f.Name,
-                                                     Value = f.GetValue(parameters)
-                                                 })
+                                    {
+                                        f.Name,
+                                        Value = f.GetValue(parameters)
+                                    })
                               : type.GetProperties()
                                     .Select(p => new
-                                                 {
-                                                     p.Name,
-                                                     Value = p.GetValue(parameters, null)
-                                                 });
+                                    {
+                                        p.Name,
+                                        Value = p.GetValue(parameters, null)
+                                    });
 
             // get all the properties
             IEnumerable<string> properties = from p in members
@@ -161,11 +169,8 @@ namespace Jalex.Infrastructure.Net
             return string.Join("&", q.ToArray());
         }
 
-        private static void writeStream<TParam>(TParam parameters, HttpWebRequest webRequest)
+        private static void writeStream(Stream stream, HttpWebRequest webRequest)
         {
-            Stream stream = parameters as Stream;
-            if (stream == null) throw new ArgumentNullException("parameters");
-
             string boundary = string.Format("{0}//{1}", Guid.NewGuid(), DateTime.Now.Ticks);
             webRequest.ContentType = string.Format("multipart/form-data; boundary=\"{0}\"", boundary);
             using (Stream remoteStream = webRequest.GetRequestStream())
@@ -188,7 +193,7 @@ namespace Jalex.Infrastructure.Net
             }
         }
 
-        private static void writeBody<TRet, TParam>(TParam parameters, HttpWebRequest webRequest)
+        private static void writeBody<T>(T parameters, HttpWebRequest webRequest)
         {
             string contentString = parameters == null ? string.Empty : parameters.ToJson();
             byte[] bytes = Encoding.UTF8.GetBytes(contentString);

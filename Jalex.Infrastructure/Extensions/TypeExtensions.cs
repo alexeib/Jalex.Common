@@ -36,7 +36,7 @@ namespace Jalex.Infrastructure.Extensions
             return IsDerivedFrom(typeToCheck.BaseType, targetType);
         }
 
-        public static bool IsDynamicType(this Type type)
+        public static bool IsAnonymousType(this Type type)
         {
             if (type.Name.StartsWith("<>") && !type.Name.Contains("AnonymousType") && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0)
             {
