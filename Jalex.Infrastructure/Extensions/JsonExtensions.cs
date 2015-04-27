@@ -33,8 +33,17 @@ namespace Jalex.Infrastructure.Extensions
         /// <returns>Object deserialized from json string</returns>
         public static T FromJson<T>(this string jsonString)
         {
-            T @object = jsonString == null ? default(T) : JsonConvert.DeserializeObject<T>(jsonString, SerializerSettings);
-            return @object;
+            if (jsonString == null)
+            {
+                return default(T);
+            }
+
+            if (typeof (T) == typeof (object))
+            {
+                return (dynamic)JsonConvert.DeserializeObject(jsonString, SerializerSettings);
+            }
+
+            return JsonConvert.DeserializeObject<T>(jsonString, SerializerSettings);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,11 +22,12 @@ namespace Jalex.Infrastructure.Net
         /// <typeparam name="TRet">The return type of the request</typeparam>
         /// <typeparam name="TParam">The type of parameters</typeparam>
         /// <param name="uri">The uri to which to send the request</param>
-        /// <param name="parameters">The stream to include in the request</param>
+        /// <param name="parameters">The parameters to include in the request</param>
         /// <param name="method">The HTTP method to use</param>
         /// <param name="timeout">The timeout for the request</param>
+        /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        public TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout)
+        public TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
         {
             if (!(new[] { HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete }.Contains(method)))
             {
@@ -38,10 +40,20 @@ namespace Jalex.Infrastructure.Net
                 uri = addQueryStringParameters(uri, parameters);
             }
 
-            return getHttpResponse<TRet>(uri, req => writeBody(parameters, req), method, timeout);
+            return getHttpResponse<TRet>(uri, req => writeBody(parameters, req), method, timeout, headers);
         }
 
-        public TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout)
+        /// <summary>
+        /// Gets http resposne converted to type TRet for a given URI with the given stream to send to that uri
+        /// </summary>
+        /// <typeparam name="TRet">The return type of the request</typeparam>
+        /// <param name="uri">The uri to which to send the request</param>
+        /// <param name="stream">The stream to include in the request</param>
+        /// <param name="method">The HTTP method to use</param>
+        /// <param name="timeout">The timeout for the request</param>
+        /// <param name="headers">headers to add to the request</param>
+        /// <returns>The response retrieved from the remote server</returns>
+        public TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
         {
             if (stream == null) throw new ArgumentNullException("stream");
 
@@ -50,18 +62,23 @@ namespace Jalex.Infrastructure.Net
                 throw new NotSupportedException(string.Format("HttpMethod '{0}' is not supported.", method));
             }
 
-            return getHttpResponse<TRet>(uri, req => writeStream(stream, req), method, timeout);
+            return getHttpResponse<TRet>(uri, req => writeStream(stream, req), method, timeout, headers);
         }
 
         #endregion
 
-        private TRet getHttpResponse<TRet>(Uri uri, Action<HttpWebRequest> writeRequestBody, HttpMethod method, TimeSpan timeout)
+        private TRet getHttpResponse<TRet>(Uri uri, Action<HttpWebRequest> writeRequestBody, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
         {           
             // setup http client
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri);
             webRequest.Timeout = (int)timeout.TotalMilliseconds;
             webRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             webRequest.Method = method.ToString();
+
+            if (headers != null)
+            {
+                webRequest.Headers.Add(headers);
+            }
 
             if (method == HttpMethod.Post || method == HttpMethod.Put)
             {

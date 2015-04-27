@@ -16,8 +16,9 @@ namespace Jalex.Infrastructure.Net
         /// <param name="parameters">The parameters to include in the request</param>
         /// <param name="method">The HTTP method to use</param>
         /// <param name="timeout">The timeout for the request</param>
+        /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout);
+        TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout, NameValueCollection headers);
 
         /// <summary>
         /// Gets http response converted to type TRet for a given URI, with a stream such as a file being uploaded
@@ -27,7 +28,8 @@ namespace Jalex.Infrastructure.Net
         /// <param name="stream">The stream to include in the request</param>
         /// <param name="method">The HTTP method to use</param>
         /// <param name="timeout">The timeout for the request</param>
+        /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout);
+        TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout, NameValueCollection headers);
     }
 }

@@ -204,7 +204,10 @@ namespace Jalex.Repository.Cassandra
                     case WriteMode.Upsert:
                         return insertBatch(objCollection);
                     case WriteMode.Insert:
-                        return insertIfNotExists(objCollection);
+                        var objGroups = objCollection.GroupBy(o => _typeDescriptor.GetId(o) == Guid.Empty);
+                        return objGroups.Select(g => g.Key ? insertBatch(g.ToCollection()) : insertIfNotExists(g))
+                                        .SelectMany(r => r.ToCollection())
+                                        .ToCollection();
                     case WriteMode.Update:
                         return update(objCollection);
                     default:
@@ -233,7 +236,7 @@ namespace Jalex.Repository.Cassandra
             return objCollection.Select(o => new OperationResult<Guid>(true, _typeDescriptor.GetId(o)));
         }
 
-        private IEnumerable<OperationResult<Guid>> insertIfNotExists(IReadOnlyCollection<T> objCollection)
+        private IEnumerable<OperationResult<Guid>> insertIfNotExists(IEnumerable<T> objCollection)
         {
             var table = new Table<T>(_session.Value);
             return objCollection.Select(o =>
