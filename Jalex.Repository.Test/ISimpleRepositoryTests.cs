@@ -31,7 +31,7 @@ namespace Jalex.Repository.Test
             _fixture.Inject<ILogger>(_logger);
             _testEntityRepository = _fixture.Create<ISimpleRepository<T>>();
 
-            _sampleTestEntitys = _fixture.CreateMany<T>();
+            _sampleTestEntitys = _fixture.CreateMany<T>().ToList();
         }
 
         public virtual void Dispose()

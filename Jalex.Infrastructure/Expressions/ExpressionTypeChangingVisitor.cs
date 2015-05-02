@@ -32,7 +32,7 @@ namespace Jalex.Infrastructure.Expressions
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (node.Member.ReflectedType == null || !node.Member.ReflectedType.IsAssignableFrom(typeof(TFrom)))
+            if (node.Member.ReflectedType == null || !node.Member.ReflectedType.IsAssignableFrom(typeof(TFrom)) || node.Expression.NodeType == ExpressionType.MemberAccess)
             {
                 return node;
             }
@@ -42,10 +42,12 @@ namespace Jalex.Infrastructure.Expressions
             if (node.Member.MemberType != MemberTypes.Property)
                 throw new NotImplementedException();
 
+            var inner = Visit(node.Expression);
+
             //name of a member referenced in original expression in your 
             //sample Id in mine Prop
             var memberName = node.Member.Name;
-            //find property on type T (=PersonData) by name
+            //find property on type T (=PersonData) by name            
 
             if (!_targetProperties.ContainsKey(memberName))
             {
@@ -53,8 +55,8 @@ namespace Jalex.Infrastructure.Expressions
             }
 
             var otherMember = _targetProperties[memberName];
-            //visit left side of this expression p.Id this would be p
-            var inner = Visit(node.Expression);
+            //visit left side of this expression p.Id this would be p            
+
             return Expression.Property(inner, otherMember);
         }
     }

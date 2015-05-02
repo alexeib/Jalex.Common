@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -47,6 +48,10 @@ namespace Jalex.Repository.Cassandra
             CassandraSetup.EnsureInitialized();
         }
 
+        // ReSharper disable StaticFieldInGenericType
+        private static bool _isInitialized; // one per Repository
+        private static readonly object _syncRoot = new object();
+        // ReSharper restore StaticFieldInGenericType
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
@@ -279,18 +284,26 @@ namespace Jalex.Repository.Cassandra
 
         #endregion
 
-        #region Overrides of BaseRepository<T>
-
-        protected override void Initialize()
+        private void initialize()
         {
-            base.Initialize();
-
             var helper = new CassandraHelper(_typeDescriptor);
-
             defineMap(helper);
         }
 
-        #endregion
+        private void ensureInitialized()
+        {
+            if (!_isInitialized)
+            {
+                lock (_syncRoot)
+                {
+                    if (!_isInitialized)
+                    {
+                        initialize();
+                        _isInitialized = true;
+                    }
+                }
+            }
+        }
 
         private ISession getCassandraSession()
         {
@@ -309,6 +322,7 @@ namespace Jalex.Repository.Cassandra
 
         private void createTableIfNotExist(ISession session)
         {
+            Debug.WriteLine("Creating table " + typeof(T));
             var table = new Table<T>(session);
             table.CreateIfNotExists();
         }

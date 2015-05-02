@@ -22,7 +22,6 @@ namespace Jalex.Repository.Memory
             : base(idProvider, typeDescriptorProvider)
         {
             _objectDictionary = new ConcurrentDictionary<Guid, T>();
-            ensureInitialized();
         }
 
         #region Implementation of IReader<out T>

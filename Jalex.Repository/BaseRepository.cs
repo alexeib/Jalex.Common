@@ -17,11 +17,6 @@ namespace Jalex.Repository
         private static readonly ILogger _staticLogger = LogManager.GetCurrentClassLogger();
         private ILogger _instanceLogger;
 
-        // ReSharper disable StaticFieldInGenericType
-        private static bool _isInitialized; // one per T
-        private static readonly object _syncRoot = new object();
-        // ReSharper restore StaticFieldInGenericType
-
         protected readonly IReflectedTypeDescriptor<T> _typeDescriptor;
         protected readonly IIdProvider _idProvider;
 
@@ -162,26 +157,6 @@ namespace Jalex.Repository
             }
 
             return id;
-        }
-
-        protected virtual void Initialize()
-        {
-            // no-op in base
-        }
-
-        protected void ensureInitialized()
-        {
-            if (!_isInitialized)
-            {
-                lock (_syncRoot)
-                {
-                    if (!_isInitialized)
-                    {                        
-                        Initialize();
-                        _isInitialized = true;
-                    }
-                }
-            }
         }
     }
 }
