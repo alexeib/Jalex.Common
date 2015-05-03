@@ -67,7 +67,7 @@ namespace Jalex.Repository.Memory
 
         #endregion
 
-        #region Implementation of IQueryable<T>
+        #region Implementation of IQueryableReader<T>
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {

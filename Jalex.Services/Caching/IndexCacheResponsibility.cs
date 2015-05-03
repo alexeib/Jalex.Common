@@ -182,7 +182,7 @@ namespace Jalex.Services.Caching
 
         #endregion
 
-        #region Implementation of IQueryable<T>
+        #region Implementation of IQueryableReader<T>
 
         /// <summary>
         /// Returns objects stored in the repository that satisfy a given query. 

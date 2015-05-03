@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using Jalex.Infrastructure.Extensions;
 using Magnum.Reflection;
@@ -30,7 +31,7 @@ namespace Jalex.Infrastructure.Net
         /// <param name="timeout">The timeout for the request</param>
         /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        public TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
+        public async Task<TRet> GetHttpResponseAsync<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
         {
             if (!(new[] { HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete }.Contains(method)))
             {
@@ -43,7 +44,7 @@ namespace Jalex.Infrastructure.Net
                 uri = addQueryStringParameters(uri, parameters);
             }
 
-            return getHttpResponse<TRet>(uri, req => writeBody(parameters, req), method, timeout, headers);
+            return await getHttpResponseAsync<TRet>(uri, req => writeBodyAsync(parameters, req), method, timeout, headers);
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace Jalex.Infrastructure.Net
         /// <param name="timeout">The timeout for the request</param>
         /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        public TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
+        public async Task<TRet> GetHttpResponseForStreamAsync<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
         {
             if (stream == null) throw new ArgumentNullException("stream");
 
@@ -65,12 +66,12 @@ namespace Jalex.Infrastructure.Net
                 throw new NotSupportedException(string.Format("HttpMethod '{0}' is not supported.", method));
             }
 
-            return getHttpResponse<TRet>(uri, req => writeStream(stream, req), method, timeout, headers);
+            return await getHttpResponseAsync<TRet>(uri, req => writeStreamAsync(stream, req), method, timeout, headers);
         }
 
         #endregion
 
-        private TRet getHttpResponse<TRet>(Uri uri, Action<HttpWebRequest> writeRequestBody, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
+        private async Task<TRet> getHttpResponseAsync<TRet>(Uri uri, Func<HttpWebRequest, Task> writeRequestBody, HttpMethod method, TimeSpan timeout, NameValueCollection headers)
         {           
             // setup http client
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri);
@@ -85,12 +86,12 @@ namespace Jalex.Infrastructure.Net
 
             if (method == HttpMethod.Post || method == HttpMethod.Put)
             {
-                writeRequestBody(webRequest);
+                await writeRequestBody(webRequest);
             }
 
             try
             {
-                using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse())
+                using (HttpWebResponse webResponse = (HttpWebResponse) await webRequest.GetResponseAsync())
                 {
                     var webResponseContent = retrieveWebResponseContent(webResponse);
                     if (isSuccessfull(webResponse))
@@ -214,11 +215,11 @@ namespace Jalex.Infrastructure.Net
             return string.Join("&", q.ToArray());
         }
 
-        private static void writeStream(Stream stream, HttpWebRequest webRequest)
+        private static async Task writeStreamAsync(Stream stream, HttpWebRequest webRequest)
         {
             string boundary = string.Format("{0}//{1}", Guid.NewGuid(), DateTime.Now.Ticks);
             webRequest.ContentType = string.Format("multipart/form-data; boundary=\"{0}\"", boundary);
-            using (Stream remoteStream = webRequest.GetRequestStream())
+            using (Stream remoteStream = await webRequest.GetRequestStreamAsync())
             using (StreamWriter writer = new StreamWriter(remoteStream))
             {
                 // *** multipart/form-data format ***
@@ -238,13 +239,13 @@ namespace Jalex.Infrastructure.Net
             }
         }
 
-        private static void writeBody<T>(T parameters, HttpWebRequest webRequest)
+        private static async Task writeBodyAsync<T>(T parameters, HttpWebRequest webRequest)
         {
             string contentString = parameters == null ? string.Empty : parameters.ToJson();
             byte[] bytes = Encoding.UTF8.GetBytes(contentString);
             webRequest.ContentType = "application/json";
             webRequest.ContentLength = bytes.Length;
-            using (Stream remoteStream = webRequest.GetRequestStream())
+            using (Stream remoteStream = await webRequest.GetRequestStreamAsync())
             {
                 remoteStream.Write(bytes, 0, bytes.Length);
             }

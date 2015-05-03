@@ -149,7 +149,7 @@ namespace Jalex.Repository.Cassandra
 
         #endregion
 
-        #region Implementation of IQueryable<out T>
+        #region Implementation of IQueryableReader<out T>
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {

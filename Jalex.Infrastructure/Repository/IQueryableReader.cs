@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Jalex.Infrastructure.Repository
 {
-    public interface IQueryable<T>
+    public interface IQueryableReader<T>
     {
         /// <summary>
         /// Returns objects stored in the repository that satisfy a given query. 

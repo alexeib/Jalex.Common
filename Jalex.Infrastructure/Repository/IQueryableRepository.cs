@@ -4,7 +4,7 @@ using Jalex.Infrastructure.Objects;
 
 namespace Jalex.Infrastructure.Repository
 {
-    public interface IQueryableRepository<T> : ISimpleRepository<T>, IQueryable<T>
+    public interface IQueryableRepository<T> : ISimpleRepository<T>, IQueryableReader<T>
     {
 
         /// <summary>

@@ -93,7 +93,7 @@ namespace Jalex.Services.Repository
 
         #endregion
 
-        #region Implementation of IQueryable<TClass>
+        #region Implementation of IQueryableReader<TClass>
 
         public IEnumerable<TClass> Query(Expression<Func<TClass, bool>> query)
         {

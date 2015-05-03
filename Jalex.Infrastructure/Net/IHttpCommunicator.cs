@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Jalex.Infrastructure.Net
 {
@@ -18,7 +19,7 @@ namespace Jalex.Infrastructure.Net
         /// <param name="timeout">The timeout for the request</param>
         /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        TRet GetHttpResponse<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout, NameValueCollection headers);
+        Task<TRet> GetHttpResponseAsync<TRet, TParam>(Uri uri, TParam parameters, HttpMethod method, TimeSpan timeout, NameValueCollection headers);
 
         /// <summary>
         /// Gets http response converted to type TRet for a given URI, with a stream such as a file being uploaded
@@ -30,6 +31,6 @@ namespace Jalex.Infrastructure.Net
         /// <param name="timeout">The timeout for the request</param>
         /// <param name="headers">headers to add to the request</param>
         /// <returns>The response retrieved from the remote server</returns>
-        TRet GetHttpResponseForStream<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout, NameValueCollection headers);
+        Task<TRet> GetHttpResponseForStreamAsync<TRet>(Uri uri, Stream stream, HttpMethod method, TimeSpan timeout, NameValueCollection headers);
     }
 }

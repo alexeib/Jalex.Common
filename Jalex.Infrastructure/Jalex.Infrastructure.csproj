@@ -110,6 +110,7 @@
     <Compile Include="Repository\IDeleter.cs" />
     <Compile Include="Repository\IdFormatException.cs" />
     <Compile Include="Repository\IFileRepository.cs" />
+    <Compile Include="Repository\IQueryableReader.cs" />
     <Compile Include="Repository\IWriter.cs" />
     <Compile Include="Repository\IndexedAttribute.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Objects\OperationResultGeneric.cs" />
     <Compile Include="Objects\Severity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository\IQueryable.cs" />
     <Compile Include="Repository\IQueryableRepository.cs" />
     <Compile Include="Repository\IReader.cs" />
     <Compile Include="Repository\ISimpleRepository.cs" />

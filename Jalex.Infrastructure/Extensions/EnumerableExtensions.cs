@@ -22,5 +22,10 @@ namespace Jalex.Infrastructure.Extensions
         {
             return enumerable as HashSet<T> ?? new HashSet<T>(enumerable);
         }
+
+        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable != null && enumerable.Any();
+        }
     }
 }

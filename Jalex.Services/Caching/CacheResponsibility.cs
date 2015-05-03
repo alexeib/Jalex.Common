@@ -166,7 +166,7 @@ namespace Jalex.Services.Caching
 
         #endregion
 
-        #region Implementation of IQueryable<TEntity>
+        #region Implementation of IQueryableReader<TEntity>
 
         public IEnumerable<T> Query(Expression<Func<T, bool>> query)
         {
