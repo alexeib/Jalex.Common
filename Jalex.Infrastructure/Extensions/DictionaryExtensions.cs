@@ -22,7 +22,7 @@ namespace Jalex.Infrastructure.Extensions
             {
                 return value;
             }
-            return defaultValueFunc();
+            return defaultValueFunc == null ? default(TValue) : defaultValueFunc();
         }
     }
 }

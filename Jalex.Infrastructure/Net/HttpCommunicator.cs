@@ -6,9 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using Jalex.Infrastructure.Extensions;
+using Magnum.Reflection;
+using Newtonsoft.Json;
 
 namespace Jalex.Infrastructure.Net
 {
@@ -128,29 +131,54 @@ namespace Jalex.Infrastructure.Net
                                     .Select(f => new
                                     {
                                         f.Name,
-                                        Value = f.GetValue(parameters)
+                                        Value = f.GetValue(parameters),
+                                        JsonProperty = (JsonPropertyAttribute)null,
+                                        JsonConverter = (JsonConverterAttribute)null
                                     })
                               : type.GetProperties()
                                     .Select(p => new
                                     {
                                         p.Name,
-                                        Value = p.GetValue(parameters, null)
+                                        Value = p.GetValue(parameters, null),
+                                        JsonProperty = p.GetCustomAttribute<JsonPropertyAttribute>(),
+                                        JsonConverter = p.GetCustomAttribute<JsonConverterAttribute>()
                                     });
 
             // get all the properties
             IEnumerable<string> properties = from p in members
+                                             let name = p.JsonProperty != null ? p.JsonProperty.PropertyName ?? p.Name : p.Name
                                              let val = p.Value
                                              where val != null
                                              select
                                                  (val is IEnumerable && !(val is string))
-                                                     ? getEnumerableQueryString((IEnumerable)val, p.Name)
-                                                     : p.Name + "=" + HttpUtility.UrlEncode(val is DateTime ? ((DateTime)val).ToString("O") : val.ToString());
+                                                     ? getEnumerableQueryString((IEnumerable)val, name, p.JsonConverter)
+                                                     : name + "=" + HttpUtility.UrlEncode(getValueAsString(val, p.JsonConverter));
             builder.Query = string.Join("&", properties.Where(p => !string.IsNullOrWhiteSpace(p)).ToArray());
 
             return builder.Uri;
         }
 
-        private static string getEnumerableQueryString(IEnumerable collection, string collectionName)
+        private static string getValueAsString(object value, JsonConverterAttribute jsonConverter)
+        {
+            if (jsonConverter != null && jsonConverter.ConverterType != null)
+            {
+                var converterInstance = (JsonConverter) FastActivator.Create(jsonConverter.ConverterType);
+
+                if (converterInstance.CanWrite)
+                {
+                    using (var stringWriter = new StringWriter())
+                    using (var jsonWriter = new JsonTextWriter(stringWriter))
+                    {
+                        converterInstance.WriteJson(jsonWriter, value, JsonSerializer.CreateDefault());
+                        return stringWriter.ToString();
+                    }
+                }
+            }
+
+            return value is DateTime ? ((DateTime) value).ToString("O") : value.ToString();
+        }
+
+        private static string getEnumerableQueryString(IEnumerable collection, string collectionName, JsonConverterAttribute jsonConverter)
         {
             List<string> q = new List<string>();
             int i = 0;
@@ -166,7 +194,7 @@ namespace Jalex.Infrastructure.Net
 
                 if (valType.IsPrimitive || valType == typeof(string) || valType == typeof(DateTime) || valType.IsEnum)
                 {
-                    q.Add(string.Format("{0}[{1}]={2}", collectionName, i, HttpUtility.UrlEncode(val.ToString())));
+                    q.Add(string.Format("{0}[{1}]={2}", collectionName, i, HttpUtility.UrlEncode(getValueAsString(val, jsonConverter))));
                 }
                 else
                 {
@@ -175,7 +203,7 @@ namespace Jalex.Infrastructure.Net
                     IEnumerable<string> properties = from p in valType.GetProperties()
                                                      let temp = p.GetValue(val1, null)
                                                      where temp != null
-                                                     let finalVal = (temp is IEnumerable && !(temp is string)) ? getEnumerableQueryString((IEnumerable)temp, p.Name) : val1
+                                                     let finalVal = (temp is IEnumerable && !(temp is string)) ? getEnumerableQueryString((IEnumerable)temp, p.Name, null) : val1
                                                      select string.Format("{0}[{1}].{2}={3}", collectionName, i1, p.Name, HttpUtility.UrlEncode(finalVal.ToString()));
                     q.Add(string.Join("&", properties.ToArray()));
                 }
