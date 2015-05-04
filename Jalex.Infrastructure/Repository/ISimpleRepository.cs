@@ -3,6 +3,7 @@
 namespace Jalex.Infrastructure.Repository
 {
     public interface ISimpleRepository<T> : IReader<T>, IDeleter<T>, IWriter<T>, IInjectableLogger
+        where T: class
     {
     }
 }

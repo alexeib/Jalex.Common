@@ -24,11 +24,11 @@ namespace Jalex.Repository.Test
         [Fact]
         public void RetrievesEntitiesByQueryingForAttribute()
         {
-            var createResult = _queryableRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
+            var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
             createResult.All(r => r.Success).Should().BeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;
-            var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == nameToFind).ToArray();
+            var retrievedTestEntitys = _queryableRepository.QueryAsync(r => r.Name == nameToFind).Result.ToArray();
 
             retrievedTestEntitys.Length.Should().Be(1);
             retrievedTestEntitys.First().Name.Should().Be(nameToFind);
@@ -39,21 +39,21 @@ namespace Jalex.Repository.Test
         {
             var fakeName = _fixture.Create<string>();
 
-            var createResult = _queryableRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
+            var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
             createResult.All(r => r.Success).Should().BeTrue();
 
-            var retrievedTestEntitys = _queryableRepository.Query(r => r.Name == fakeName).ToArray();
+            var retrievedTestEntitys = _queryableRepository.QueryAsync(r => r.Name == fakeName).Result.ToArray();
             retrievedTestEntitys.Should().BeEmpty();
         }
 
         [Fact]
         public void Retrieves_First_Entity_Queried_By_Attribute()
         {
-            var createResult = _queryableRepository.SaveMany(_sampleTestEntitys, WriteMode.Upsert);
+            var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
             createResult.All(r => r.Success).Should().BeTrue();
 
             string nameToFind = _sampleTestEntitys.First().Name;
-            var retrievedTestEntitys = _queryableRepository.FirstOrDefault(r => r.Name == nameToFind);
+            var retrievedTestEntitys = _queryableRepository.FirstOrDefaultAsync(r => r.Name == nameToFind).Result;
 
             retrievedTestEntitys
                 .ShouldBeEquivalentTo(_sampleTestEntitys.First(),
@@ -66,7 +66,7 @@ namespace Jalex.Repository.Test
         public void Returns_Default_Value_When_Entity_Not_Found()
         {
             string nameToFind = _fixture.Create<string>();
-            var retrievedTestEntity = _queryableRepository.FirstOrDefault(r => r.Name == nameToFind);
+            var retrievedTestEntity = _queryableRepository.FirstOrDefaultAsync(r => r.Name == nameToFind).Result;
 
             retrievedTestEntity.Should().BeNull();
         }
@@ -76,17 +76,15 @@ namespace Jalex.Repository.Test
         {
             var sampleEntity = _sampleTestEntitys.First();
 
-            var createResult = _queryableRepository.Save(sampleEntity, WriteMode.Upsert);
+            var createResult = _queryableRepository.SaveAsync(sampleEntity, WriteMode.Upsert).Result;
             createResult.Success.Should().BeTrue();
 
-            var deleteResult = _queryableRepository.DeleteWhere(e => e.Id == sampleEntity.Id);
+            var deleteResult = _queryableRepository.DeleteWhereAsync(e => e.Id == sampleEntity.Id).Result;
 
             deleteResult.Success.Should().BeTrue();
             deleteResult.Messages.Should().BeEmpty();
 
-            T retrieved;
-            var success = _queryableRepository.TryGetById(sampleEntity.Id, out retrieved);
-            success.Should().BeFalse();
+            T retrieved = _queryableRepository.GetByIdAsync(sampleEntity.Id).Result;
             retrieved.Should().BeNull();
         }
     }

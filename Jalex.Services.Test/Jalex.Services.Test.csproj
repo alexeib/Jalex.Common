@@ -90,13 +90,10 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Caching\IndexCacheFactoryTests.cs" />
-    <Compile Include="Caching\IndexCacheResponsibilityTests.cs" />
     <Compile Include="Fixtures\SimpleEntity.cs" />
     <Compile Include="Fixtures\TestEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Caching\CacheResponsibilityTests.cs" />
-    <Compile Include="Caching\IndexCacheTests.cs" />
     <Compile Include="Repository\MappingResponsibilityTests.cs" />
   </ItemGroup>
   <ItemGroup>

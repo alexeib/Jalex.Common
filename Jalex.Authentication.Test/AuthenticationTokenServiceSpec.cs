@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Jalex.Authentication.Objects;
 using Jalex.Authentication.Services;
 using Jalex.Infrastructure.Objects;
@@ -18,11 +18,9 @@ namespace Jalex.Authentication.Test
 
         Establish context = () =>
         {
-            AuthenticationToken token;
-
             var mockRepository = Substitute.For<IQueryableRepository<AuthenticationToken>>();
             mockRepository
-                .TryGetById(Arg.Any<Guid>(), out token)
+                .GetByIdAsync(Arg.Any<Guid>())
                 .Returns(ci =>
                          {
                              var id = ci.Arg<Guid>();
@@ -30,38 +28,35 @@ namespace Jalex.Authentication.Test
 
                              if (_sampleValidToken != null && id == _sampleValidToken.Id)
                              {
-                                 ci[1] = _sampleValidToken;
-                                 return true;
+                                 return Task.FromResult(_sampleValidToken);
                              }
 
                              if (_sampleExpiredToken != null && id == _sampleExpiredToken.Id)
                              {
-                                 ci[1] = _sampleExpiredToken;
-                                 return true;
+                                 return Task.FromResult(_sampleExpiredToken);
                              }
 
-                             return false;
+                             return Task.FromResult<AuthenticationToken>(null);
                          });
 
             mockRepository
-                .Query(Arg.Any<Expression<Func<AuthenticationToken, bool>>>())
+                .FirstOrDefaultAsync(Arg.Any<Expression<Func<AuthenticationToken, bool>>>())
                 .Returns(ci =>
                          {
                              var qExpr = ci.Arg<Expression<Func<AuthenticationToken, bool>>>();
                              var q = qExpr.Compile();
 
-                             List<AuthenticationToken> retList = new List<AuthenticationToken>();
                              if (q(_sampleValidToken))
                              {
-                                 retList.Add((_sampleValidToken));
+                                 return Task.FromResult(_sampleValidToken);
                              }
 
                              if (q(_sampleExpiredToken))
                              {
-                                 retList.Add((_sampleExpiredToken));
+                                 return Task.FromResult(_sampleExpiredToken);
                              }
 
-                             return retList;
+                             return Task.FromResult<AuthenticationToken>(null);
                          });
 
             _authenticationTokenService = new AuthenticationTokenService(mockRepository);
@@ -92,8 +87,8 @@ namespace Jalex.Authentication.Test
 
         private Because of = () =>
         {
-            GetValidTokenOperationResult = _authenticationTokenService.GetExistingToken(_sampleValidToken.Id);
-            GetExpiredTokenOperationResult = _authenticationTokenService.GetExistingToken(_sampleExpiredToken.Id);
+            GetValidTokenOperationResult = _authenticationTokenService.GetExistingTokenAsync(_sampleValidToken.Id).Result;
+            GetExpiredTokenOperationResult = _authenticationTokenService.GetExistingTokenAsync(_sampleExpiredToken.Id).Result;
         };
 
 #pragma warning disable 169
@@ -109,8 +104,8 @@ namespace Jalex.Authentication.Test
 
         private Because of = () =>
         {
-            GetValidTokenOperationResult = _authenticationTokenService.GetExistingTokenForUserAndDevice(_sampleValidToken.UserId, _sampleValidToken.DeviceId);
-            GetExpiredTokenOperationResult = _authenticationTokenService.GetExistingTokenForUserAndDevice(_sampleExpiredToken.UserId, _sampleExpiredToken.DeviceId);
+            GetValidTokenOperationResult = _authenticationTokenService.GetExistingTokenForUserAndDeviceAsync(_sampleValidToken.UserId, _sampleValidToken.DeviceId).Result;
+            GetExpiredTokenOperationResult = _authenticationTokenService.GetExistingTokenForUserAndDeviceAsync(_sampleExpiredToken.UserId, _sampleExpiredToken.DeviceId).Result;
         };
 
 #pragma warning disable 169

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using Jalex.Authentication.Objects;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
@@ -32,21 +33,21 @@ namespace Jalex.Authentication.Services
             }
         }
 
-        public OperationResult<AuthenticationToken> GetExistingToken(Guid token)
+        public async Task<OperationResult<AuthenticationToken>> GetExistingTokenAsync(Guid token)
         {
-            var deviceToken = _repository.GetByIdOrDefault(token);
+            var deviceToken = await _repository.GetByIdAsync(token).ConfigureAwait(false);
             return createTokenOperationResult(deviceToken);
         }
 
-        public OperationResult<AuthenticationToken> GetExistingTokenForUserAndDevice(string userId, string deviceId)
+        public async Task<OperationResult<AuthenticationToken>> GetExistingTokenForUserAndDeviceAsync(string userId, string deviceId)
         {
-            var token = _repository.Query(t => t.UserId == userId && t.DeviceId == deviceId).FirstOrDefault();
+            var token = await _repository.FirstOrDefaultAsync(t => t.UserId == userId && t.DeviceId == deviceId).ConfigureAwait(false);
             return createTokenOperationResult(token);
         }
 
-        public OperationResult<AuthenticationToken> CreateToken(string userId, string deviceId)
+        public async Task<OperationResult<AuthenticationToken>> CreateTokenAsync(string userId, string deviceId)
         {
-            var tokenResult = GetExistingTokenForUserAndDevice(userId, deviceId);
+            var tokenResult = await GetExistingTokenForUserAndDeviceAsync(userId, deviceId).ConfigureAwait(false);
             if (tokenResult.Success)
             {
                 return tokenResult;
@@ -60,15 +61,15 @@ namespace Jalex.Authentication.Services
                 Created = date
             };
 
-            var result = _repository.Save(deviceToken, WriteMode.Insert);
+            var result = await _repository.SaveAsync(deviceToken, WriteMode.Insert).ConfigureAwait(false);
             deviceToken.Id = result.Value;
 
             return new OperationResult<AuthenticationToken>(result.Success, deviceToken, result.Messages.ToArray());
         }
 
-        public OperationResult DeleteToken(Guid tokenId)
+        public async Task<OperationResult> DeleteTokenAsync(Guid tokenId)
         {
-            return _repository.Delete(tokenId);
+            return await _repository.DeleteAsync(tokenId).ConfigureAwait(false);
         }
 
         private OperationResult<AuthenticationToken> createTokenOperationResult(AuthenticationToken token)

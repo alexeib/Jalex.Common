@@ -12,6 +12,8 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
         Guid GetId(T target);
         void SetId(T target, Guid id);
 
+        Expression<Func<T, bool>> GetExpressionForIdEquality(Guid id);
+
         object GetPropertyValue(string propertyName, T obj);
     }
 }

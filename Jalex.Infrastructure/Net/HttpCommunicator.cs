@@ -44,7 +44,7 @@ namespace Jalex.Infrastructure.Net
                 uri = addQueryStringParameters(uri, parameters);
             }
 
-            return await getHttpResponseAsync<TRet>(uri, req => writeBodyAsync(parameters, req), method, timeout, headers);
+            return await getHttpResponseAsync<TRet>(uri, req => writeBodyAsync(parameters, req), method, timeout, headers).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Jalex.Infrastructure.Net
                 throw new NotSupportedException(string.Format("HttpMethod '{0}' is not supported.", method));
             }
 
-            return await getHttpResponseAsync<TRet>(uri, req => writeStreamAsync(stream, req), method, timeout, headers);
+            return await getHttpResponseAsync<TRet>(uri, req => writeStreamAsync(stream, req), method, timeout, headers).ConfigureAwait(false);
         }
 
         #endregion
@@ -86,12 +86,12 @@ namespace Jalex.Infrastructure.Net
 
             if (method == HttpMethod.Post || method == HttpMethod.Put)
             {
-                await writeRequestBody(webRequest);
+                await writeRequestBody(webRequest).ConfigureAwait(false);
             }
 
             try
             {
-                using (HttpWebResponse webResponse = (HttpWebResponse) await webRequest.GetResponseAsync())
+                using (HttpWebResponse webResponse = (HttpWebResponse) await webRequest.GetResponseAsync().ConfigureAwait(false))
                 {
                     var webResponseContent = retrieveWebResponseContent(webResponse);
                     if (isSuccessfull(webResponse))
@@ -219,7 +219,7 @@ namespace Jalex.Infrastructure.Net
         {
             string boundary = string.Format("{0}//{1}", Guid.NewGuid(), DateTime.Now.Ticks);
             webRequest.ContentType = string.Format("multipart/form-data; boundary=\"{0}\"", boundary);
-            using (Stream remoteStream = await webRequest.GetRequestStreamAsync())
+            using (Stream remoteStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false))
             using (StreamWriter writer = new StreamWriter(remoteStream))
             {
                 // *** multipart/form-data format ***
@@ -245,7 +245,7 @@ namespace Jalex.Infrastructure.Net
             byte[] bytes = Encoding.UTF8.GetBytes(contentString);
             webRequest.ContentType = "application/json";
             webRequest.ContentLength = bytes.Length;
-            using (Stream remoteStream = await webRequest.GetRequestStreamAsync())
+            using (Stream remoteStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false))
             {
                 remoteStream.Write(bytes, 0, bytes.Length);
             }

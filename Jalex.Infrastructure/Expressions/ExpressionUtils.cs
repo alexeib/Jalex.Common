@@ -109,5 +109,14 @@ namespace Jalex.Infrastructure.Expressions
             var dynamicInvoke = Expression.Lambda(expression).Compile().DynamicInvoke();
             return dynamicInvoke;
         }
+
+        public static Expression<Func<T, bool>> GetExpressionForPropertyEquality<T, TVal>(TVal val, MemberExpression memberRetrievalExpression)
+        {
+            var paramExpr = Expression.Parameter(typeof(T));
+            var idValueExpr = Expression.Constant(val);
+            var idEqualsValueExpr = Expression.Equal(memberRetrievalExpression, idValueExpr);
+            var lambda = Expression.Lambda<Func<T, bool>>(idEqualsValueExpr, paramExpr);
+            return lambda;
+        }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Jalex.Infrastructure.Logging;
-using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Logging;
@@ -37,20 +35,6 @@ namespace Jalex.Repository
             _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();            
         }
 
-        protected IEnumerable<OperationResult<Guid>> createResults(
-            WriteMode writeMode,
-            IReadOnlyCollection<T> objects,
-            Func<Guid, bool> doesObjectWithIdExist,
-            Func<T, bool> actualAdd)
-        {
-            ensureObjectIds(writeMode, objects);
-
-            return (from obj in objects 
-                    let id = _typeDescriptor.GetId(obj) 
-                    select createResult(writeMode, doesObjectWithIdExist, actualAdd, id, obj))
-                    .ToList();
-        }
-
         protected void ensureObjectIds(WriteMode writeMode, IEnumerable<T> objects)
         {
             HashSet<Guid> ids = new HashSet<Guid>();
@@ -75,72 +59,6 @@ namespace Jalex.Repository
                     throw new DuplicateIdException("Attempting to create multiple objects with id " + id + " is not allowed");
                 }
             }
-        }
-
-        private OperationResult<Guid> createResult(WriteMode writeMode, Func<Guid, bool> doesObjectWithIdExist, Func<T, bool> actualAdd, Guid id, T newObj)
-        {
-            OperationResult<Guid> failedResult;
-            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-            if (!checkIfCanWrite(writeMode, id, doesObjectWithIdExist, out failedResult))
-            {
-                return failedResult;
-            }
-            try
-            {
-                if (actualAdd(newObj))
-                {
-                    return new OperationResult<Guid>(true, id);
-                }
-                return new OperationResult<Guid>(
-                                false,
-                                id,
-                                Severity.Warning,
-                                string.Format("Failed to save {0} {1}", _typeDescriptor.TypeName, id));
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorException(e, "Failed to save (mode={0}) {1} (id={2})", writeMode, _typeDescriptor.TypeName, id);
-                return new OperationResult<Guid>(
-                                false,
-                                id,
-                                Severity.Error,
-                                string.Format("Failed to add save {0} (id={1})", _typeDescriptor.TypeName, id));
-
-            }
-        }
-
-        private bool checkIfCanWrite(WriteMode writeMode, Guid id, Func<Guid, bool> doesObjectWithIdExist, out OperationResult<Guid> failedResult)
-        {
-            switch (writeMode)
-            {
-                case WriteMode.Insert:
-
-                    if (id != Guid.Empty && doesObjectWithIdExist(id))
-                    {
-                        string message = string.Format("{0} with id {1} already exists", _typeDescriptor.TypeName, id);
-                        failedResult = new OperationResult<Guid>(false, id, Severity.Error, message);
-                        Logger.Warn(message);
-                        return false;
-                    }
-                    break;
-                case WriteMode.Update:
-                    if (id == Guid.Empty || !doesObjectWithIdExist(id))
-                    {
-                        string message = string.Format("{0} with id {1} does not exist", _typeDescriptor.TypeName, id);
-                        failedResult = new OperationResult<Guid>(false, id, Severity.Error, message);
-                        Logger.Warn(message);
-                        return false;
-                    }
-                    break;
-                case WriteMode.Upsert:
-                    // nothing to check
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("writeMode");
-            }
-
-            failedResult = null;
-            return true;
         }
 
         private Guid checkOrGenerateIdForEntity(Guid id, T newObj)

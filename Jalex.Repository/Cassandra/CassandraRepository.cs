@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using Cassandra;
 using Cassandra.Data.Linq;
 using Cassandra.Mapping;
@@ -75,25 +76,20 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IReader<out T>
 
-        public bool TryGetById(Guid id, out T obj)
+        public async Task<T> GetByIdAsync(Guid id)
         {
             var table = new Table<T>(_session.Value);
 
-            var idEquals = getExpressionForIdEquality(id);
+            var idEquals = _typeDescriptor.GetExpressionForIdEquality(id);
 
-            var result = table.Where(idEquals)
-                              .Execute()
-                              .Take(2)
-                              .ToCollection();
-
-            obj = result.FirstOrDefault();
-            return obj != default(T);
+            var result = await table.Where(idEquals).ExecuteAsync().ConfigureAwait(false);
+            return result.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
             var table = new Table<T>(_session.Value);
-            var results = table.Execute();
+            var results = await table.ExecuteAsync().ConfigureAwait(false);
             return results;
         }
 
@@ -101,25 +97,23 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IDeleter<T>
 
-        public OperationResult Delete(Guid id)
+        public async Task<OperationResult> DeleteAsync(Guid id)
         {
 
-            T existingEntity;
-            var exists = TryGetById(id, out existingEntity);
+            T existingEntity = await GetByIdAsync(id).ConfigureAwait(false);
 
-            if (!exists)
+            if (existingEntity == null)
             {
                 return new OperationResult(false);
             }
 
             var table = new Table<T>(_session.Value);
-            var idEquals = getExpressionForIdEquality(id);
-            var statement = table.Where(idEquals)
-                                 .Delete();
+            var idEquals = _typeDescriptor.GetExpressionForIdEquality(id);
+            var statement = table.Where(idEquals).Delete();
 
             try
             {
-                statement.Execute();
+                await statement.ExecuteAsync().ConfigureAwait(false);
                 return new OperationResult(true);
             }
             catch (CqlArgumentException cae)
@@ -129,7 +123,7 @@ namespace Jalex.Repository.Cassandra
             }
         }
 
-        public OperationResult DeleteWhere(Expression<Func<T, bool>> expression)
+        public async Task<OperationResult> DeleteWhereAsync(Expression<Func<T, bool>> expression)
         {
             var table = new Table<T>(_session.Value);
             var statement = table.Where(expression)
@@ -137,7 +131,7 @@ namespace Jalex.Repository.Cassandra
 
             try
             {
-                statement.Execute();
+                await statement.ExecuteAsync().ConfigureAwait(false);
                 return new OperationResult(true);
             }
             catch (CqlArgumentException cae)
@@ -151,12 +145,12 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IQueryableReader<out T>
 
-        public IEnumerable<T> Query(Expression<Func<T, bool>> query)
+        public async Task<IEnumerable<T>> QueryAsync(Expression<Func<T, bool>> query)
         {
             var table = new Table<T>(_session.Value);
 
             var queryCommand = table.Where(query);
-            var results = queryCommand.Execute();
+            var results = await queryCommand.ExecuteAsync().ConfigureAwait(false);
             return results;
         }
 
@@ -165,12 +159,12 @@ namespace Jalex.Repository.Cassandra
         /// </summary>
         /// <param name="query">The query that must be satisfied</param>
         /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
-        public T FirstOrDefault(Expression<Func<T, bool>> query)
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> query)
         {
             var table = new Table<T>(_session.Value);
 
             var firstOrDefaultCommand = table.FirstOrDefault(query);
-            var result = firstOrDefaultCommand.Execute();
+            var result = await firstOrDefaultCommand.ExecuteAsync().ConfigureAwait(false);
             return result;
         }
 
@@ -184,9 +178,9 @@ namespace Jalex.Repository.Cassandra
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<Guid> Save(T obj, WriteMode writeMode = WriteMode.Upsert)
+        public async Task<OperationResult<Guid>> SaveAsync(T obj, WriteMode writeMode = WriteMode.Upsert)
         {
-            return SaveMany(new[] { obj }, writeMode).Single();
+            return (await SaveManyAsync(new[] { obj }, writeMode).ConfigureAwait(false)).Single();
         }
 
         /// <summary>
@@ -195,7 +189,7 @@ namespace Jalex.Repository.Cassandra
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public async Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode)
         {
             Guard.AgainstNull(objects, "objects");
 
@@ -207,14 +201,16 @@ namespace Jalex.Repository.Cassandra
                 switch (writeMode)
                 {
                     case WriteMode.Upsert:
-                        return insertBatch(objCollection);
+                        return await insertBatchAsync(objCollection).ConfigureAwait(false);
                     case WriteMode.Insert:
                         var objGroups = objCollection.GroupBy(o => _typeDescriptor.GetId(o) == Guid.Empty);
-                        return objGroups.Select(g => g.Key ? insertBatch(g.ToCollection()) : insertIfNotExists(g))
-                                        .SelectMany(r => r.ToCollection())
-                                        .ToCollection();
+                        var tasks = objGroups.Select(g => g.Key ? insertBatchAsync(g.ToCollection()) : insertIfNotExistsAsync(g))
+                                             .ToCollection();
+                        await Task.WhenAll(tasks).ConfigureAwait(false);
+                        return tasks.SelectMany(r => r.Result.ToCollection())
+                                    .ToCollection();
                     case WriteMode.Update:
-                        return update(objCollection);
+                        return await updateAsync(objCollection).ConfigureAwait(false);
                     default:
                         throw new ArgumentOutOfRangeException("writeMode", writeMode, "not supported");
                 }
@@ -232,54 +228,58 @@ namespace Jalex.Repository.Cassandra
             }
         }
 
-        private IEnumerable<OperationResult<Guid>> insertBatch(IReadOnlyCollection<T> objCollection)
+        private async Task<IEnumerable<OperationResult<Guid>>> insertBatchAsync(IReadOnlyCollection<T> objCollection)
         {
             var table = new Table<T>(_session.Value);
             BatchStatement batch = new BatchStatement();
             objCollection.Each(o => batch.Add(table.Insert(o)));
-            _session.Value.Execute(batch);
+            await _session.Value.ExecuteAsync(batch).ConfigureAwait(false);
             return objCollection.Select(o => new OperationResult<Guid>(true, _typeDescriptor.GetId(o)));
         }
 
-        private IEnumerable<OperationResult<Guid>> insertIfNotExists(IEnumerable<T> objCollection)
+        private async Task<IEnumerable<OperationResult<Guid>>> insertIfNotExistsAsync(IEnumerable<T> objCollection)
         {
             var table = new Table<T>(_session.Value);
-            return objCollection.Select(o =>
-                                        {
-                                            var id = _typeDescriptor.GetId(o);
-                                            var result = table.Insert(o)
-                                                              .IfNotExists()
-                                                              .Execute();
-                                            if (result.Applied)
-                                            {
-                                                return new OperationResult<Guid>(true, id);
-                                            }
-                                            return new OperationResult<Guid>(false, id, Severity.Error, "Object already exists");
-                                        })
-                                .ToCollection();
+            var tasks = objCollection.Select(o => insertSingleIfNotExistsAsync(o, table))
+                                     .ToCollection();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return tasks.Select(t => t.Result);
         }
 
-        private IEnumerable<OperationResult<Guid>> update(IReadOnlyCollection<T> objCollection)
+        private async Task<OperationResult<Guid>> insertSingleIfNotExistsAsync(T o, Table<T> table)
+        {
+            var id = _typeDescriptor.GetId(o);
+            var result = await table.Insert(o)
+                                    .IfNotExists()
+                                    .ExecuteAsync().ConfigureAwait(false);
+            if (result.Applied) return new OperationResult<Guid>(true, id);
+            return new OperationResult<Guid>(false, id, Severity.Error, "Object already exists");
+        }
+
+        private async Task<IEnumerable<OperationResult<Guid>>> updateAsync(IReadOnlyCollection<T> objCollection)
         {
             var table = new Table<T>(_session.Value);
-            return objCollection.Select(o =>
-                                        {
-                                            var id = _typeDescriptor.GetId(o);
+            var tasks = objCollection.Select(o => updateSingleAsync(o, table))
+                                     .ToCollection();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return tasks.Select(t => t.Result);
+        }
 
-                                            T existingEntity;
-                                            var exists = TryGetById(id, out existingEntity);
+        private async Task<OperationResult<Guid>> updateSingleAsync(T o, Table<T> table)
+        {
+            var id = _typeDescriptor.GetId(o);
 
-                                            if (!exists)
-                                            {
-                                                return new OperationResult<Guid>(false, id, Severity.Warning, "Entity does not exist");
-                                            }
+            T existingEntity = await GetByIdAsync(id).ConfigureAwait(false);
 
-                                            table.Insert(o)
-                                                 .Execute();
+            if (existingEntity == null)
+            {
+                return new OperationResult<Guid>(false, id, Severity.Warning, "Entity does not exist");
+            }
 
-                                            return new OperationResult<Guid>(true, id);
-                                        })
-                                .ToCollection();
+            await table.Insert(o)
+                       .ExecuteAsync().ConfigureAwait(false);
+
+            return new OperationResult<Guid>(true, id);
         }
 
         #endregion
@@ -325,15 +325,6 @@ namespace Jalex.Repository.Cassandra
             Debug.WriteLine("Creating table " + typeof(T));
             var table = new Table<T>(session);
             table.CreateIfNotExists();
-        }
-
-        private Expression<Func<T, bool>> getExpressionForIdEquality(Guid id)
-        {
-            var paramExpr = Expression.Parameter(typeof(T));
-            var idValueExpr = Expression.Constant(id);
-            var idEqualsValueExpr = Expression.Equal(_typeDescriptor.IdPropertyExpression, idValueExpr);
-            var lambda = Expression.Lambda<Func<T, bool>>(idEqualsValueExpr, paramExpr);
-            return lambda;
         }
 
         private void defineMap(CassandraHelper helper)

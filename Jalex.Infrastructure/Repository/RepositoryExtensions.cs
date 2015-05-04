@@ -1,31 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 
 namespace Jalex.Infrastructure.Repository
 {
     public static class RepositoryExtensions
     {
-        public static IEnumerable<OperationResult> DeleteMany<T>(this IDeleter<T> repository, IEnumerable<Guid> ids)
+        public static async Task<IEnumerable<OperationResult>> DeleteManyAsync<T>(this IDeleter<T> repository, IEnumerable<Guid> ids)
         {
-            return ids.Select(repository.Delete).ToArray();
+            var tasks = ids.Select(repository.DeleteAsync)
+                           .ToCollection();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return tasks.Select(t => t.Result);
         }
 
-        public static T GetByIdOrDefault<T>(this IReader<T> repository, Guid id)
+        public static async Task<T> GetByIdOrDefaultAsync<T>(this IReader<T> repository, Guid id, T defaultValue)
+            where T : class
         {
-            return repository.GetByIdOrDefault(id, default(T));
+            return await repository.GetByIdAsync(id).ConfigureAwait(false) ?? defaultValue;
         }
 
-        public static T GetByIdOrDefault<T>(this IReader<T> repository, Guid id, T defaultValue)
+        public static async Task<IEnumerable<T>> GetManyByIdAsync<T>(this IReader<T> repository, IEnumerable<Guid> ids)
+            where T : class
         {
-            T item;
-            return repository.TryGetById(id, out item) ? item : defaultValue;
-        }
-
-        public static IEnumerable<T> GetManyByIdOrDefault<T>(this IReader<T> repository, IEnumerable<Guid> ids)
-        {
-            return ids.Select(repository.GetByIdOrDefault);
+            var tasks = ids.Select(repository.GetByIdAsync)
+                           .ToCollection();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return tasks.Select(t => t.Result);
         }
     }
 }

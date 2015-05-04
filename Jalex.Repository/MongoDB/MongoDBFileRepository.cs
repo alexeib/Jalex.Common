@@ -86,7 +86,9 @@ namespace Jalex.Repository.MongoDB
 
         private MongoGridFS getGridFS()
         {
-            var db = _helper.GetMongoDatabase();
+            var client = _helper.GetMongoClient();
+            var server = client.GetServer();
+            var db = server.GetDatabase(DatabaseName);
             var fs = db.GridFS;
 
             if (!_indicesEnsured)

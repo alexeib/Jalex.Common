@@ -29,7 +29,7 @@ namespace Jalex.Authentication.Web
 
             if (Guid.TryParse(tokenAuthHeaderValue, out tokenAsGuid))
             {
-                var tokenResult = _tokenService.GetExistingToken(tokenAsGuid);
+                var tokenResult = _tokenService.GetExistingTokenAsync(tokenAsGuid).Result;
 
                 if (tokenResult.Success)
                 {

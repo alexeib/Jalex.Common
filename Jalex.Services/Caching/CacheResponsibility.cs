@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Jalex.Infrastructure.Caching;
 using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Logging;
@@ -50,42 +51,45 @@ namespace Jalex.Services.Caching
         #region Implementation of IReader<out TEntity>
 
         /// <summary>
-        /// Retrieves an object by Ids. 
+        /// Retrieves an object by id. 
         /// </summary>
-        /// <param name="id">the id of the objects to retrieve</param>
-        /// <param name="entity">the retrieved object</param>
-        /// <returns>True if retrieval succeeded, false otherwise</returns>
-        public bool TryGetById(Guid id, out T entity)
+        public async Task<T> GetByIdAsync(Guid id)
         {
+            T entity;
             var success = _keyCache.TryGet(id, out entity);
             if (!success)
             {
-                success = tryGetFromRepositoryByIdAndCache(id, out entity);
+                entity = await _repository.GetByIdAsync(id).ConfigureAwait(false);
+                if (entity != null)
+                {
+                    cacheItem(entity);
+                }
             }
 
-            return success;
+            return entity;
         }
 
         /// <summary>
         /// Retrieves all objects in the repository
         /// </summary>
         /// <returns>All objects in the repository</returns>
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            foreach (var item in _repository.GetAll())
+            var items = await _repository.GetAllAsync().ConfigureAwait(false);
+            foreach (var item in items)
             {
                 cacheItem(item);
-                yield return item;
             }
+            return items;
         }
 
         #endregion
 
         #region Implementation of IDeleter<TEntity>
 
-        public OperationResult Delete(Guid id)
+        public async Task<OperationResult> DeleteAsync(Guid id)
         {
-            var result = _repository.Delete(id);
+            var result = await _repository.DeleteAsync(id).ConfigureAwait(false);
 
             if (result.Success)
             {
@@ -100,10 +104,10 @@ namespace Jalex.Services.Caching
         /// </summary>
         /// <param name="expression">The expression to match</param>
         /// <returns>Whether the operation executed successfully or not</returns>
-        public OperationResult DeleteWhere(Expression<Func<T, bool>> expression)
+        public async Task<OperationResult> DeleteWhereAsync(Expression<Func<T, bool>> expression)
         {
-            var items = _repository.Query(expression);
-            var result = _repository.DeleteWhere(expression);
+            var items = await _repository.QueryAsync(expression).ConfigureAwait(false);
+            var result = await _repository.DeleteWhereAsync(expression).ConfigureAwait(false);
 
             if (result.Success)
             {
@@ -126,9 +130,9 @@ namespace Jalex.Services.Caching
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public OperationResult<Guid> Save(T obj, WriteMode writeMode)
+        public async Task<OperationResult<Guid>> SaveAsync(T obj, WriteMode writeMode)
         {
-            var result = _repository.Save(obj, writeMode);
+            var result = await _repository.SaveAsync(obj, writeMode).ConfigureAwait(false);
             if (result.Success)
             {
                 cacheItem(obj);
@@ -142,11 +146,11 @@ namespace Jalex.Services.Caching
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<T> objects, WriteMode writeMode)
+        public async Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode)
         {
             var objArr = objects.ToArrayEfficient();
 
-            var results = _repository.SaveMany(objArr, writeMode).ToArrayEfficient();
+            var results = (await _repository.SaveManyAsync(objArr, writeMode).ConfigureAwait(false)).ToArrayEfficient();
 
             if (objArr.Length != results.Length)
             {
@@ -168,34 +172,24 @@ namespace Jalex.Services.Caching
 
         #region Implementation of IQueryableReader<TEntity>
 
-        public IEnumerable<T> Query(Expression<Func<T, bool>> query)
+        public async Task<IEnumerable<T>> QueryAsync(Expression<Func<T, bool>> query)
         {
-            var items = _repository.Query(query);
+            var items = (await _repository.QueryAsync(query).ConfigureAwait(false)).ToCollection();
             foreach (var item in items)
             {
                 cacheItem(item);
-                yield return item;
             }
+            return items;
         }
 
-        public T FirstOrDefault(Expression<Func<T, bool>> query)
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> query)
         {
-            var item = _repository.FirstOrDefault(query);
+            var item = await _repository.FirstOrDefaultAsync(query).ConfigureAwait(false);
             cacheItem(item);
             return item;
         }
 
         #endregion
-
-        private bool tryGetFromRepositoryByIdAndCache(Guid id, out T entity)
-        {
-            var success = _repository.TryGetById(id, out entity);
-            if (success)
-            {
-                cacheItem(entity);
-            }
-            return success;
-        }
 
         private void cacheItem(T item)
         {

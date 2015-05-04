@@ -57,6 +57,11 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
             _idSetter(target, id);
         }
 
+        public Expression<Func<T, bool>> GetExpressionForIdEquality(Guid id)
+        {
+            return ExpressionUtils.GetExpressionForPropertyEquality<T, Guid>(id, IdPropertyExpression);
+        }
+
         public object GetPropertyValue(string propertyName, T obj)
         {
             Guard.AgainstNull(propertyName, "propertyName");

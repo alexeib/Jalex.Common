@@ -33,23 +33,6 @@ namespace Jalex.Services.Test.Caching
             _fixture.Register<IQueryableRepository<TestEntity>>(_fixture.Create<MemoryRepository<TestEntity>>);
 
             registerCache();
-            registerIndexCache();
-        }
-
-        private void registerIndexCache()
-        {
-            _fixture.Register<IIndexCache<TestEntity>>(() => new IndexCache<TestEntity>(
-                new[] { "ClusteredKey", "ClusteredKey2" },
-                _fixture.Create<ICacheFactory>(),
-                _fixture.Create<Action<ICacheStrategyConfiguration>>(),
-                _fixture.Create<IReflectedTypeDescriptorProvider>()));
-            var indexCache = _fixture.Freeze<IIndexCache<TestEntity>>();
-
-            var indexCacheFactory = Substitute.For<IIndexCacheFactory>();
-            indexCacheFactory
-                .CreateIndexCachesForType<TestEntity>()
-                .Returns(new[] { indexCache });
-            _fixture.Inject(indexCacheFactory);
         }
 
         private void registerCache()
@@ -76,12 +59,10 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.SaveMany(entities, WriteMode.Insert);
+            repo.SaveManyAsync(entities, WriteMode.Insert).Wait();
 
-            TestEntity retrieved;
-            var success = cacheResponsibility.TryGetById(entities.First().Id, out retrieved);
+            TestEntity retrieved = cacheResponsibility.GetByIdAsync(entities.First().Id).Result;
 
-            success.Should().BeTrue();
             retrieved.ShouldBeEquivalentTo(entities.First());
 
             cache
@@ -103,13 +84,13 @@ namespace Jalex.Services.Test.Caching
             cache.Set(e1.Id, e1);
             cache.Set(e3.Id, e3);
 
-            repo.Save(e2, WriteMode.Insert);
+            repo.SaveAsync(e2, WriteMode.Insert).Wait();
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            cacheResponsibility.GetByIdOrDefault(e1.Id).ShouldBeEquivalentTo(e1);
-            cacheResponsibility.GetByIdOrDefault(e2.Id).ShouldBeEquivalentTo(e2);
-            cacheResponsibility.GetByIdOrDefault(e3.Id).ShouldBeEquivalentTo(e3);
+            cacheResponsibility.GetByIdAsync(e1.Id).Result.ShouldBeEquivalentTo(e1);
+            cacheResponsibility.GetByIdAsync(e2.Id).Result.ShouldBeEquivalentTo(e2);
+            cacheResponsibility.GetByIdAsync(e3.Id).Result.ShouldBeEquivalentTo(e3);
         }
 
         [Fact]
@@ -122,10 +103,10 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.SaveMany(entities, WriteMode.Insert);
+            repo.SaveManyAsync(entities, WriteMode.Insert).Wait();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            cacheResponsibility.GetAll().ToArray();
+            cacheResponsibility.GetAllAsync().Result.ToArray();
 
             cache
                 .GetAll()
@@ -144,9 +125,9 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.SaveMany(entities, WriteMode.Insert);
+            repo.SaveManyAsync(entities, WriteMode.Insert).Wait();
 
-            var retrieved = cacheResponsibility.FirstOrDefault(e => e.Id == entities.First().Id);
+            var retrieved = cacheResponsibility.FirstOrDefaultAsync(e => e.Id == entities.First().Id).Result;
 
             retrieved.ShouldBeEquivalentTo(entities.First());
 
@@ -166,9 +147,9 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.SaveMany(entities, WriteMode.Insert);
+            repo.SaveManyAsync(entities, WriteMode.Insert).Wait();
 
-            var retrieved = cacheResponsibility.Query(e => e.Id == entities.First().Id).FirstOrDefault();
+            var retrieved = cacheResponsibility.QueryAsync(e => e.Id == entities.First().Id).Result.FirstOrDefault();
 
             retrieved.ShouldBeEquivalentTo(entities.First());
 
@@ -188,14 +169,14 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.SaveMany(entities, WriteMode.Insert);
+            repo.SaveManyAsync(entities, WriteMode.Insert).Wait();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            cacheResponsibility.GetAll().ToArray();
+            cacheResponsibility.GetAllAsync().Result.ToArray();
 
             var entityToDelete = entities.First();
 
-            cacheResponsibility.Delete(entityToDelete.Id);
+            cacheResponsibility.DeleteAsync(entityToDelete.Id).Wait();
 
             TestEntity entity;
             cache.TryGet(entityToDelete.Id, out entity).Should().BeFalse();
@@ -210,7 +191,7 @@ namespace Jalex.Services.Test.Caching
             var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            cacheResponsibility.Save(entity, WriteMode.Insert);
+            cacheResponsibility.SaveAsync(entity, WriteMode.Insert).Wait();
 
             TestEntity retrieved;
             cache.TryGet(entity.Id, out retrieved).Should().BeTrue();
@@ -225,7 +206,7 @@ namespace Jalex.Services.Test.Caching
             var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            cacheResponsibility.Save(entity, WriteMode.Upsert);
+            cacheResponsibility.SaveAsync(entity, WriteMode.Upsert).Wait();
 
             TestEntity retrieved;
             cache.TryGet(entity.Id, out retrieved).Should().BeTrue();
@@ -242,10 +223,10 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.Save(entity, WriteMode.Insert);
+            repo.SaveAsync(entity, WriteMode.Insert).Wait();
 
             entity.Name = _fixture.Create<string>();
-            cacheResponsibility.Save(entity, WriteMode.Update);
+            cacheResponsibility.SaveAsync(entity, WriteMode.Update).Wait();
 
             TestEntity retrieved;
             cache.TryGet(entity.Id, out retrieved).Should().BeTrue();
@@ -260,7 +241,7 @@ namespace Jalex.Services.Test.Caching
             var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            cacheResponsibility.SaveMany(new[] { entity }, WriteMode.Insert);
+            cacheResponsibility.SaveManyAsync(new[] { entity }, WriteMode.Insert).Wait();
 
             TestEntity retrieved;
             cache.TryGet(entity.Id, out retrieved).Should().BeTrue();
@@ -275,7 +256,7 @@ namespace Jalex.Services.Test.Caching
             var cache = _fixture.Freeze<ICache<Guid, TestEntity>>();
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            cacheResponsibility.SaveMany(new[] { entity }, WriteMode.Upsert);
+            cacheResponsibility.SaveManyAsync(new[] { entity }, WriteMode.Upsert).Wait();
 
             TestEntity retrieved;
             cache.TryGet(entity.Id, out retrieved).Should().BeTrue();
@@ -292,10 +273,10 @@ namespace Jalex.Services.Test.Caching
 
             var cacheResponsibility = _fixture.Create<CacheResponsibility<TestEntity>>();
 
-            repo.Save(entity, WriteMode.Insert);
+            repo.SaveAsync(entity, WriteMode.Insert).Wait();
 
             entity.Name = _fixture.Create<string>();
-            cacheResponsibility.SaveMany(new[] { entity }, WriteMode.Update);
+            cacheResponsibility.SaveManyAsync(new[] { entity }, WriteMode.Update).Wait();
 
             TestEntity retrieved;
             cache.TryGet(entity.Id, out retrieved).Should().BeTrue();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using EmitMapper;
 using Jalex.Infrastructure.Expressions;
 using Jalex.Infrastructure.Extensions;
@@ -13,7 +14,9 @@ using Guard = Magnum.Guard;
 
 namespace Jalex.Services.Repository
 {
-    public class MappingResponsibility<TClass, TEntity> : IQueryableRepository<TClass>
+    public class MappingResponsibility<TClass, TEntity> : IQueryableRepository<TClass> 
+        where TClass : class
+        where TEntity : class
     {
         private readonly IQueryableRepository<TEntity> _entityRepository;
         private readonly ObjectsMapper<TClass, TEntity> _classToEntityMapper;
@@ -36,25 +39,24 @@ namespace Jalex.Services.Repository
 
         #region Implementation of IReader<out TClass>
 
-        public bool TryGetById(Guid id, out TClass item)
+        public async Task<TClass> GetByIdAsync(Guid id)
         {
-            TEntity entity;
-            bool success = _entityRepository.TryGetById(id, out entity);
+            TEntity entity = await _entityRepository.GetByIdAsync(id).ConfigureAwait(false);
 
-            if (success)
+            TClass item = null;
+
+            if (entity != null)
             {
                 item = _entityToClassMapper.Map(entity);
-                return true;
             }
 
-            item = default(TClass);
-            return false;
+            return item;
         }
 
-        public IEnumerable<TClass> GetAll()
+        public async Task<IEnumerable<TClass>> GetAllAsync()
         {
-            var entities = _entityRepository.GetAll();
-            var classes = entities.Select(_entityToClassMapper.Map).ToArray();
+            var entities = await _entityRepository.GetAllAsync().ConfigureAwait(false);
+            var classes = entities.Select(_entityToClassMapper.Map).ToCollection();
             return classes;
         }
 
@@ -62,9 +64,9 @@ namespace Jalex.Services.Repository
 
         #region Implementation of IDeleter<TClass>
 
-        public OperationResult Delete(Guid id)
+        public Task<OperationResult> DeleteAsync(Guid id)
         {
-            var result = _entityRepository.Delete(id);
+            var result = _entityRepository.DeleteAsync(id);
             return result;
         }
 
@@ -73,11 +75,11 @@ namespace Jalex.Services.Repository
         /// </summary>
         /// <param name="expression">The expression to match</param>
         /// <returns>Whether the operation executed successfully or not</returns>
-        public OperationResult DeleteWhere(Expression<Func<TClass, bool>> expression)
+        public Task<OperationResult> DeleteWhereAsync(Expression<Func<TClass, bool>> expression)
         {
             var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(expression, _reflectedTypeDescriptorProvider);
 
-            var result = _entityRepository.DeleteWhere(entityQuery);
+            var result = _entityRepository.DeleteWhereAsync(entityQuery);
             return result;
         }
 
@@ -95,12 +97,12 @@ namespace Jalex.Services.Repository
 
         #region Implementation of IQueryableReader<TClass>
 
-        public IEnumerable<TClass> Query(Expression<Func<TClass, bool>> query)
+        public async Task<IEnumerable<TClass>> QueryAsync(Expression<Func<TClass, bool>> query)
         {
             var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(query, _reflectedTypeDescriptorProvider);
 
-            var entities = _entityRepository.Query(entityQuery);
-            var classes = entities.Select(_entityToClassMapper.Map).ToArray();
+            var entities = await _entityRepository.QueryAsync(entityQuery).ConfigureAwait(false);
+            var classes = entities.Select(_entityToClassMapper.Map).ToCollection();
             return classes;
         }
 
@@ -109,11 +111,11 @@ namespace Jalex.Services.Repository
         /// </summary>
         /// <param name="query">The query that must be satisfied</param>
         /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
-        public TClass FirstOrDefault(Expression<Func<TClass, bool>> query)
+        public async Task<TClass> FirstOrDefaultAsync(Expression<Func<TClass, bool>> query)
         {
             var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(query, _reflectedTypeDescriptorProvider);
 
-            var entity = _entityRepository.FirstOrDefault(entityQuery);
+            var entity = await _entityRepository.FirstOrDefaultAsync(entityQuery).ConfigureAwait(false);
             var @class = _entityToClassMapper.Map(entity);
             return @class;
         }
@@ -128,10 +130,10 @@ namespace Jalex.Services.Repository
         /// <param name="obj">object to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public virtual OperationResult<Guid> Save(TClass obj, WriteMode writeMode)
+        public virtual async Task<OperationResult<Guid>> SaveAsync(TClass obj, WriteMode writeMode)
         {
             var entity = _classToEntityMapper.Map(obj);
-            var result = _entityRepository.Save(entity, writeMode);
+            var result = await _entityRepository.SaveAsync(entity, writeMode).ConfigureAwait(false);
 
             if (result.Success)
             {
@@ -147,7 +149,7 @@ namespace Jalex.Services.Repository
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public virtual IEnumerable<OperationResult<Guid>> SaveMany(IEnumerable<TClass> objects, WriteMode writeMode)
+        public virtual async Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<TClass> objects, WriteMode writeMode)
         {
             // ReSharper disable once PossibleMultipleEnumeration
             Guard.AgainstNull(objects);
@@ -156,7 +158,7 @@ namespace Jalex.Services.Repository
             var objArray = objects.ToArrayEfficient();
 
             var entities = objArray.Select(_classToEntityMapper.Map).ToArray();
-            var results = _entityRepository.SaveMany(entities, writeMode);
+            var results = await _entityRepository.SaveManyAsync(entities, writeMode).ConfigureAwait(false);
 
             var entityDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TEntity>();
             var classDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TClass>();

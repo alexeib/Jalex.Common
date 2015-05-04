@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Jalex.Infrastructure.Repository
 {
     public interface IReader<T>
+        where T: class
     {
         /// <summary>
         /// Retrieves an object by Ids. 
         /// </summary>
         /// <param name="id">the id of the objects to retrieve</param>
-        /// <param name="obj"> retrieved object</param>
-        /// <returns>True if retrieval succeeded, false otherwise</returns>
-        bool TryGetById(Guid id, out T obj);
+        /// <returns>The item being retrieved or default(T) if it was not found</returns>
+        Task<T> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Retrieves all objects in the repository
         /// </summary>
         /// <returns>All objects in the repository</returns>
-        IEnumerable<T> GetAll();
+        Task<IEnumerable<T>> GetAllAsync();
     }
 }
