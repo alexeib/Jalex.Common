@@ -347,8 +347,8 @@ namespace Jalex.Repository.Cassandra
                     mapSecondaryIndex(prop, map);
                 }
 
-                var propType = getEnumerableGenericProperty(prop.PropertyType) ?? prop.PropertyType.GetNullableUnderlyingType();
-                if (!_nativelySupportedTypes.Contains(propType))
+                var propTypes = getAssociatedPropertyTypes(prop.PropertyType);
+                if (propTypes.Any(propType => !_nativelySupportedTypes.Contains(propType)))
                 {
                     mapAsJson(prop, map);
                 }
@@ -391,13 +391,19 @@ namespace Jalex.Repository.Cassandra
             map.Column(expr, cc => cc.WithDbType<string>());
         }
 
-        private Type getEnumerableGenericProperty(Type propertyType)
+        private IEnumerable<Type> getAssociatedPropertyTypes(Type propertyType)
         {
             if (propertyType.IsGenericType && propertyType.GetInterface("IEnumerable`1") != null)
             {
-                return propertyType.GetGenericArguments()[0];
+                foreach (var arg in propertyType.GetGenericArguments())
+                {
+                    yield return arg;
+                }
             }
-            return null;
+            else
+            {
+                yield return propertyType.GetNullableUnderlyingType();
+            }
         }
     }
 }
