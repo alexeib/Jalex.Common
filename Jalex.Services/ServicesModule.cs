@@ -27,15 +27,6 @@ namespace Jalex.Services
             //       .Named("repository", typeof(ISimpleRepository<>))
             //       .Named("repository", typeof(IQueryableRepository<>))
             //       .InstancePerLifetimeScope();
-
-            builder.Register(cc => cc.ResolveNamed("raw-repository", typeof (IQueryableRepository<>)))
-                   .As(typeof (IReader<>), typeof (IWriter<>), typeof (IDeleter<>), typeof (ISimpleRepository<>), typeof (IQueryableRepository<>))
-                   .Named("repository", typeof (IReader<>))
-                   .Named("repository", typeof (IWriter<>))
-                   .Named("repository", typeof (IDeleter<>))
-                   .Named("repository", typeof (ISimpleRepository<>))
-                   .Named("repository", typeof (IQueryableRepository<>))
-                   .InstancePerLifetimeScope();
         }
 
         #endregion

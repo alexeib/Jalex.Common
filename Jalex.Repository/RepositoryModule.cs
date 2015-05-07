@@ -22,19 +22,31 @@ namespace Jalex.Repository
             switch (RepositoryType)
             {
                 case RepositoryType.Cassandra:
-                    builder.RegisterGeneric(typeof(CassandraRepository<>))
-                                        .Named("raw-repository", typeof(IQueryableRepository<>))
-                                        .InstancePerLifetimeScope();
+                    builder.RegisterGeneric(typeof (CassandraRepository<>))
+                           .Named("raw-repository", typeof (IQueryableRepository<>))
+                           .As(typeof (IReader<>), typeof (IWriter<>), typeof (IDeleter<>), typeof (ISimpleRepository<>), typeof (IQueryableRepository<>))
+                           .Named("repository", typeof (IReader<>))
+                           .Named("repository", typeof (IWriter<>))
+                           .Named("repository", typeof (IDeleter<>))
+                           .Named("repository", typeof (ISimpleRepository<>))
+                           .Named("repository", typeof (IQueryableRepository<>))
+                           .InstancePerLifetimeScope();
 
                     break;
                 case RepositoryType.Mongo:
-                    builder.RegisterGeneric(typeof(MongoDBRepository<>))
-                                        .Named("raw-repository", typeof(IQueryableRepository<>))
-                                        .InstancePerLifetimeScope();
+                    builder.RegisterGeneric(typeof (MongoDBRepository<>))
+                           .Named("raw-repository", typeof (IQueryableRepository<>))
+                           .As(typeof (IReader<>), typeof (IWriter<>), typeof (IDeleter<>), typeof (ISimpleRepository<>), typeof (IQueryableRepository<>))
+                           .Named("repository", typeof (IReader<>))
+                           .Named("repository", typeof (IWriter<>))
+                           .Named("repository", typeof (IDeleter<>))
+                           .Named("repository", typeof (ISimpleRepository<>))
+                           .Named("repository", typeof (IQueryableRepository<>))
+                           .InstancePerLifetimeScope();
 
                     builder.RegisterType<MongoDBFileRepository>()
-                                        .As<IFileRepository>()
-                                        .InstancePerLifetimeScope();
+                           .As<IFileRepository>()
+                           .InstancePerLifetimeScope();
 
                     break;
                 default:
