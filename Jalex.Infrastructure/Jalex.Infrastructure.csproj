@@ -103,9 +103,6 @@
     <Compile Include="Logging\IInjectableLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\LoggerExtensions.cs" />
-    <Compile Include="Net\HttpCommunicator.cs" />
-    <Compile Include="Net\IHttpCommunicator.cs" />
-    <Compile Include="Net\UnsuccessfulResponseException.cs" />
     <Compile Include="ReflectedTypeDescriptor\IReflectedTypeDescriptor.cs" />
     <Compile Include="ReflectedTypeDescriptor\IReflectedTypeDescriptor.generic.cs" />
     <Compile Include="ReflectedTypeDescriptor\IReflectedTypeDescriptorProvider.cs" />

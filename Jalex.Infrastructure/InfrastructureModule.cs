@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Jalex.Infrastructure.Configuration;
-using Jalex.Infrastructure.Net;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 
 namespace Jalex.Infrastructure
@@ -25,10 +24,6 @@ namespace Jalex.Infrastructure
 
             builder.RegisterType<ConfigurationProvider>()
                    .As<IConfigurationProvider>()
-                   .InstancePerLifetimeScope();
-
-            builder.RegisterType<HttpCommunicator>()
-                   .As<IHttpCommunicator>()
                    .InstancePerLifetimeScope();
         }
 
