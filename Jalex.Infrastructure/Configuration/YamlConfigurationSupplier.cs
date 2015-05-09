@@ -12,10 +12,11 @@ namespace Jalex.Infrastructure.Configuration
 {
     public class YamlConfigurationSupplier : IConfigurationSupplier
     {
-        private static readonly string[] _defaultConfigFileNames = {
-                                                                       "config.yaml",
-                                                                       $"{AppDomain.CurrentDomain.FriendlyName.Replace("vshost.", string.Empty)}.yaml"
-                                                                   };
+        private static readonly string[] _defaultConfigFileNames =
+        {
+            $"{AppDomain.CurrentDomain.FriendlyName.Replace("vshost.", string.Empty)}.yaml",
+            "config.yaml"
+        };
 
         private readonly IEnumerable<string> _configFileNames;
 
