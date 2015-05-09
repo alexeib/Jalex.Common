@@ -9,6 +9,11 @@ namespace Jalex.Infrastructure.Extensions
             return !string.IsNullOrEmpty(s);
         }
 
+        public static bool IsNullOrEmpty(this string s)
+        {
+            return string.IsNullOrEmpty(s);
+        }
+
         public static Guid ToGuid(this string s)
         {
             return Guid.Parse(s);

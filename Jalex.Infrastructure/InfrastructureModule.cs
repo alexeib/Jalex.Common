@@ -20,12 +20,17 @@ namespace Jalex.Infrastructure
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<ReflectedTypeDescriptorProvider>()
-                           .As<IReflectedTypeDescriptorProvider>()
-                           .InstancePerLifetimeScope();
+                   .As<IReflectedTypeDescriptorProvider>()
+                   .InstancePerLifetimeScope();
+
+            builder.RegisterType<YamlConfigurationSupplier>()
+                   .UsingConstructor()
+                   .As<IConfigurationSupplier>()
+                   .InstancePerLifetimeScope();
 
             builder.RegisterType<ConfigurationProvider>()
-                           .As<IConfigurationProvider>()
-                           .InstancePerLifetimeScope();
+                   .As<IConfigurationProvider>()
+                   .InstancePerLifetimeScope();
 
             builder.RegisterType<HttpCommunicator>()
                    .As<IHttpCommunicator>()

@@ -93,6 +93,7 @@
     <Compile Include="Configuration\Configuration2.cs" />
     <Compile Include="Configuration\Configuration3.cs" />
     <Compile Include="Configuration\ConfigurationProviderTests.cs" />
+    <Compile Include="Configuration\YamlConfigurationSupplierTest.cs" />
     <Compile Include="Containers\TypedInstanceContainerTests.cs" />
     <Compile Include="Dataflow\FilterBlockTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
@@ -114,12 +115,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Content Include="Configuration\config.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jalex.Infrastructure\Jalex.Infrastructure.csproj">
       <Project>{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}</Project>
       <Name>Jalex.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Jalex.TestUtils\Jalex.TestUtils.csproj">
+      <Project>{4D7290FB-0B59-4042-9748-F8ECCED81560}</Project>
+      <Name>Jalex.TestUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

@@ -8,12 +8,15 @@ namespace Jalex.Infrastructure.Configuration
     {
         private readonly Lazy<TypedInstanceContainer<string, IConfiguration>> _configurationsContainer;
 
-        public ConfigurationProvider(IEnumerable<IConfigurationSupplier> configurationSuppliers)
+        public ConfigurationProvider(Lazy<IEnumerable<IConfigurationSupplier>> configurationSuppliers)
         {
             _configurationsContainer = new Lazy<TypedInstanceContainer<string, IConfiguration>>(() =>
                                                                                                 {
-                                                                                                    var container = new TypedInstanceContainer<string, IConfiguration>(c => c.GetType().FullName, string.Empty);
-                                                                                                    foreach (var supplier in configurationSuppliers)
+                                                                                                    var container =
+                                                                                                        new TypedInstanceContainer<string, IConfiguration>(c => c.GetType()
+                                                                                                                                                                 .FullName,
+                                                                                                                                                           string.Empty);
+                                                                                                    foreach (var supplier in configurationSuppliers.Value)
                                                                                                     {
                                                                                                         var configurations = supplier.GetConfigurations();
                                                                                                         foreach (var configuration in configurations)
