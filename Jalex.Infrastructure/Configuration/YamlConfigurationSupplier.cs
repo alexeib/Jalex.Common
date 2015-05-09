@@ -14,7 +14,7 @@ namespace Jalex.Infrastructure.Configuration
     {
         private static readonly string[] _defaultConfigFileNames = {
                                                                        "config.yaml",
-                                                                       $"{AppDomain.CurrentDomain.FriendlyName}.yaml"
+                                                                       $"{AppDomain.CurrentDomain.FriendlyName.Replace("vshost.", string.Empty)}.yaml"
                                                                    };
 
         private readonly IEnumerable<string> _configFileNames;
