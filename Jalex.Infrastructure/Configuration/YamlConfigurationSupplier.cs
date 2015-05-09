@@ -26,7 +26,7 @@ namespace Jalex.Infrastructure.Configuration
 
         public YamlConfigurationSupplier(IEnumerable<string> configFileNames)
         {
-            _configFileNames = configFileNames?? _defaultConfigFileNames;
+            _configFileNames = configFileNames ?? _defaultConfigFileNames;
         }
 
         #region Implementation of IConfigurationSupplier
