@@ -39,5 +39,11 @@ namespace Jalex.Infrastructure.Extensions
         {
             return enumerable != null && enumerable.Any();
         }
+
+        [DebuggerStepThrough]
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return !IsNotNullOrEmpty(enumerable);
+        }
     }
 }
