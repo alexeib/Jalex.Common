@@ -51,7 +51,9 @@ namespace Jalex.Repository.Cassandra
 
         // ReSharper disable StaticFieldInGenericType
         private static bool _isInitialized; // one per Repository
-        private static readonly object _syncRoot = new object();
+        private static bool _isTableCreated; //one per Repository
+        private static readonly object _initializeSyncRoot = new object();
+        private static readonly object _createTableSyncRoot = new object();
         // ReSharper restore StaticFieldInGenericType
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
@@ -294,7 +296,7 @@ namespace Jalex.Repository.Cassandra
         {
             if (!_isInitialized)
             {
-                lock (_syncRoot)
+                lock (_initializeSyncRoot)
                 {
                     if (!_isInitialized)
                     {
@@ -322,9 +324,19 @@ namespace Jalex.Repository.Cassandra
 
         private void createTableIfNotExist(ISession session)
         {
-            Debug.WriteLine("Creating table " + typeof(T));
-            var table = new Table<T>(session);
-            table.CreateIfNotExists();
+            if (!_isTableCreated)
+            {
+                lock (_createTableSyncRoot)
+                {
+                    if (!_isTableCreated)
+                    {
+                        Debug.WriteLine("Creating table " + typeof (T));
+                        var table = new Table<T>(session);
+                        table.CreateIfNotExists();
+                        _isTableCreated = true;
+                    }
+                }
+            }
         }
 
         private void defineMap(CassandraHelper helper)

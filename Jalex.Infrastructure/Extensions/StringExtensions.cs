@@ -23,5 +23,10 @@ namespace Jalex.Infrastructure.Extensions
         {
             return string.Format(s, args);
         }
+
+        public static Uri ToUri(this string uriStr)
+        {
+            return new Uri(uriStr);
+        }
     }
 }
