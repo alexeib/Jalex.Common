@@ -35,6 +35,34 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
+        public void Retrieves_Projection_To_Same_Property()
+        {
+            var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
+            createResult.All(r => r.Success).Should().BeTrue();
+
+            string nameToFind = _sampleTestEntitys.First().Name;
+            var retrievedTestEntitys = _queryableRepository.ProjectAsync(r => r.Name, r => r.Name == nameToFind).Result.ToArray();
+
+            retrievedTestEntitys.Length.Should().Be(1);
+            retrievedTestEntitys.First().Should().Be(nameToFind);
+        }
+
+        [Fact]
+        public void Retrieves_Projection_To_Different_Property()
+        {
+            var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
+            createResult.All(r => r.Success).Should().BeTrue();
+
+            var entity = _sampleTestEntitys.First();
+            var idToFind = entity.Id;
+            string nameToFind = entity.Name;
+            var retrievedTestEntitys = _queryableRepository.ProjectAsync(r => r.Name, r => r.Id == idToFind).Result.ToArray();
+
+            retrievedTestEntitys.Length.Should().Be(1);
+            retrievedTestEntitys.First().Should().Be(nameToFind);
+        }
+
+        [Fact]
         public void DoesNotRetrieveEntitiesByQueryingForNonExistantAttribute()
         {
             var fakeName = _fixture.Create<string>();

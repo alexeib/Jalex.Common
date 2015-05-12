@@ -106,6 +106,16 @@ namespace Jalex.Services.Repository
             return classes;
         }
 
+        public async Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<TClass, TProjection>> projection, Expression<Func<TClass, bool>> query)
+        {
+            var entityQuery = ExpressionUtils.ChangeType<TClass, TEntity, bool>(query, _reflectedTypeDescriptorProvider);
+            var entityProjection = ExpressionUtils.ChangeType<TClass, TEntity, TProjection>(projection, _reflectedTypeDescriptorProvider);
+
+            var projections = await _entityRepository.ProjectAsync(entityProjection, entityQuery)
+                                                     .ConfigureAwait(false);
+            return projections.ToCollection();
+        }
+
         /// <summary>
         /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
         /// </summary>

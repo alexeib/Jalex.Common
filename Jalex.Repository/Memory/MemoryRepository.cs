@@ -79,6 +79,13 @@ namespace Jalex.Repository.Memory
             return Task.FromResult<IEnumerable<T>>(results);
         }
 
+        public Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection, Expression<Func<T, bool>> query)
+        {
+            var queryableValues = _objectDictionary.Values.AsQueryable();
+            var results = queryableValues.Where(query).Select(projection);
+            return Task.FromResult<IEnumerable<TProjection>>(results);
+        }
+
         /// <summary>
         /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
         /// </summary>

@@ -155,6 +155,16 @@ namespace Jalex.Repository.Cassandra
             return results;
         }
 
+        public async Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection, Expression<Func<T, bool>> query)
+        {
+            var table = new Table<T>(_session.Value);
+
+            var queryCommand = table.Where(query)
+                                    .Select(projection);
+            var results = await queryCommand.ExecuteAsync().ConfigureAwait(false);
+            return results;
+        }
+
         /// <summary>
         /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
         /// </summary>

@@ -182,6 +182,11 @@ namespace Jalex.Services.Caching
             return items;
         }
 
+        public Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection, Expression<Func<T, bool>> query)
+        {
+            return _repository.ProjectAsync(projection, query);
+        }
+
         public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> query)
         {
             var item = await _repository.FirstOrDefaultAsync(query).ConfigureAwait(false);

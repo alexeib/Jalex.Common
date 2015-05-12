@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Jalex.Infrastructure.Configuration;
+using Jalex.Infrastructure.Messaging;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 
 namespace Jalex.Infrastructure
@@ -25,6 +26,10 @@ namespace Jalex.Infrastructure
             builder.RegisterType<ConfigurationProvider>()
                    .As<IConfigurationProvider>()
                    .InstancePerLifetimeScope();
+
+            builder.RegisterGeneric(typeof (MessagePipe<>))
+                   .As(typeof (IMessagePipe<>))
+                   .InstancePerDependency();
         }
 
         #endregion
