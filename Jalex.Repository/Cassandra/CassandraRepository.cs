@@ -17,7 +17,6 @@ using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Infrastructure.Utils;
 using Jalex.Repository.IdProviders;
-using Magnum.Extensions;
 
 namespace Jalex.Repository.Cassandra
 {
@@ -203,10 +202,10 @@ namespace Jalex.Repository.Cassandra
                 switch (writeMode)
                 {
                     case WriteMode.Upsert:
-                        return await insertBatchAsync(objCollection).ConfigureAwait(false);
+                        return await insertAsync(objCollection).ConfigureAwait(false);
                     case WriteMode.Insert:
                         var objGroups = objCollection.GroupBy(o => _typeDescriptor.GetId(o) == Guid.Empty);
-                        var tasks = objGroups.Select(g => g.Key ? insertBatchAsync(g.ToCollection()) : insertIfNotExistsAsync(g))
+                        var tasks = objGroups.Select(g => g.Key ? insertAsync(g.ToCollection()) : insertIfNotExistsAsync(g))
                                              .ToCollection();
                         await Task.WhenAll(tasks).ConfigureAwait(false);
                         return tasks.SelectMany(r => r.Result.ToCollection())
@@ -230,13 +229,13 @@ namespace Jalex.Repository.Cassandra
             }
         }
 
-        private async Task<IEnumerable<OperationResult<Guid>>> insertBatchAsync(IReadOnlyCollection<T> objCollection)
+        private async Task<IEnumerable<OperationResult<Guid>>> insertAsync(IReadOnlyCollection<T> objCollection)
         {
             var table = new Table<T>(_session.Value);
-            BatchStatement batch = new BatchStatement();
-            objCollection.Each(o => batch.Add(table.Insert(o)));
-            await _session.Value.ExecuteAsync(batch).ConfigureAwait(false);
-            return objCollection.Select(o => new OperationResult<Guid>(true, _typeDescriptor.GetId(o)));
+            var tasks = objCollection.Select(o => insertSingleAsync(o, table))
+                                     .ToCollection();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return tasks.Select(t => t.Result);
         }
 
         private async Task<IEnumerable<OperationResult<Guid>>> insertIfNotExistsAsync(IEnumerable<T> objCollection)
@@ -255,6 +254,15 @@ namespace Jalex.Repository.Cassandra
                                     .IfNotExists()
                                     .ExecuteAsync().ConfigureAwait(false);
             if (result.Applied) return new OperationResult<Guid>(true, id);
+            return new OperationResult<Guid>(false, id, Severity.Error, "Object already exists");
+        }
+
+        private async Task<OperationResult<Guid>> insertSingleAsync(T o, Table<T> table)
+        {
+            var id = _typeDescriptor.GetId(o);
+            var result = await table.Insert(o)
+                                    .ExecuteAsync().ConfigureAwait(false);
+            if (result.Info.AchievedConsistency.HasFlag(ConsistencyLevel.Any)) return new OperationResult<Guid>(true, id);
             return new OperationResult<Guid>(false, id, Severity.Error, "Object already exists");
         }
 
@@ -296,14 +304,17 @@ namespace Jalex.Repository.Cassandra
         {
             if (!_isInitialized)
             {
+                Debug.WriteLine("Before initialize sync");
                 lock (_initializeSyncRoot)
                 {
                     if (!_isInitialized)
                     {
+                        Debug.WriteLine("Initializing...");
                         initialize();
                         _isInitialized = true;
                     }
                 }
+                Debug.WriteLine("After initialize sync");
             }
         }
 
@@ -326,16 +337,25 @@ namespace Jalex.Repository.Cassandra
         {
             if (!_isTableCreated)
             {
+                Debug.WriteLine("Before create table sync");
                 lock (_createTableSyncRoot)
                 {
                     if (!_isTableCreated)
                     {
-                        Debug.WriteLine("Creating table " + typeof (T));
-                        var table = new Table<T>(session);
-                        table.CreateIfNotExists();
-                        _isTableCreated = true;
+                        var systemSession = CassandraSessionPool.GetSessionForKeyspace("system");
+                        var tableRowSet =
+                            systemSession.Execute(
+                                                  $"select columnfamily_name from schema_columnfamilies where keyspace_name='{session.Keyspace}' and columnfamily_name = '{typeof (T).Name.ToLowerInvariant()}'");
+                        if (!tableRowSet.Any())
+                        {
+                            Debug.WriteLine("Creating table " + typeof (T));
+                            var table = new Table<T>(session);
+                            table.CreateIfNotExists();
+                            _isTableCreated = true;
+                        }
                     }
                 }
+                Debug.WriteLine("After create table sync");
             }
         }
 

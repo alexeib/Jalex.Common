@@ -48,11 +48,20 @@ namespace Jalex.Repository.Cassandra
             string[] contacts = getContacts();
             Builder builder = Cluster.Builder();
             builder.AddContactPoints(contacts);
-            builder.WithDefaultKeyspace(keyspace);
 
             Cluster cluster = builder.Build();
 
-            ISession session = cluster.ConnectAndCreateDefaultKeyspaceIfNotExists();
+            ISession session = cluster.Connect();
+
+            try
+            {
+                session.ChangeKeyspace(keyspace);
+            }
+            catch
+            {
+                session.CreateKeyspace(keyspace);
+                session.ChangeKeyspace(keyspace);
+            }
 
             return session;
         }
