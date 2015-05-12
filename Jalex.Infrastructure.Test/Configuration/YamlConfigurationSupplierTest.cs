@@ -16,7 +16,7 @@ namespace Jalex.Infrastructure.Test.Configuration
         {
             var configSupplier = new YamlConfigurationSupplier(new[] {_configLocation});
             var configs = configSupplier.GetConfigurations()
-                                        ?.ToCollection();
+                                        .ToCollection();
             configs.Should()
                    .NotBeNullOrEmpty()
                    .And.HaveCount(2);
