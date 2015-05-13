@@ -77,21 +77,20 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IReader<out T>
 
-        public async Task<T> GetByIdAsync(Guid id)
+        public Task<T> GetByIdAsync(Guid id)
         {
             var table = new Table<T>(_session.Value);
 
             var idEquals = _typeDescriptor.GetExpressionForIdEquality(id);
 
-            var result = await table.Where(idEquals).ExecuteAsync().ConfigureAwait(false);
-            return result.FirstOrDefault();
+            return table.FirstOrDefault(idEquals)
+                        .ExecuteAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public Task<IEnumerable<T>> GetAllAsync()
         {
             var table = new Table<T>(_session.Value);
-            var results = await table.ExecuteAsync().ConfigureAwait(false);
-            return results;
+            return table.ExecuteAsync();
         }
 
         #endregion
@@ -146,23 +145,21 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IQueryableReader<out T>
 
-        public async Task<IEnumerable<T>> QueryAsync(Expression<Func<T, bool>> query)
+        public Task<IEnumerable<T>> QueryAsync(Expression<Func<T, bool>> query)
         {
             var table = new Table<T>(_session.Value);
 
             var queryCommand = table.Where(query);
-            var results = await queryCommand.ExecuteAsync().ConfigureAwait(false);
-            return results;
+            return queryCommand.ExecuteAsync();
         }
 
-        public async Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection, Expression<Func<T, bool>> query)
+        public Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection, Expression<Func<T, bool>> query)
         {
             var table = new Table<T>(_session.Value);
 
             var queryCommand = table.Where(query)
                                     .Select(projection);
-            var results = await queryCommand.ExecuteAsync().ConfigureAwait(false);
-            return results;
+            return queryCommand.ExecuteAsync();
         }
 
         /// <summary>
@@ -170,13 +167,12 @@ namespace Jalex.Repository.Cassandra
         /// </summary>
         /// <param name="query">The query that must be satisfied</param>
         /// <returns>The object in the repository that satisfies the query or the default value for T if no such object is found</returns>
-        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> query)
+        public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> query)
         {
             var table = new Table<T>(_session.Value);
 
             var firstOrDefaultCommand = table.FirstOrDefault(query);
-            var result = await firstOrDefaultCommand.ExecuteAsync().ConfigureAwait(false);
-            return result;
+            return firstOrDefaultCommand.ExecuteAsync();
         }
 
         #endregion
