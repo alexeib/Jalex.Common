@@ -14,6 +14,7 @@ namespace Jalex.Repository.Cassandra
                                                                                  MissingMemberHandling = MissingMemberHandling.Ignore,
                                                                                  NullValueHandling = NullValueHandling.Ignore,
                                                                                  DefaultValueHandling = DefaultValueHandling.Ignore,
+                                                                                 TypeNameHandling = TypeNameHandling.Auto,
                                                                                  Converters = new List<JsonConverter>
                                                                                               {
                                                                                                   new StringEnumConverter()
