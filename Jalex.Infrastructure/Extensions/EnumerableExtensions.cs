@@ -45,5 +45,15 @@ namespace Jalex.Infrastructure.Extensions
         {
             return !IsNotNullOrEmpty(enumerable);
         }
+
+        public static string StringJoin<T>(this IEnumerable<T> enumerable, string separator)
+        {
+            if (enumerable == null)
+            {
+                return null;
+            }
+
+            return string.Join(separator, enumerable);
+        }
     }
 }
