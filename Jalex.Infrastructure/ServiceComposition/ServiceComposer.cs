@@ -7,11 +7,11 @@ namespace Jalex.Infrastructure.ServiceComposition
     /// <summary>
     /// Represents an interface that provides service aggregation functionality
     /// </summary>
-    public class ServiceComposer<T> : IComposableService<T>
+    public class ServiceComposer<T, TRet> : IComposableService<T, TRet>
     {
-        private readonly IEnumerable<IComposableService<T>> _composableServices;
+        private readonly IEnumerable<IComposableService<T, TRet>> _composableServices;
 
-        public ServiceComposer(IEnumerable<IComposableService<T>> composableServices)
+        public ServiceComposer(IEnumerable<IComposableService<T, TRet>> composableServices)
         {
             Guard.AgainstNull(composableServices, "composableServices");
             _composableServices = composableServices;
@@ -22,14 +22,14 @@ namespace Jalex.Infrastructure.ServiceComposition
             return _composableServices.Any(s => s.CanProcess(item));
         }
 
-        public virtual void Process(T item)
+        public virtual TRet Process(T item)
         {
             var service = _composableServices.FirstOrDefault(s => s.CanProcess(item));
             if (service == null)
             {
                 throw new ComposableServiceNotFoundException<T>();
             }
-            service.Process(item);
+            return service.Process(item);
         }
     }
 }

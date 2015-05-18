@@ -1,8 +1,8 @@
 ﻿namespace Jalex.Infrastructure.ServiceComposition
 {
-    public interface IComposableService<in T>
+    public interface IComposableService<in T, out TRet>
     {
         bool CanProcess(T item);
-        void Process(T item);
+        TRet Process(T item);
     }
 }

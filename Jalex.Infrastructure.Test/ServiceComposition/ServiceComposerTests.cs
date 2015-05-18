@@ -18,7 +18,7 @@ namespace Jalex.Infrastructure.Test.ServiceComposition
 
         private void injectComposableServiceSubstitute(IFixture fixture)
         {
-            var serviceSub = Substitute.For<IComposableService<string>>();
+            var serviceSub = Substitute.For<IComposableService<string, bool>>();
             serviceSub.CanProcess(null).Returns(false);
             serviceSub.CanProcess(Arg.Is<string>(s => !string.IsNullOrEmpty(s))).Returns(true);
             fixture.Inject(serviceSub);
@@ -27,7 +27,7 @@ namespace Jalex.Infrastructure.Test.ServiceComposition
         [Fact]
         public void Cannot_Process_If_Underlying_Services_Cannot()
         {
-            var sut = _fixture.Create<ServiceComposer<string>>();
+            var sut = _fixture.Create<ServiceComposer<string, bool>>();
             var canProcess = sut.CanProcess(null);
             canProcess.Should().BeFalse();
         }
@@ -36,7 +36,7 @@ namespace Jalex.Infrastructure.Test.ServiceComposition
         public void Can_Process_If_Underlying_Service_Can()
         {
             var arg = _fixture.Create<string>();
-            var sut = _fixture.Create<ServiceComposer<string>>();
+            var sut = _fixture.Create<ServiceComposer<string, bool>>();
             var canProcess = sut.CanProcess(arg);
             canProcess.Should().BeTrue();
         }
@@ -44,16 +44,16 @@ namespace Jalex.Infrastructure.Test.ServiceComposition
         [Fact]
         public void Throws_Exceptions_If_Asked_To_Process_What_It_Cannot()
         {
-            var sut = _fixture.Create<ServiceComposer<string>>();
+            var sut = _fixture.Create<ServiceComposer<string, bool>>();
             sut.Invoking(s => s.Process(null)).ShouldThrow<ComposableServiceNotFoundException<string>>();
         }
 
         [Fact]
         public void Calls_Process_On_Underlying_Service()
         {
-            var composableService = _fixture.Create<IComposableService<string>>();
+            var composableService = _fixture.Create<IComposableService<string, bool>>();
             var arg = _fixture.Create<string>();
-            var sut = _fixture.Create<ServiceComposer<string>>();
+            var sut = _fixture.Create<ServiceComposer<string, bool>>();
             sut.Process(arg);
             
             composableService.Received().Process(arg);
