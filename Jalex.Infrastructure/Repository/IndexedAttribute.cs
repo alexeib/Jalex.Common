@@ -2,7 +2,7 @@
 
 namespace Jalex.Infrastructure.Repository
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class IndexedAttribute : Attribute
     {
         public enum Order

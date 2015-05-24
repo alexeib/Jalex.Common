@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
@@ -47,10 +46,10 @@ namespace Jalex.Repository.Cassandra
         private void initClusteredIndices(IEnumerable<PropertyInfo> classProps)
         {
             var indexedPropAndAttrArr = (from prop in classProps
-                                     let indexedAttribute = (IndexedAttribute) prop.GetCustomAttributes(true).FirstOrDefault(a => a is IndexedAttribute)
-                                     where indexedAttribute != null
-                                     orderby indexedAttribute.Index
-                                     select new {PropName = prop.Name, Attribute = indexedAttribute}).ToArray();
+                                         let indexedAttribute = (IndexedAttribute) prop.GetCustomAttributes(true).FirstOrDefault(a => a is IndexedAttribute)
+                                         where indexedAttribute != null
+                                         orderby indexedAttribute.Index
+                                         select new {PropName = prop.Name, Attribute = indexedAttribute}).ToArray();
 
             _clusteredIndices = indexedPropAndAttrArr
                 .Where(c => c.Attribute.IsClustered && c.PropName != _typeDescriptor.IdPropertyName)
