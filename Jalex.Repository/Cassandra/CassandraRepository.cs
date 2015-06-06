@@ -69,10 +69,10 @@ namespace Jalex.Repository.Cassandra
             _session = new Lazy<ISession>(() =>
                                          {
                                              ensureInitialized();
-                                             var session = getCassandraSession();                                             
+                                             var session = getCassandraSession();
                                              createTableIfNotExist(session);
                                              return session;
-                                         });            
+                                         });
         }
 
         #region Implementation of IReader<out T>
@@ -159,6 +159,17 @@ namespace Jalex.Repository.Cassandra
 
             var queryCommand = table.Where(query)
                                     .Select(projection);
+            return queryCommand.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// Projects a subset of all objects in the repository
+        /// </summary>
+        public Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection)
+        {
+            var table = new Table<T>(_session.Value);
+
+            var queryCommand = table.Select(projection);
             return queryCommand.ExecuteAsync();
         }
 
@@ -351,10 +362,10 @@ namespace Jalex.Repository.Cassandra
                         var systemSession = CassandraSessionPool.GetSessionForKeyspace("system");
                         var tableRowSet =
                             systemSession.Execute(
-                                                  $"select columnfamily_name from schema_columnfamilies where keyspace_name='{session.Keyspace}' and columnfamily_name = '{typeof (T).Name.ToLowerInvariant()}'");
+                                                  $"select columnfamily_name from schema_columnfamilies where keyspace_name='{session.Keyspace}' and columnfamily_name = '{typeof(T).Name.ToLowerInvariant()}'");
                         if (!tableRowSet.Any())
                         {
-                            Debug.WriteLine("Creating table " + typeof (T));
+                            Debug.WriteLine("Creating table " + typeof(T));
                             var table = new Table<T>(session);
                             table.CreateIfNotExists();
                             _isTableCreated = true;
@@ -391,7 +402,7 @@ namespace Jalex.Repository.Cassandra
                     mapAsJson(prop, map);
                 }
             }
-            
+
             MappingConfiguration.Global.Define(map);
         }
 

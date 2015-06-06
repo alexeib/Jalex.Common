@@ -96,6 +96,19 @@ namespace Jalex.Repository.MongoDB
         }
 
         /// <summary>
+        /// Projects a subset of all objects in the repository
+        /// </summary>
+        public async Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection)
+        {
+            var collection = getMongoCollection();
+            var result = await collection.Find(new BsonDocument())
+                                         .Project(projection)
+                                         .ToListAsync()
+                                         .ConfigureAwait(false);
+            return result;
+        }
+
+        /// <summary>
         /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found
         /// </summary>
         /// <param name="query">The query that must be satisfied</param>

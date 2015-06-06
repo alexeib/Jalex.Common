@@ -14,7 +14,15 @@ namespace Jalex.Infrastructure.Repository
         /// <returns>Objects in the repository that satisfy the query</returns>
         Task<IEnumerable<T>> QueryAsync(Expression<Func<T, bool>> query);
 
+        /// <summary>
+        /// Projects a subset of an object that satisfy the given query
+        /// </summary>
         Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection, Expression<Func<T, bool>> query);
+
+        /// <summary>
+        /// Projects a subset of all objects in the repository
+        /// </summary>
+        Task<IEnumerable<TProjection>> ProjectAsync<TProjection>(Expression<Func<T, TProjection>> projection);
 
         /// <summary>
         /// Returns the first object stored in the repository that satisfies a given query, or default value for T if no such object is found

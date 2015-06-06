@@ -35,6 +35,17 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
+        public void Retrieves_Projection()
+        {
+            var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
+            createResult.All(r => r.Success).Should().BeTrue();
+
+            var retrievedTestEntitys = _queryableRepository.ProjectAsync(r => r.Name).Result.ToArray();
+
+            retrievedTestEntitys.ShouldBeEquivalentTo(_sampleTestEntitys.Select(e => e.Name));
+        }
+
+        [Fact]
         public void Retrieves_Projection_To_Same_Property()
         {
             var createResult = _queryableRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
