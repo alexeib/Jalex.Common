@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace Jalex.Infrastructure.Repository
 {
-    public interface IQueryableReader<T>
+    public interface IQueryableReader<T> : IReader<T> 
+        where T : class
     {
         /// <summary>
         /// Returns objects stored in the repository that satisfy a given query. 
