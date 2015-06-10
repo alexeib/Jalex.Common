@@ -30,7 +30,12 @@ namespace Jalex.Infrastructure.Extensions
 
         public static IDictionary<TK, TSource> ToUniqueDictionary<TK, TSource>(this IEnumerable<TSource> enumerable, Func<TSource, TK> keySelector)
         {
-            var lookup = enumerable.ToLookup(keySelector);
+            return enumerable.ToUniqueDictionary(keySelector, x => x);
+        }
+
+        public static IDictionary<TK, TV> ToUniqueDictionary<TK, TV, TSource>(this IEnumerable<TSource> enumerable, Func<TSource, TK> keySelector, Func<TSource, TV> valueSelector)
+        {
+            var lookup = enumerable.ToLookup(keySelector, valueSelector);
             return lookup.ToDictionary(items => items.Key, items => items.First());
         }
 
