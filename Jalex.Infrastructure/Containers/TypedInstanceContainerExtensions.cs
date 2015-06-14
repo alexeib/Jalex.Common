@@ -4,7 +4,7 @@ using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Infrastructure.Containers
 {
-    public static class ContainerExtensions
+    public static class TypedInstanceContainerExtensions
     {
         public static void SetMany<TKey, TInstance>(this TypedInstanceContainer<TKey, TInstance> container, IEnumerable<TInstance> instances)
             where TKey : IEquatable<TKey> 

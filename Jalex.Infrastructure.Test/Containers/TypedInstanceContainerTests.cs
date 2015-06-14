@@ -2,6 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using Jalex.Infrastructure.Containers;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
