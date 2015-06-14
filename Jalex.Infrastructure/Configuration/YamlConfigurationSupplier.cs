@@ -69,7 +69,9 @@ namespace Jalex.Infrastructure.Configuration
                     Type configType;
                     if (!configurationTypesByName.TryGetValue(configTypeName, out configType))
                     {
-                        throw new YamlConfigurationException($"Could not find type with name {configTypeName} that implements IConfiguration interface in loaded assemblies.");
+                        yamlReader.SkipThisAndNestedEvents();
+                        currScalar = yamlReader.Allow<Scalar>();
+                        continue;
                     }
 
                     var configuration = yamlDeserializer.Deserialize(yamlReader, configType) as IConfiguration;

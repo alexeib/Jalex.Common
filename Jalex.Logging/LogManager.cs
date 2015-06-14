@@ -35,10 +35,15 @@ namespace Jalex.Logging
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return DefaultLogger ?? new NLogLogger(type);
+        }
+
+        public static void Flush()
+        {
+            NLog.LogManager.Flush();
         }
     }
 }
