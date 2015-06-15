@@ -76,6 +76,10 @@
       <HintPath>..\packages\mongocsharpdriver.2.0.0\lib\net45\MongoDB.Driver.Legacy.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NSubstitute, Version=1.8.2.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\NSubstitute.1.8.2.0\lib\net45\NSubstitute.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\packages\AutoFixture.3.24.5\lib\net40\Ploeh.AutoFixture.dll</HintPath>
       <Private>True</Private>
@@ -128,6 +132,10 @@
     <ProjectReference Include="..\Jalex.Repository\Jalex.Repository.csproj">
       <Project>{4FA000E8-17BC-41BA-96CF-0EF572991A51}</Project>
       <Name>Jalex.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Jalex.TestUtils\Jalex.TestUtils.csproj">
+      <Project>{4D7290FB-0B59-4042-9748-F8ECCED81560}</Project>
+      <Name>Jalex.TestUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

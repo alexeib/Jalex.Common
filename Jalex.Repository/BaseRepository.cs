@@ -32,7 +32,7 @@ namespace Jalex.Repository
             Guard.AgainstNull(typeDescriptorProvider, "typeDescriptorProvider");
 
             _idProvider = idProvider;
-            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();            
+            _typeDescriptor = typeDescriptorProvider.GetReflectedTypeDescriptor<T>();
         }
 
         protected void ensureObjectIds(WriteMode writeMode, IEnumerable<T> objects)

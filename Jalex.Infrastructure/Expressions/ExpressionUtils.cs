@@ -112,7 +112,11 @@ namespace Jalex.Infrastructure.Expressions
 
         public static Expression<Func<T, bool>> GetExpressionForPropertyEquality<T, TVal>(TVal val, MemberExpression memberRetrievalExpression)
         {
-            var paramExpr = Expression.Parameter(typeof(T));
+            return GetExpressionForPropertyEquality<T, TVal>(val, memberRetrievalExpression, Expression.Parameter(typeof (T)));
+;        }
+
+        public static Expression<Func<T, bool>> GetExpressionForPropertyEquality<T, TVal>(TVal val, MemberExpression memberRetrievalExpression, ParameterExpression paramExpr)
+        {
             var idValueExpr = Expression.Constant(val);
             var idEqualsValueExpr = Expression.Equal(memberRetrievalExpression, idValueExpr);
             var lambda = Expression.Lambda<Func<T, bool>>(idEqualsValueExpr, paramExpr);

@@ -111,7 +111,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void DeletesEntitiesUsingQuery()
+        public virtual void DeletesEntitiesUsingQuery()
         {
             var sampleEntity = _sampleTestEntitys.First();
 

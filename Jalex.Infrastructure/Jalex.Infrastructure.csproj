@@ -90,6 +90,7 @@
     <Compile Include="Containers\WeakCollection.cs" />
     <Compile Include="Dataflow\FilterBlock.cs" />
     <Compile Include="Expressions\ExpressionNodeFinder.cs" />
+    <Compile Include="Extensions\ConcurrentBagExtensions.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
@@ -138,6 +139,9 @@
     <Compile Include="Repository\IQueryableRepository.cs" />
     <Compile Include="Repository\IReader.cs" />
     <Compile Include="Repository\ISimpleRepository.cs" />
+    <Compile Include="Repository\Messages\EntityCreated.cs" />
+    <Compile Include="Repository\Messages\EntityDeleted.cs" />
+    <Compile Include="Repository\Messages\EntityUpdated.cs" />
     <Compile Include="Repository\RepositoryConstants.cs" />
     <Compile Include="Repository\RepositoryException.cs" />
     <Compile Include="Repository\RepositoryExtensions.cs" />

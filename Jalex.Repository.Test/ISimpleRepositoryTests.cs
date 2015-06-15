@@ -41,7 +41,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void CreatesEntity()
+        public virtual void CreatesEntity()
         {
             var sampleEntity = _sampleTestEntitys.First();
 
@@ -59,7 +59,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void CreatesManyEntities()
+        public virtual void CreatesManyEntities()
         {
             var createResult = _testEntityRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Insert).Result.ToArray();
 
@@ -78,7 +78,7 @@ namespace Jalex.Repository.Test
 
 
         [Fact]
-        public void DoesNotCreateExistingEntities()
+        public virtual void DoesNotCreateExistingEntities()
         {
             var sampleEntity = _sampleTestEntitys.First();
 
@@ -92,7 +92,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void DoesNotCreateEntitiesWithDuplicateIds()
+        public virtual void DoesNotCreateEntitiesWithDuplicateIds()
         {
             Guid id = _fixture.Create<Guid>();
             var obj1 = _fixture.Create<T>();
@@ -134,7 +134,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void DeletesExistingTestEntities()
+        public virtual void DeletesExistingTestEntities()
         {
             var sampleEntity = _sampleTestEntitys.First();
 
@@ -151,7 +151,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void FailsToDeleteNonExistingEntities()
+        public virtual void FailsToDeleteNonExistingEntities()
         {
             var fakeEntityId = _fixture.Create<Guid>();
             var deleteResult = _testEntityRepository.DeleteAsync(fakeEntityId).Result;
@@ -194,7 +194,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void UpdatesExistingEntity()
+        public virtual void UpdatesExistingEntity()
         {
             var createResult = _testEntityRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
             createResult.All(r => r.Success).Should().BeTrue();
@@ -215,7 +215,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void UpdatesExistingEntityWithUpsert()
+        public virtual void UpdatesExistingEntityWithUpsert()
         {
             var createResult = _testEntityRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result;
             createResult.All(r => r.Success).Should().BeTrue();
@@ -236,7 +236,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void CreatesManyEntitiesWithUpsert()
+        public virtual void CreatesManyEntitiesWithUpsert()
         {
             var createResult = _testEntityRepository.SaveManyAsync(_sampleTestEntitys, WriteMode.Upsert).Result.ToArray();
 
@@ -254,7 +254,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void CreatesNonExistingEntitiesAndUpdatesExistingWithUpsert()
+        public virtual void CreatesNonExistingEntitiesAndUpdatesExistingWithUpsert()
         {
             var existingEntity = _sampleTestEntitys.First();
 
@@ -279,7 +279,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void InsertsNewEntityWithUpsert()
+        public virtual void InsertsNewEntityWithUpsert()
         {
             var sampleEntity = _sampleTestEntitys.First();
 
@@ -296,7 +296,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void FailsToUpdateNonExistingEntity()
+        public virtual void FailsToUpdateNonExistingEntity()
         {
             var nonexistentEntity = _fixture.Create<T>();
 
@@ -307,7 +307,7 @@ namespace Jalex.Repository.Test
         }
 
         [Fact]
-        public void FailsToUpdateEntityWithNullId()
+        public virtual void FailsToUpdateEntityWithNullId()
         {
             var invalidIdTestEntity = new T { Id = Guid.Empty };
             _testEntityRepository.Invoking(r => r.SaveAsync(invalidIdTestEntity, WriteMode.Update).Wait()).ShouldThrow<InvalidOperationException>();
