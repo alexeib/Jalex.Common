@@ -2,11 +2,14 @@
 {
     public class EntityUpdated<T>
     {
-        public T Entity { get; }
+        public T OldEntity { get; }
 
-        public EntityUpdated(T entity)
+        public T NewEntity { get; }
+
+        public EntityUpdated(T oldEntity, T newEntity)
         {
-            Entity = entity;
+            OldEntity = oldEntity;
+            NewEntity = newEntity;
         }
     }
 }

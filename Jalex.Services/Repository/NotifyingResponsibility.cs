@@ -16,6 +16,18 @@ namespace Jalex.Services.Repository
 {
     public class NotifyingResponsibility<T> : IQueryableRepository<T> where T : class
     {
+        class ChangingEntity
+        {
+            internal T Existing { get; }
+            internal T New { get; }
+
+            public ChangingEntity(T existing, T @new)
+            {
+                Existing = existing;
+                New = @new;
+            }
+        }
+
         private readonly IQueryableRepository<T> _repository;
         private readonly IMessagePipe<EntityCreated<T>> _entityCreatedPipe;
         private readonly IMessagePipe<EntityUpdated<T>> _entityUpdatedPipe;
@@ -68,7 +80,7 @@ namespace Jalex.Services.Repository
         #region Implementation of IDeleter<T>
 
         /// <summary>
-        /// Deletes an existing object
+        /// Deletes an updated object
         /// </summary>
         /// <param name="id">The id of the object to delete</param>
         /// <returns>the result of the delete operation</returns>
@@ -118,7 +130,7 @@ namespace Jalex.Services.Repository
             var objCollection = objects.ToCollection();
 
             ConcurrentBag<T> insertedEntities = new ConcurrentBag<T>();
-            ConcurrentBag<T> updatedEntities = new ConcurrentBag<T>();
+            ConcurrentBag<ChangingEntity> updatedEntities = new ConcurrentBag<ChangingEntity>();
 
             switch (writeMode)
             {
@@ -126,10 +138,12 @@ namespace Jalex.Services.Repository
                     insertedEntities.AddRange(objCollection);
                     break;
                 case WriteMode.Update:
-                    updatedEntities.AddRange(objCollection);
+                    var getExistingTasks = objCollection.Select(o => getExisting(o, c => updatedEntities.Add(c)));
+                    await Task.WhenAll(getExistingTasks)
+                              .ConfigureAwait(false);
                     break;
                 case WriteMode.Upsert:
-                    var tasks = objCollection.Select(o => addToExistingOrNonExisting(o, updatedEntities, insertedEntities));
+                    var tasks = objCollection.Select(o => getExisting(o, c => updatedEntities.Add(c), i => insertedEntities.Add(i)));
                     await Task.WhenAll(tasks)
                               .ConfigureAwait(false);
                     break;
@@ -143,8 +157,8 @@ namespace Jalex.Services.Repository
 
             var notificationTasks = insertedEntities.Where(i => successful.Contains(_typeDescriptor.GetId(i)))
                                                     .Select(i => _entityCreatedPipe.SendAsync(new EntityCreated<T>(i)))
-                                                    .Concat(updatedEntities.Where(u => successful.Contains(_typeDescriptor.GetId(u)))
-                                                                           .Select(u => _entityUpdatedPipe.SendAsync(new EntityUpdated<T>(u))));
+                                                    .Concat(updatedEntities.Where(u => successful.Contains(_typeDescriptor.GetId(u.New)))
+                                                                           .Select(u => _entityUpdatedPipe.SendAsync(new EntityUpdated<T>(u.Existing, u.New))));
 
             await Task.WhenAll(notificationTasks)
                       .ConfigureAwait(false);
@@ -153,17 +167,24 @@ namespace Jalex.Services.Repository
             return results;
         }
 
-        private async Task addToExistingOrNonExisting(T obj, ConcurrentBag<T> existing, ConcurrentBag<T> nonExisting)
+        private async Task getExisting(T obj, Action<ChangingEntity> gotExisting, Action<T> didNotGetExisting = null)
         {
             var id = _typeDescriptor.GetId(obj);
-            if (id == Guid.Empty || (await _repository.GetByIdAsync(id)
-                                                      .ConfigureAwait(false)) == null) // TODO fix for cassandra's composite keys
+            T existing = null;
+
+            if (id != Guid.Empty)
             {
-                nonExisting.Add(obj);
+                existing = await _repository.GetByIdAsync(id)  // TODO fix for cassandra's composite keys
+                                            .ConfigureAwait(false);
+            }
+
+            if (existing == null)
+            {
+                didNotGetExisting?.Invoke(obj);
             }
             else
             {
-                existing.Add(obj);
+                gotExisting(new ChangingEntity(existing, obj));
             }
         }
 
