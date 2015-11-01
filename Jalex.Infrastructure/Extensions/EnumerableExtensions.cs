@@ -22,6 +22,7 @@ namespace Jalex.Infrastructure.Extensions
             return enumerable as IReadOnlyCollection<T> ?? enumerable.ToList();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> enumerable)
         {
@@ -39,12 +40,14 @@ namespace Jalex.Infrastructure.Extensions
             return lookup.ToDictionary(items => items.Key, items => items.First());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> enumerable)
         {
             return enumerable != null && enumerable.Any();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable)
         {

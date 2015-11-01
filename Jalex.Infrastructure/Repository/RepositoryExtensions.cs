@@ -28,8 +28,8 @@ namespace Jalex.Infrastructure.Repository
         {
             var tasks = ids.Select(repository.GetByIdAsync)
                            .ToCollection();
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-            return tasks.Select(t => t.Result);
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            return results;
         }
     }
 }
