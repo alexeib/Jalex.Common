@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Cassandra;
+using Jalex.Infrastructure.Logging;
+using Jalex.Logging;
 
 namespace Jalex.Repository.Cassandra
 {
@@ -12,6 +14,8 @@ namespace Jalex.Repository.Cassandra
     /// </summary>
     internal static class CassandraSessionPool
     {
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private const string _defaultContactsSettingName = "cassandra-contacts";
 
         private static readonly ConcurrentDictionary<string, ISession> _keyspaceToSession = new ConcurrentDictionary<string, ISession>();
@@ -77,7 +81,8 @@ namespace Jalex.Repository.Cassandra
 
             if (string.IsNullOrEmpty(contactSettingsString))
             {
-                throw new InvalidOperationException("Could not retrieve list of Cassandra contacts from application settings key " + _defaultContactsSettingName);
+                _logger.Warn("Could not retrieve list of Cassandra contacts from application settings key " + _defaultContactsSettingName + ". Defaulting to localhost");
+                contactSettingsString = "localhost";
             }
 
             var contacts = contactSettingsString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);

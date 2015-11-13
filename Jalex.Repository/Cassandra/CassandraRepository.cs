@@ -337,7 +337,7 @@ namespace Jalex.Repository.Cassandra
 
         private ISession getCassandraSession()
         {
-            string keyspace = Keyspace ?? ConfigurationManager.AppSettings[_defaultKeyspaceSettingNane];
+            string keyspace = Keyspace ?? ConfigurationManager.AppSettings[_defaultKeyspaceSettingNane] ?? Environment.GetEnvironmentVariable(@"DEFAULT_CASSANDRA_KEYSPACE");
 
             if (string.IsNullOrEmpty(keyspace))
             {
