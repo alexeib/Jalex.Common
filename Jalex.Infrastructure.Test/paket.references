@@ -1,0 +1,11 @@
+AutoFixture
+EmitMapper
+FluentAssertions
+Microsoft.Tpl.Dataflow
+NSubstitute
+xunit
+xunit.abstractions
+xunit.assert
+xunit.core
+xunit.extensibility.core
+xunit.extensions

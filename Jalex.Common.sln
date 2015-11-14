@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{89020085-DF8D-47C2-929E-3EEFDEA30B02}"
+	ProjectSection(SolutionItems) = preProject
+		paket.dependencies = paket.dependencies
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Infrastructure", "Jalex.Infrastructure\Jalex.Infrastructure.csproj", "{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Logging", "Jalex.Logging\Jalex.Logging.csproj", "{2463F658-6A65-4951-B020-F7EA2E2033B6}"

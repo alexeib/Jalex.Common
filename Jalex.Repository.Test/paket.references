@@ -1,0 +1,16 @@
+AutoFixture
+EmitMapper
+FluentAssertions
+mongocsharpdriver
+MongoDB.Bson
+MongoDB.Driver
+MongoDB.Driver.Core
+NSubstitute
+Machine.Specifications
+Machine.Specifications.Should
+xunit
+xunit.abstractions
+xunit.assert
+xunit.core
+xunit.extensibility.core
+xunit.extensions

@@ -1,0 +1,10 @@
+Autofac
+CassandraCSharpDriver
+EmitMapper
+lz4net
+Magnum
+mongocsharpdriver
+MongoDB.Bson
+MongoDB.Driver
+MongoDB.Driver.Core
+Newtonsoft.Json
