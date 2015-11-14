@@ -77,6 +77,7 @@
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Caching\ICacheFactory.cs" />
     <Compile Include="Caching\ICacheStrategyConfiguration.cs" />
+    <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
     <Compile Include="Configuration\ConfigurationMissingException.cs" />
     <Compile Include="Configuration\ConfigurationProvider.cs" />
     <Compile Include="Configuration\IConfiguration.cs" />
@@ -88,7 +89,7 @@
     <Compile Include="Containers\IWeakCollection.cs" />
     <Compile Include="Containers\TypedInstanceContainer.cs" />
     <Compile Include="Containers\WeakCollection.cs" />
-    <Compile Include="Dataflow\FilterBlock.cs" />
+    <Compile Include="Concurrency\Dataflow\FilterBlock.cs" />
     <Compile Include="Expressions\ExpressionNodeFinder.cs" />
     <Compile Include="Extensions\ConcurrentBagExtensions.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />
