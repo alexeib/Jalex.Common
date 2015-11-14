@@ -1,3 +1,6 @@
+source https://api.nuget.org/v3/index.json
+source https://www.nuget.org/api/v2/
+
 nuget Nuget.CommandLine @>= 0
 nuget Autofac @= 3.5.2 framework: >= net451
 nuget AutoFixture @= 3.31.3 framework: >= net452
