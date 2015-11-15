@@ -48,6 +48,7 @@
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Caching\ICacheFactory.cs" />
     <Compile Include="Caching\ICacheStrategyConfiguration.cs" />
+    <Compile Include="Concurrency\Dataflow\EmptyBlock.cs" />
     <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
     <Compile Include="Configuration\ConfigurationMissingException.cs" />
     <Compile Include="Configuration\ConfigurationProvider.cs" />
