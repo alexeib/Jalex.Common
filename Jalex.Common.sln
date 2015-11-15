@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{89020085-DF8D-47C2-929E-3EEFDEA30B02}"
 	ProjectSection(SolutionItems) = preProject
@@ -41,6 +41,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Scripting", "Jalex.Scripting\Jalex.Scripting.csproj", "{999A108A-F632-42EB-B2EF-2228439F6450}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Scripting.Test", "Jalex.Scripting.Test\Jalex.Scripting.Test.csproj", "{58FB6CF5-BCA0-45F7-A4BE-765C2CE689E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Concurrency", "Jalex.Concurrency\Jalex.Concurrency.csproj", "{F8C54981-2F19-4461-A095-2DF6B89C5744}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Concurrency.Test", "Jalex.Concurrency.Test\Jalex.Concurrency.Test.csproj", "{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,6 +116,14 @@ Global
 		{58FB6CF5-BCA0-45F7-A4BE-765C2CE689E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58FB6CF5-BCA0-45F7-A4BE-765C2CE689E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58FB6CF5-BCA0-45F7-A4BE-765C2CE689E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8C54981-2F19-4461-A095-2DF6B89C5744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8C54981-2F19-4461-A095-2DF6B89C5744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8C54981-2F19-4461-A095-2DF6B89C5744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8C54981-2F19-4461-A095-2DF6B89C5744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -124,5 +136,6 @@ Global
 		{E3DB150F-CEA7-4BFF-A1D0-E450FB015108} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
 		{41FFAC09-EBE6-4F45-AAE8-8E269629CB38} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
 		{58FB6CF5-BCA0-45F7-A4BE-765C2CE689E8} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
+		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F} = {187A3A25-EDF2-4717-98AD-19ECDD95CD84}
 	EndGlobalSection
 EndGlobal

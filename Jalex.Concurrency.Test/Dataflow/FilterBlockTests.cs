@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks.Dataflow;
 using FluentAssertions;
-using Jalex.Infrastructure.Dataflow;
-using Jalex.Infrastructure.Extensions;
+using Jalex.Concurrency.Dataflow;
 using Ploeh.AutoFixture;
 using Xunit;
 
-namespace Jalex.Infrastructure.Test.Dataflow
+namespace Jalex.Concurrency.Test.Dataflow
 {
     public class FilterBlockTests
     {

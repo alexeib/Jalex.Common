@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Jalex.Infrastructure.Concurrency.Dataflow
+namespace Jalex.Concurrency.Dataflow
 {
     public sealed class EmptyBlock<T> : IReceivableSourceBlock<T>
     {

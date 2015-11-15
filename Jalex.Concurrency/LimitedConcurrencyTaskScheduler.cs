@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Jalex.Infrastructure.Concurrency
+namespace Jalex.Concurrency
 {
     // Provides a task scheduler that ensures a maximum concurrency level while 
     // running on top of the thread pool.

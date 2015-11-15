@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks.Dataflow;
 
-namespace Jalex.Infrastructure.Extensions
+namespace Jalex.Concurrency.Dataflow
 {
     public static class DataflowExtensions
     {

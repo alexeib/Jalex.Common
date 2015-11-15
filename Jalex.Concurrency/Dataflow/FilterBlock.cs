@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Jalex.Infrastructure.Utils;
 
-namespace Jalex.Infrastructure.Dataflow
+namespace Jalex.Concurrency.Dataflow
 {
     public class FilterBlock<T> : IPropagatorBlock<T, T>
     {
