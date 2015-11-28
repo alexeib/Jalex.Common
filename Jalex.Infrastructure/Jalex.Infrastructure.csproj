@@ -131,6 +131,7 @@
     <Compile Include="Expressions\ExpressionUtils.cs" />
     <Compile Include="Expressions\ExpressionTypeChangingVisitor.cs" />
     <Compile Include="Utils\Guard.cs" />
+    <Compile Include="Utils\ThreadsafeRandom.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>
   <ItemGroup>
