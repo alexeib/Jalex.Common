@@ -17,6 +17,8 @@ namespace Jalex.Repository.Cassandra
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private const string _defaultContactsSettingName = "cassandra-contacts";
+        private const string _defaultContactsPort = "cassandra-port";
+        private const int _defaultPort = 9042;
 
         private static readonly ConcurrentDictionary<string, ISession> _keyspaceToSession = new ConcurrentDictionary<string, ISession>();
 
@@ -51,7 +53,7 @@ namespace Jalex.Repository.Cassandra
         {
             string[] contacts = getContacts();
             Builder builder = Cluster.Builder();
-            builder.AddContactPoints(contacts);
+            builder.AddContactPoints(contacts).WithPort(getCassandraPort());
 
             Cluster cluster = builder.Build();
 
@@ -68,6 +70,16 @@ namespace Jalex.Repository.Cassandra
             }
 
             return session;
+        }
+
+        private static int getCassandraPort()
+        {
+            string contactPortString = ConfigurationManager.AppSettings[_defaultContactsPort];
+            int port;
+            if (int.TryParse(contactPortString, out port)) 
+                return port;
+            else 
+                return _defaultPort;  
         }
 
         private static string[] getContacts()
