@@ -104,6 +104,7 @@
     <Compile Include="Repository\IQueryableRepository.cs" />
     <Compile Include="Repository\IReader.cs" />
     <Compile Include="Repository\ISimpleRepository.cs" />
+    <Compile Include="Repository\IWriterWithTtl.cs" />
     <Compile Include="Repository\Messages\EntityCreated.cs" />
     <Compile Include="Repository\Messages\EntityDeleted.cs" />
     <Compile Include="Repository\Messages\EntityUpdated.cs" />

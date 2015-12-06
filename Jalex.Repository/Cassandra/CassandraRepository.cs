@@ -19,7 +19,7 @@ using Jalex.Repository.IdProviders;
 
 namespace Jalex.Repository.Cassandra
 {
-    public class CassandraRepository<T> : BaseRepository<T>, IQueryableRepository<T> where T : class
+    public class CassandraRepository<T> : BaseRepository<T>, IQueryableRepositoryWithTtl<T> where T : class
     {
         private const string _defaultKeyspaceSettingNane = "cassandra-keyspace";
 
@@ -189,16 +189,6 @@ namespace Jalex.Repository.Cassandra
 
         #region Implementation of IWriter<in T>
 
-        /// <summary>
-        /// Saves an object
-        /// </summary>
-        /// <param name="obj">object to save</param>
-        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
-        /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public async Task<OperationResult<Guid>> SaveAsync(T obj, WriteMode writeMode = WriteMode.Upsert)
-        {
-            return (await SaveManyAsync(new[] { obj }, writeMode).ConfigureAwait(false)).Single();
-        }
 
         /// <summary>
         /// Saves objects
@@ -206,7 +196,23 @@ namespace Jalex.Repository.Cassandra
         /// <param name="objects">objects to save</param>
         /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
-        public async Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode)
+        public Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode)
+        {
+            return SaveManyAsync(objects, writeMode, null);
+        }
+
+        #endregion
+
+        #region Implementation of IWriterWithTtl<in T>
+
+        /// <summary>
+        /// Saves objects
+        /// </summary>
+        /// <param name="objects">objects to save</param>
+        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
+        /// <param name="timeToLive">The lifetime of all objects to be saved before they are deleted. If null, objects never expire</param>
+        /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
+        public async Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode, TimeSpan? timeToLive)
         {
             if (objects == null) throw new ArgumentNullException(nameof(objects));
 
@@ -218,18 +224,18 @@ namespace Jalex.Repository.Cassandra
                 switch (writeMode)
                 {
                     case WriteMode.Upsert:
-                        return await insertAsync(objCollection).ConfigureAwait(false);
+                        return await insertAsync(objCollection, timeToLive).ConfigureAwait(false);
                     case WriteMode.Insert:
                         var objGroups = objCollection.GroupBy(o => _typeDescriptor.GetId(o) == Guid.Empty);
-                        var tasks = objGroups.Select(g => g.Key ? insertAsync(g.ToCollection()) : insertIfNotExistsAsync(g))
+                        var tasks = objGroups.Select(g => g.Key ? insertAsync(g.ToCollection(), timeToLive) : insertIfNotExistsAsync(g, timeToLive))
                                              .ToCollection();
                         await Task.WhenAll(tasks).ConfigureAwait(false);
                         return tasks.SelectMany(r => r.Result.ToCollection())
                                     .ToCollection();
                     case WriteMode.Update:
-                        return await updateAsync(objCollection).ConfigureAwait(false);
+                        return await updateAsync(objCollection, timeToLive).ConfigureAwait(false);
                     default:
-                        throw new ArgumentOutOfRangeException("writeMode", writeMode, "not supported");
+                        throw new ArgumentOutOfRangeException(nameof(writeMode), writeMode, "not supported");
                 }
             }
             catch (CqlArgumentException cae)
@@ -240,58 +246,66 @@ namespace Jalex.Repository.Cassandra
                                                 false,
                                                 _typeDescriptor.GetId(r),
                                                 Severity.Error,
-                                                string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
+                                                $"Failed to create {_typeDescriptor.TypeName} {r.ToString()}"))
                                     .ToArray();
             }
         }
 
-        private async Task<IEnumerable<OperationResult<Guid>>> insertAsync(IReadOnlyCollection<T> objCollection)
+        private async Task<IEnumerable<OperationResult<Guid>>> insertAsync(IReadOnlyCollection<T> objCollection, TimeSpan? timeToLive)
         {
             var table = new Table<T>(_session.Value);
-            var tasks = objCollection.Select(o => insertSingleAsync(o, table))
+            var tasks = objCollection.Select(o => insertSingleAsync(o, table, timeToLive))
                                      .ToCollection();
             await Task.WhenAll(tasks).ConfigureAwait(false);
             return tasks.Select(t => t.Result);
         }
 
-        private async Task<IEnumerable<OperationResult<Guid>>> insertIfNotExistsAsync(IEnumerable<T> objCollection)
+        private async Task<IEnumerable<OperationResult<Guid>>> insertIfNotExistsAsync(IEnumerable<T> objCollection, TimeSpan? timeToLive)
         {
             var table = new Table<T>(_session.Value);
-            var tasks = objCollection.Select(o => insertSingleIfNotExistsAsync(o, table))
+            var tasks = objCollection.Select(o => insertSingleIfNotExistsAsync(o, table, timeToLive))
                                      .ToCollection();
             await Task.WhenAll(tasks).ConfigureAwait(false);
             return tasks.Select(t => t.Result);
         }
 
-        private async Task<OperationResult<Guid>> insertSingleIfNotExistsAsync(T o, Table<T> table)
+        private async Task<OperationResult<Guid>> insertSingleIfNotExistsAsync(T o, Table<T> table, TimeSpan? timeToLive)
         {
             var id = _typeDescriptor.GetId(o);
-            var result = await table.Insert(o)
-                                    .IfNotExists()
-                                    .ExecuteAsync().ConfigureAwait(false);
+            var cmd = table.Insert(o)
+                           .IfNotExists();
+            if (timeToLive.HasValue)
+            {
+                cmd.SetTTL(Math.Max(1, (int)timeToLive.Value.TotalSeconds));
+            }
+            var result = await cmd.ExecuteAsync().ConfigureAwait(false);
             if (result.Applied) return new OperationResult<Guid>(true, id);
             return new OperationResult<Guid>(false, id, Severity.Error, "Object already exists");
         }
 
-        private async Task<OperationResult<Guid>> insertSingleAsync(T o, Table<T> table)
+        private async Task<OperationResult<Guid>> insertSingleAsync(T o, Table<T> table, TimeSpan? timeToLive)
         {
             var id = _typeDescriptor.GetId(o);
-            var result = await table.Insert(o)
-                                    .ExecuteAsync().ConfigureAwait(false);
+            var cmd = table.Insert(o);
+            if (timeToLive.HasValue)
+            {
+                cmd.SetTTL(Math.Max(1, (int)timeToLive.Value.TotalSeconds));
+            }
+            var result = await cmd.ExecuteAsync().ConfigureAwait(false);
             if (result.Info.AchievedConsistency.HasFlag(ConsistencyLevel.Any)) return new OperationResult<Guid>(true, id);
             return new OperationResult<Guid>(false, id, Severity.Error, "Object already exists");
         }
 
-        private async Task<IEnumerable<OperationResult<Guid>>> updateAsync(IReadOnlyCollection<T> objCollection)
+        private async Task<IEnumerable<OperationResult<Guid>>> updateAsync(IReadOnlyCollection<T> objCollection, TimeSpan? timeToLive)
         {
             var table = new Table<T>(_session.Value);
-            var tasks = objCollection.Select(o => updateSingleAsync(o, table))
+            var tasks = objCollection.Select(o => updateSingleAsync(o, table, timeToLive))
                                      .ToCollection();
             await Task.WhenAll(tasks).ConfigureAwait(false);
             return tasks.Select(t => t.Result);
         }
 
-        private async Task<OperationResult<Guid>> updateSingleAsync(T o, Table<T> table)
+        private async Task<OperationResult<Guid>> updateSingleAsync(T o, Table<T> table, TimeSpan? timeToLive)
         {
             var id = _typeDescriptor.GetId(o);
 
@@ -302,8 +316,13 @@ namespace Jalex.Repository.Cassandra
                 return new OperationResult<Guid>(false, id, Severity.Warning, "Entity does not exist");
             }
 
-            await table.Insert(o)
-                       .ExecuteAsync().ConfigureAwait(false);
+            var cmd = table.Insert(o);
+            if (timeToLive.HasValue)
+            {
+                cmd.SetTTL(Math.Max(1, (int)timeToLive.Value.TotalSeconds));
+            }
+
+            await cmd.ExecuteAsync().ConfigureAwait(false);
 
             return new OperationResult<Guid>(true, id);
         }

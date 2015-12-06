@@ -11,17 +11,10 @@ namespace Jalex.Repository
     public abstract class BaseRepository<T>
     {
         // ReSharper disable once StaticFieldInGenericType
-        protected static readonly ILogger _staticLogger = LogManager.GetCurrentClassLogger();
-        private ILogger _instanceLogger;
+        protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         protected readonly IReflectedTypeDescriptor<T> _typeDescriptor;
         protected readonly IIdProvider _idProvider;
-
-        public ILogger Logger
-        {
-            get { return _instanceLogger ?? _staticLogger; }
-            set { _instanceLogger = value; }
-        }
 
         protected BaseRepository(
             IIdProvider idProvider,

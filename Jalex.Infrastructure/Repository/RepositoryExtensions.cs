@@ -31,5 +31,15 @@ namespace Jalex.Infrastructure.Repository
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
             return results;
         }
+
+        public static async Task<OperationResult<Guid>> SaveAsync<T>(this IWriter<T> writer, T obj, WriteMode writeMode = WriteMode.Upsert)
+        {
+            return (await writer.SaveManyAsync(new[] { obj }, writeMode).ConfigureAwait(false)).Single();
+        }
+
+        public static async Task<OperationResult<Guid>> SaveAsync<T>(this IWriterWithTtl<T> writer, T obj, WriteMode writeMode = WriteMode.Upsert, TimeSpan? timeToLive = null)
+        {
+            return (await writer.SaveManyAsync(new[] { obj }, writeMode, timeToLive).ConfigureAwait(false)).Single();
+        }
     }
 }

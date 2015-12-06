@@ -153,7 +153,7 @@ namespace Jalex.Services.Caching
 
             if (objArr.Length != results.Length)
             {
-                throw new InvalidDataException(string.Format("repository returned {0} results when saving {1} objects", results.Length, objArr.Length));
+                throw new InvalidDataException($"repository returned {results.Length} results when saving {objArr.Length} objects");
             }
 
             for (int i = 0; i < results.Length; i++)

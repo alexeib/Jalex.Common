@@ -183,7 +183,7 @@ namespace Jalex.Repository.Memory
                                 false,
                                 id,
                                 Severity.Warning,
-                                string.Format("Failed to save {0} {1}", _typeDescriptor.TypeName, id));
+                                $"Failed to save {_typeDescriptor.TypeName} {id}");
             }
             catch (Exception e)
             {
@@ -192,7 +192,7 @@ namespace Jalex.Repository.Memory
                                 false,
                                 id,
                                 Severity.Error,
-                                string.Format("Failed to add save {0} (id={1})", _typeDescriptor.TypeName, id));
+                                $"Failed to add save {_typeDescriptor.TypeName} (id={id})");
 
             }
         }
@@ -205,7 +205,7 @@ namespace Jalex.Repository.Memory
 
                     if (id != Guid.Empty && doesObjectWithIdExist(id))
                     {
-                        string message = string.Format("{0} with id {1} already exists", _typeDescriptor.TypeName, id);
+                        string message = $"{_typeDescriptor.TypeName} with id {id} already exists";
                         failedResult = new OperationResult<Guid>(false, id, Severity.Error, message);
                         Logger.Warn(message);
                         return false;
@@ -214,7 +214,7 @@ namespace Jalex.Repository.Memory
                 case WriteMode.Update:
                     if (id == Guid.Empty || !doesObjectWithIdExist(id))
                     {
-                        string message = string.Format("{0} with id {1} does not exist", _typeDescriptor.TypeName, id);
+                        string message = $"{_typeDescriptor.TypeName} with id {id} does not exist";
                         failedResult = new OperationResult<Guid>(false, id, Severity.Error, message);
                         Logger.Warn(message);
                         return false;
@@ -224,7 +224,7 @@ namespace Jalex.Repository.Memory
                     // nothing to check
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("writeMode");
+                    throw new ArgumentOutOfRangeException(nameof(writeMode));
             }
 
             failedResult = null;

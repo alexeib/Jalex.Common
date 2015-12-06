@@ -174,17 +174,6 @@ namespace Jalex.Repository.MongoDB
         #region Implementation of IWriter<in T>
 
         /// <summary>
-        /// Saves an object
-        /// </summary>
-        /// <param name="obj">object to save</param>
-        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
-        /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public async Task<OperationResult<Guid>> SaveAsync(T obj, WriteMode writeMode)
-        {
-            return (await SaveManyAsync(new[] { obj }, writeMode).ConfigureAwait(false)).Single();
-        }
-
-        /// <summary>
         /// Saves objects
         /// </summary>
         /// <param name="objects">objects to save</param>
@@ -211,7 +200,7 @@ namespace Jalex.Repository.MongoDB
                     case WriteMode.Upsert:
                         return await updateManyAsync(objectArr, collection, true).ConfigureAwait(false);
                     default:
-                        throw new ArgumentOutOfRangeException("writeMode");
+                        throw new ArgumentOutOfRangeException(nameof(writeMode));
                 }
 
             }
@@ -228,14 +217,14 @@ namespace Jalex.Repository.MongoDB
                                             false,
                                             Guid.Empty,
                                             Severity.Error,
-                                            string.Format("Failed to create {0} {1}", _typeDescriptor.TypeName, r.ToString())))
+                                            $"Failed to create {_typeDescriptor.TypeName} {r.ToString()}"))
                                 .ToArray();
             }            
         }
 
         private async Task<IEnumerable<OperationResult<Guid>>> updateManyAsync(T[] objectArr, IMongoCollection<T> collection, bool isUpsert)
         {
-            var tasks = objectArr.Select(o => updateObject(o, collection, isUpsert))
+            var tasks = objectArr.Select(o => updateObjectAsync(o, collection, isUpsert))
                                  .ToCollection();
             await Task.WhenAll(tasks).ConfigureAwait(false);
             var results = tasks.Select(t => t.Result);
@@ -259,7 +248,7 @@ namespace Jalex.Repository.MongoDB
             return operationResult;
         }
 
-        private async Task<Tuple<ReplaceOneResult, Guid>> updateObject(T o, IMongoCollection<T> collection, bool isUpsert)
+        private async Task<Tuple<ReplaceOneResult, Guid>> updateObjectAsync(T o, IMongoCollection<T> collection, bool isUpsert)
         {
             var id = _typeDescriptor.GetId(o);
             var idEquals = Builders<T>.Filter.Eq(_typeDescriptor.IdGetterExpression, id);

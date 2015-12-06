@@ -5,7 +5,7 @@ using Jalex.Infrastructure.Objects;
 
 namespace Jalex.Infrastructure.Repository
 {
-    public interface IQueryableRepository<T> : ISimpleRepository<T>, IQueryableReader<T> 
+    public interface IQueryableRepository<T> : ISimpleRepository<T>, IQueryableReader<T>
         where T : class
     {
 
@@ -16,4 +16,9 @@ namespace Jalex.Infrastructure.Repository
         /// <returns>Whether the operation executed successfully or not</returns>
         Task<OperationResult> DeleteWhereAsync(Expression<Func<T, bool>> expression);
     }
+
+    public interface IQueryableRepositoryWithTtl<T> : IQueryableRepository<T>, IWriterWithTtl<T>
+        where T : class
+    { }
 }
+

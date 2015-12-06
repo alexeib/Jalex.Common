@@ -24,7 +24,7 @@ namespace Jalex.Repository
                 case RepositoryType.Cassandra:
                     builder.RegisterGeneric(typeof (CassandraRepository<>))
                            .Named("raw-repository", typeof (IQueryableRepository<>))
-                           .As(typeof (IReader<>), typeof (IWriter<>), typeof (IDeleter<>), typeof (ISimpleRepository<>), typeof (IQueryableRepository<>), typeof(IQueryableReader<>))
+                           .AsImplementedInterfaces()
                            .Named("repository", typeof (IReader<>))
                            .Named("repository", typeof (IWriter<>))
                            .Named("repository", typeof (IDeleter<>))
@@ -37,7 +37,7 @@ namespace Jalex.Repository
                 case RepositoryType.Mongo:
                     builder.RegisterGeneric(typeof (MongoDBRepository<>))
                            .Named("raw-repository", typeof (IQueryableRepository<>))
-                           .As(typeof (IReader<>), typeof (IWriter<>), typeof (IDeleter<>), typeof (ISimpleRepository<>), typeof (IQueryableRepository<>), typeof(IQueryableReader<>))
+                           .AsImplementedInterfaces()
                            .Named("repository", typeof (IReader<>))
                            .Named("repository", typeof (IWriter<>))
                            .Named("repository", typeof (IDeleter<>))
