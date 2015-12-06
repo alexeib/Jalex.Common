@@ -8,7 +8,7 @@ using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    public class CassandraRepositoryTests_TestObjectWithClustering : IQueryableRepositoryTests<TestObjectWithClustering>
+    public class CassandraRepositoryTests_TestObjectWithClustering : IQueryableRepositoryWithTtlTests<TestObjectWithClustering>
     {
         public CassandraRepositoryTests_TestObjectWithClustering()
             : base(createFixture())
@@ -24,12 +24,13 @@ namespace Jalex.Repository.Test
             
             fixture.Register<IIdProvider>(fixture.Create<GuidIdProvider>);
             fixture.Register<IReflectedTypeDescriptorProvider>(fixture.Create<ReflectedTypeDescriptorProvider>);
-            fixture.Register<IQueryableRepository<TestObjectWithClustering>>(() =>
+            fixture.Register<IQueryableRepositoryWithTtl<TestObjectWithClustering>>(() =>
                                                                {
                                                                    var repo = fixture.Create<CassandraRepository<TestObjectWithClustering>>();
                                                                    return repo;
                                                                });
-            fixture.Register<ISimpleRepository<TestObjectWithClustering>>(fixture.Create<IQueryableRepository<TestObjectWithClustering>>);
+            fixture.Register<IQueryableRepository<TestObjectWithClustering>>(fixture.Create<IQueryableRepositoryWithTtl<TestObjectWithClustering>>);
+            fixture.Register<ISimpleRepository<TestObjectWithClustering>>(fixture.Create<IQueryableRepositoryWithTtl<TestObjectWithClustering>>);
 
             GuidIdProvider idProvider = new GuidIdProvider();
 

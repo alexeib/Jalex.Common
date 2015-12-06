@@ -251,6 +251,20 @@ namespace Jalex.Repository.Cassandra
             }
         }
 
+        /// <summary>
+        /// Refreshes and updates time to live for a given set of ids
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="timeToLive"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<OperationResult<Guid>>> UpdateTtlAsync(IEnumerable<Guid> ids, TimeSpan? timeToLive)
+        {
+            if (ids == null) throw new ArgumentNullException(nameof(ids));
+
+            var items = await this.GetManyByIdAsync(ids);
+            return await SaveManyAsync(items, WriteMode.Update, timeToLive);
+        }
+
         private async Task<IEnumerable<OperationResult<Guid>>> insertAsync(IReadOnlyCollection<T> objCollection, TimeSpan? timeToLive)
         {
             var table = new Table<T>(_session.Value);

@@ -7,7 +7,7 @@ using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test
 {
-    public class CassandraRepositoryTests_TestObject : IQueryableRepositoryTests<TestObject>
+    public class CassandraRepositoryTests_TestObject : IQueryableRepositoryWithTtlTests<TestObject>
     {
         public CassandraRepositoryTests_TestObject()
             : base(createFixture())
@@ -23,12 +23,13 @@ namespace Jalex.Repository.Test
             
             fixture.Register<IIdProvider>(fixture.Create<GuidIdProvider>);
             fixture.Register<IReflectedTypeDescriptorProvider>(fixture.Create<ReflectedTypeDescriptorProvider>);
-            fixture.Register<IQueryableRepository<TestObject>>(() =>
+            fixture.Register<IQueryableRepositoryWithTtl<TestObject>>(() =>
                                                                {
                                                                    var repo = fixture.Create<CassandraRepository<TestObject>>();
                                                                    return repo;
                                                                });
-            fixture.Register<ISimpleRepository<TestObject>>(fixture.Create<IQueryableRepository<TestObject>>);
+            fixture.Register<IQueryableRepository<TestObject>>(fixture.Create<IQueryableRepositoryWithTtl<TestObject>>);
+            fixture.Register<ISimpleRepository<TestObject>>(fixture.Create<IQueryableRepositoryWithTtl<TestObject>>);
 
             GuidIdProvider idProvider = new GuidIdProvider();
 

@@ -49,6 +49,7 @@
     <Compile Include="FileRepositorySpecs.cs" />
     <Compile Include="IQueryableRepositoryTests.cs" />
     <Compile Include="ISimpleRepositoryTests.cs" />
+    <Compile Include="IQueryableRepositoryWithTtlTests.cs" />
     <Compile Include="MemoryRepositoryTests.cs" />
     <Compile Include="MongoDBRepositoryTests.cs" />
     <Compile Include="Objects\IObjectWithIdAndName.cs" />

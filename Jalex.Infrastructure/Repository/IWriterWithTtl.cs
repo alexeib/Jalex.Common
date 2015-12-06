@@ -15,5 +15,10 @@ namespace Jalex.Infrastructure.Repository
         /// <param name="timeToLive">The lifetime of all objects to be saved before they are deleted. If null, objects never expire</param>
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
         Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode, TimeSpan? timeToLive);
+
+        /// <summary>
+        /// Refreshes and updates time to live for a given set of ids
+        /// </summary>
+        Task<IEnumerable<OperationResult<Guid>>> UpdateTtlAsync(IEnumerable<Guid> ids, TimeSpan? timeToLive);
     }
 }
