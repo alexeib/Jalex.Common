@@ -11,16 +11,6 @@ namespace Jalex.Caching.NoOp
             return new NoOpCache<TKey, TItem>();
         }
 
-        public IEnumerable<string> GetCacheNames()
-        {
-            yield break;
-        }
-
-        public CacheCapabilities GetCapabilities()
-        {
-            return CacheCapabilities.None;
-        }
-
         public void Dispose()
         {
         }

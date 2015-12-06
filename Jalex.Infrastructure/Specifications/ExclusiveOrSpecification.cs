@@ -1,4 +1,5 @@
-﻿using Jalex.Infrastructure.Utils;
+﻿using System;
+using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Infrastructure.Specifications
 {
@@ -9,8 +10,8 @@ namespace Jalex.Infrastructure.Specifications
 
         public ExclusiveOrSpecification(ISpecification<T> first, ISpecification<T> second)
         {
-            Guard.AgainstNull(first, "first");
-            Guard.AgainstNull(second, "second");
+            if (first == null) throw new ArgumentNullException(nameof(first));
+            if (second == null) throw new ArgumentNullException(nameof(second));
 
             _first = first;
             _second = second;

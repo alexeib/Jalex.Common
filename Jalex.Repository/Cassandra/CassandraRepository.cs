@@ -15,7 +15,6 @@ using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Utils;
 using Jalex.Repository.IdProviders;
 
 namespace Jalex.Repository.Cassandra
@@ -118,7 +117,7 @@ namespace Jalex.Repository.Cassandra
             }
             catch (CqlArgumentException cae)
             {
-                Logger.ErrorException(cae, "Error when deleting " + _typeDescriptor.TypeName);
+                Logger.Error(cae, "Error when deleting " + _typeDescriptor.TypeName);
                 return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} {1}", _typeDescriptor.TypeName, id));
             }
         }
@@ -136,7 +135,7 @@ namespace Jalex.Repository.Cassandra
             }
             catch (CqlArgumentException cae)
             {
-                Logger.ErrorException(cae, "Error when deleting " + _typeDescriptor.TypeName);
+                Logger.Error(cae, "Error when deleting " + _typeDescriptor.TypeName);
                 return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} by expression {1}", _typeDescriptor.TypeName, expression));
             }
         }
@@ -209,7 +208,7 @@ namespace Jalex.Repository.Cassandra
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
         public async Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode)
         {
-            Guard.AgainstNull(objects, "objects");
+            if (objects == null) throw new ArgumentNullException(nameof(objects));
 
             var objCollection = objects.ToCollection();
             ensureObjectIds(writeMode, objCollection);
@@ -235,7 +234,7 @@ namespace Jalex.Repository.Cassandra
             }
             catch (CqlArgumentException cae)
             {
-                Logger.ErrorException(cae, "Error when saving " + _typeDescriptor.TypeName);
+                Logger.Error(cae, "Error when saving " + _typeDescriptor.TypeName);
                 return objCollection.Select(r =>
                                             new OperationResult<Guid>(
                                                 false,

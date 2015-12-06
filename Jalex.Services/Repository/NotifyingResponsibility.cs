@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Jalex.Infrastructure.Extensions;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Messaging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
@@ -186,16 +185,6 @@ namespace Jalex.Services.Repository
             {
                 gotExisting(new ChangingEntity(existing, obj));
             }
-        }
-
-        #endregion
-
-        #region Implementation of IInjectableLogger
-
-        public ILogger Logger
-        {
-            get { return _repository.Logger; }
-            set { _repository.Logger = value; }
         }
 
         #endregion

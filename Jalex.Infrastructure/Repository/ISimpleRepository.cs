@@ -1,8 +1,6 @@
-﻿using Jalex.Infrastructure.Logging;
-
-namespace Jalex.Infrastructure.Repository
+﻿namespace Jalex.Infrastructure.Repository
 {
-    public interface ISimpleRepository<T> : IReader<T>, IDeleter<T>, IWriter<T>, IInjectableLogger
+    public interface ISimpleRepository<T> : IReader<T>, IDeleter<T>, IWriter<T>
         where T: class
     {
     }

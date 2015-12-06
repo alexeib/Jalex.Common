@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Cassandra;
-using Jalex.Infrastructure.Logging;
-using Jalex.Logging;
+using NLog;
 
 namespace Jalex.Repository.Cassandra
 {

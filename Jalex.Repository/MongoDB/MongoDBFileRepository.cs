@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
+using NLog;
 
 namespace Jalex.Repository.MongoDB
 {
@@ -41,7 +40,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (Exception wce)
             {
-                _logger.ErrorException(wce, "Error when creating file " + fileName);
+                _logger.Error(wce, "Error when creating file " + fileName);
                 return new OperationResult<string>
                 {
                     Success = false,

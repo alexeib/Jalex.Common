@@ -1,4 +1,4 @@
-﻿using Jalex.Infrastructure.Utils;
+﻿using System;
 
 namespace Jalex.Infrastructure.Specifications
 {
@@ -8,7 +8,7 @@ namespace Jalex.Infrastructure.Specifications
 
         public NotSpecification(ISpecification<T> original)
         {
-            Guard.AgainstNull(original, "original");
+            if (original == null) throw new ArgumentNullException(nameof(original));
             _original = original;
         }
 

@@ -59,10 +59,6 @@
       <Project>{c9c758b9-bd02-46fa-a382-c4c7bc0e8c69}</Project>
       <Name>Jalex.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Jalex.Logging\Jalex.Logging.csproj">
-      <Project>{2463f658-6a65-4951-b020-f7ea2e2033b6}</Project>
-      <Name>Jalex.Logging</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Jalex.Repository\Jalex.Repository.csproj">
       <Project>{4fa000e8-17bc-41ba-96cf-0ef572991a51}</Project>
       <Name>Jalex.Repository</Name>

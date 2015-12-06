@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
@@ -15,8 +16,7 @@ namespace Jalex.Repository.Cassandra
         
         public CassandraHelper(IReflectedTypeDescriptor reflectedTypeDescriptor)
         {
-            Guard.AgainstNull(reflectedTypeDescriptor, "reflectedTypeDescriptor");
-
+            if (reflectedTypeDescriptor == null) throw new ArgumentNullException(nameof(reflectedTypeDescriptor));
             _typeDescriptor = reflectedTypeDescriptor;
             initClusteredIndices(_typeDescriptor.Properties);
         }

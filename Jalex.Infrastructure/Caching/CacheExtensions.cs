@@ -11,15 +11,9 @@ namespace Jalex.Infrastructure.Caching
     public static class CacheExtensions
     {
         /// <summary>
-        /// Gets the value out of the cache or stores one produced by the supplied function and returns it.
+        /// Gets an object from cache or puts it there if it doesnt exist
         /// </summary>
-        /// <typeparam name="TItem"></typeparam>
-        /// <typeparam name="TKey"></typeparam>
-        /// <param name="cache"></param>
-        /// <param name="key"></param>
-        /// <param name="ifMissing">factory callback to produce new instance if one with the specified key is missing</param>
-        /// <returns></returns>
-        public static TItem Get<TKey, TItem>(this ICache<TKey, TItem> cache, TKey key, Func<TKey, TItem> ifMissing)
+        public static TItem GetOrAdd<TKey, TItem>(this ICache<TKey, TItem> cache, TKey key, Func<TKey, TItem> ifMissing)
         {
             Guard.AgainstNull(cache, "cache");
             Guard.AgainstNull(ifMissing, "ifMissing");

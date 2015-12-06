@@ -71,7 +71,6 @@
     <Compile Include="Serialization\CustomTypeNameBinderTests.cs" />
     <Compile Include="ServiceComposition\ServiceComposerTests.cs" />
     <Compile Include="Specifications\SpecificationsTests.cs" />
-    <Compile Include="Utils\CollectionUtilsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

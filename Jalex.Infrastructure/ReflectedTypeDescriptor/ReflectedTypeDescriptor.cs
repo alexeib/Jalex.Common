@@ -48,7 +48,6 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 
         public Guid GetId(T target)
         {
-            Guard.AgainstNull(target, "target");
             return _idGetter(target);
         }
 
@@ -64,9 +63,6 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
 
         public object GetPropertyValue(string propertyName, T obj)
         {
-            Guard.AgainstNull(propertyName, "propertyName");
-            Guard.AgainstNull(propertyName, "obj");
-
             var propGetter = _propNameToGetter.GetOrAdd(propertyName, createGetter);
             var val = propGetter(obj);
             return val;

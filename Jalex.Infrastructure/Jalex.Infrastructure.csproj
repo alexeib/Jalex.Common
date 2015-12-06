@@ -43,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Caching\CacheCapabilities.cs" />
     <Compile Include="Caching\CacheExtensions.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Caching\ICacheFactory.cs" />
@@ -74,9 +73,6 @@
     <Compile Include="IO\HttpFileLoader.cs" />
     <Compile Include="IO\IFileLoader.cs" />
     <Compile Include="IO\LocalFileLoader.cs" />
-    <Compile Include="Logging\IInjectableLogger.cs" />
-    <Compile Include="Logging\ILogger.cs" />
-    <Compile Include="Logging\LoggerExtensions.cs" />
     <Compile Include="Messaging\IMessageConsumer.cs" />
     <Compile Include="Messaging\IMessagePipe.cs" />
     <Compile Include="Messaging\MessagePipe.cs" />
@@ -127,10 +123,8 @@
     <Compile Include="Specifications\OrSpecification.cs" />
     <Compile Include="Specifications\PredicateSpecification.cs" />
     <Compile Include="Specifications\SpecificationExtensions.cs" />
-    <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Expressions\ExpressionUtils.cs" />
     <Compile Include="Expressions\ExpressionTypeChangingVisitor.cs" />
-    <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ThreadsafeRandom.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>

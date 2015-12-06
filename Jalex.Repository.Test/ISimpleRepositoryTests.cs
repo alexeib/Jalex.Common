@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging.Loggers;
 using Jalex.Repository.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -19,16 +17,12 @@ namespace Jalex.Repository.Test
         protected readonly IFixture _fixture;
         private readonly ISimpleRepository<T> _testEntityRepository;
         protected readonly IEnumerable<T> _sampleTestEntitys;
-        private readonly MemoryLogger _logger;
 
         protected ISimpleRepositoryTests(
             IFixture fixture)
         {
             _fixture = fixture;
 
-            _logger = new MemoryLogger();
-
-            _fixture.Inject<ILogger>(_logger);
             _testEntityRepository = _fixture.Create<ISimpleRepository<T>>();
 
             _sampleTestEntitys = _fixture.CreateMany<T>().ToList();
@@ -37,7 +31,6 @@ namespace Jalex.Repository.Test
         public virtual void Dispose()
         {
             _testEntityRepository.DeleteManyAsync(_sampleTestEntitys.Select(r => r.Id)).Wait();
-            _logger.Clear();
         }
 
         [Fact]

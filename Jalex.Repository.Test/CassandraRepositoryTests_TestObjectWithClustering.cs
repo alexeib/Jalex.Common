@@ -1,5 +1,4 @@
 ﻿using System;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
@@ -28,7 +27,6 @@ namespace Jalex.Repository.Test
             fixture.Register<IQueryableRepository<TestObjectWithClustering>>(() =>
                                                                {
                                                                    var repo = fixture.Create<CassandraRepository<TestObjectWithClustering>>();
-                                                                   repo.Logger = fixture.Create<ILogger>();
                                                                    return repo;
                                                                });
             fixture.Register<ISimpleRepository<TestObjectWithClustering>>(fixture.Create<IQueryableRepository<TestObjectWithClustering>>);

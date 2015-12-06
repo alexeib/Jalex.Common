@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Concurrency.Dataflow
 {
@@ -12,8 +11,7 @@ namespace Jalex.Concurrency.Dataflow
 
         public FilterBlock(Func<T, bool> predicate)
         {
-            Guard.AgainstNull(predicate, "predicate");
-
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
             _predicate = predicate;
             _bufferBlock = new BufferBlock<T>();
         }

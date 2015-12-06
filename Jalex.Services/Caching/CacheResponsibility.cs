@@ -5,12 +5,11 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Jalex.Infrastructure.Caching;
 using Jalex.Infrastructure.Extensions;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging;
 using Magnum;
+using NLog;
 
 namespace Jalex.Services.Caching
 {

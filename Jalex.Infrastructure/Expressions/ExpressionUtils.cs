@@ -59,7 +59,7 @@ namespace Jalex.Infrastructure.Expressions
 
         public static object GetExpressionValue(Expression expression)
         {
-            Guard.AgainstNull(expression, "expression");
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             var ce = expression as ConstantExpression;
             if (ce != null)

@@ -1,5 +1,4 @@
 ﻿using System;
-using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Infrastructure.Serialization
 {
@@ -13,7 +12,7 @@ namespace Jalex.Infrastructure.Serialization
 
         public CustomTypeNameAttribute(string customTypeName)
         {
-            Guard.AgainstNull(customTypeName, "customTypeName");
+            if (customTypeName == null) throw new ArgumentNullException(nameof(customTypeName));
             CustomTypeName = customTypeName;
         }
     }

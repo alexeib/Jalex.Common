@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using EmitMapper;
 using Jalex.Infrastructure.Expressions;
 using Jalex.Infrastructure.Extensions;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
@@ -81,16 +80,6 @@ namespace Jalex.Services.Repository
 
             var result = _entityRepository.DeleteWhereAsync(entityQuery);
             return result;
-        }
-
-        #endregion
-
-        #region Implementation of IInjectableLogger
-
-        public ILogger Logger
-        {
-            get { return _entityRepository.Logger; }
-            set { _entityRepository.Logger = value; }
         }
 
         #endregion

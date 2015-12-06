@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Jalex.Infrastructure.Serialization;
-using Jalex.Infrastructure.Utils;
+using Magnum;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -50,8 +50,8 @@ namespace Jalex.Infrastructure.Containers
         /// <param name="serializedState">String representation of data to initialize the container. Null or empty string means empty container.</param>
         public TypedInstanceContainer(Func<TInstance, TKey> getKey, TKey defaultKey, string serializedState)
         {
-            Guard.AgainstNull(getKey, "getKey");
-            Guard.AgainstNull(defaultKey, "defaultKey");
+            if (getKey == null) throw new ArgumentNullException(nameof(getKey));
+            if (defaultKey == null) throw new ArgumentNullException(nameof(defaultKey));
 
             _getKey = getKey;
             _defaultKey = defaultKey;
@@ -79,7 +79,7 @@ namespace Jalex.Infrastructure.Containers
         /// <returns>The instance with the specified key or null</returns>
         public T Get<T>(TKey key) where T : class, TInstance
         {
-            Guard.AgainstNull(key, "key");
+            if (key == null) throw new ArgumentNullException(nameof(key));
 
             var instanceType = typeof(T);
             ConcurrentDictionary<TKey, TInstance> instancesByKey;
@@ -122,7 +122,7 @@ namespace Jalex.Infrastructure.Containers
         /// <param name="instance">The instance to add or replace</param>
         public void SetDefault(TInstance instance)
         {
-            Guard.AgainstNull(instance, "instance");
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
 
             var instanceType = instance.GetType();
             var key = _defaultKey;
@@ -155,7 +155,7 @@ namespace Jalex.Infrastructure.Containers
         /// <returns>Whether anything was removed</returns>
         public bool Remove<T>(TKey key) where T : class, TInstance
         {
-            Guard.AgainstNull(key, "key");
+            if (key == null) throw new ArgumentNullException(nameof(key));
 
             var instanceType = typeof(T);
             ConcurrentDictionary<TKey, TInstance> instancesByKey;

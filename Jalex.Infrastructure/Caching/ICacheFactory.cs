@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Jalex.Infrastructure.Caching
 {
@@ -10,17 +9,5 @@ namespace Jalex.Infrastructure.Caching
         /// </summary>
         // ReSharper disable once IdentifierTypo
         ICache<TKey, TItem> Create<TKey, TItem>(Action<ICacheStrategyConfiguration> configure);
-
-        /// <summary>
-        ///     Obtain list of available named caches.
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<string> GetCacheNames();
-
-        /// <summary>
-        ///     Obtain cache capabilities.
-        /// </summary>
-        /// <returns></returns>
-        CacheCapabilities GetCapabilities();
     }
 }

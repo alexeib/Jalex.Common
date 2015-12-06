@@ -140,7 +140,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (MongoWriteConcernException wce)
             {
-                Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
+                Logger.Error(wce, "Error when deleting " + _typeDescriptor.TypeName);
                 return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} with id {1}", _typeDescriptor.TypeName, id));
             }
         }
@@ -166,7 +166,7 @@ namespace Jalex.Repository.MongoDB
             }
             catch (MongoWriteConcernException wce)
             {
-                Logger.ErrorException(wce, "Error when deleting " + _typeDescriptor.TypeName);
+                Logger.Error(wce, "Error when deleting " + _typeDescriptor.TypeName);
                 return new OperationResult(false, Severity.Error, string.Format("Failed to delete {0} using expression {1}", _typeDescriptor.TypeName, expression));
             }
         }
@@ -217,12 +217,12 @@ namespace Jalex.Repository.MongoDB
             }
             catch (FormatException fe)
             {
-                Logger.ErrorException(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
+                Logger.Error(fe, "Formatting error when creating " + _typeDescriptor.TypeName);
                 throw new IdFormatException(fe.Message);
             }
             catch (MongoBulkWriteException wce)
             {
-                Logger.ErrorException(wce, "Error when creating " + _typeDescriptor.TypeName);
+                Logger.Error(wce, "Error when creating " + _typeDescriptor.TypeName);
                 return objectArr.Select(r =>
                                         new OperationResult<Guid>(
                                             false,

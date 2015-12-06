@@ -8,3 +8,4 @@ MongoDB.Bson
 MongoDB.Driver
 MongoDB.Driver.Core
 Newtonsoft.Json
+NLog

@@ -54,10 +54,6 @@
       <Project>{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}</Project>
       <Name>Jalex.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Jalex.Logging\Jalex.Logging.csproj">
-      <Project>{2463F658-6A65-4951-B020-F7EA2E2033B6}</Project>
-      <Name>Jalex.Logging</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -164,6 +160,17 @@
       <ItemGroup>
         <Reference Include="Newtonsoft.Json">
           <HintPath>..\packages\Newtonsoft.Json\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="NLog">
+          <HintPath>..\packages\NLog\lib\net45\NLog.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

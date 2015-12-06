@@ -3,8 +3,6 @@ using System.IO;
 using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging;
-using Jalex.Logging.Loggers;
 using Jalex.Repository.MongoDB;
 using Machine.Specifications;
 
@@ -15,12 +13,9 @@ namespace Jalex.Repository.Test
     {
         protected static IFileRepository _fileRepository;
         protected static string _testFileName;
-        protected static MemoryLogger _logger = new MemoryLogger();
 
         Establish context = () =>
         {
-            LogManager.DefaultLogger = _logger;
-
             _fileRepository = new MongoDBFileRepository
             {
                 ConnectionString = ConfigurationManager.ConnectionStrings["MongoConnectionString"].ConnectionString,
@@ -33,7 +28,6 @@ namespace Jalex.Repository.Test
         private Cleanup after = () =>
         {
             _fileRepository.DeleteByFileName(_testFileName);
-            _logger.Clear();
         };
     }
 
@@ -91,7 +85,6 @@ namespace Jalex.Repository.Test
         It should_not_be_successful = () => _result.Success.ShouldBeFalse();
         It should_have_messages = () => _result.Messages.ShouldNotBeEmpty();
         It should_not_have_a_valid_id = () => _result.Value.ShouldBeNull();
-        It should_have_logged_errors = () => _logger.Logs.ShouldNotBeEmpty();
 
         Cleanup after = () => _streamToSave.Dispose();
     }

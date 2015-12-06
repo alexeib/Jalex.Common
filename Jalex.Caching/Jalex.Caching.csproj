@@ -57,10 +57,6 @@
       <Project>{C9C758B9-BD02-46FA-A382-C4C7BC0E8C69}</Project>
       <Name>Jalex.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Jalex.Logging\Jalex.Logging.csproj">
-      <Project>{2463F658-6A65-4951-B020-F7EA2E2033B6}</Project>
-      <Name>Jalex.Logging</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

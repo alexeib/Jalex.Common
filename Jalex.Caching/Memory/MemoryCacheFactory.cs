@@ -36,16 +36,6 @@ namespace Jalex.Caching.Memory
             return (MemoryCache<TKey, TEntity>)_caches.GetOrAdd(key, new MemoryCache<TKey, TEntity>());
         }        
 
-        public IEnumerable<string> GetCacheNames()
-        {
-            return _caches.Keys;
-        }
-
-        public CacheCapabilities GetCapabilities()
-        {
-            return CacheCapabilities.InProcess;
-        }
-
         public virtual void Dispose()
         {
             if (!_isDisposed)

@@ -26,7 +26,7 @@ namespace Jalex.Infrastructure.Extensions
         #region Public Methods and Operators
 
         /// <summary>
-        ///     Deserializes a given json string to an object of type T
+        /// Deserializes a given json string to an object of type T
         /// </summary>
         /// <typeparam name="T">The type to deserialize to</typeparam>
         /// <param name="jsonString">The json string</param>
@@ -47,7 +47,7 @@ namespace Jalex.Infrastructure.Extensions
         }
 
         /// <summary>
-        ///     Deserializes a given json string to an object of type T
+        /// Deserializes a given json string to an object of type T
         /// </summary>
         /// <param name="jsonString">The json string</param>
         /// <param name="type">The type to deserialize to</param>
@@ -59,7 +59,7 @@ namespace Jalex.Infrastructure.Extensions
         }
 
         /// <summary>
-        ///     Serializes the given object to Json
+        /// Serializes the given object to Json
         /// </summary>
         /// <param name="obj">The object to serialize</param>
         /// <returns>Json representation of the object</returns>

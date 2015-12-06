@@ -4,10 +4,8 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using Jalex.Caching.Memory;
 using Jalex.Infrastructure.Caching;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging.Loggers;
 using Jalex.Repository.IdProviders;
 using Jalex.Repository.Memory;
 using Jalex.Services.Caching;
@@ -27,7 +25,6 @@ namespace Jalex.Services.Test.Caching
             _fixture = new Fixture();            
 
             _fixture.Register(() => _fixture.Build<TestEntity>().With(e => e.Id, Guid.NewGuid()).Create());
-            _fixture.Register<ILogger>(_fixture.Create<MemoryLogger>);
             _fixture.Register<IIdProvider>(_fixture.Create<GuidIdProvider>);
             _fixture.Register<IReflectedTypeDescriptorProvider>(_fixture.Create<ReflectedTypeDescriptorProvider>);
             _fixture.Register<IQueryableRepository<TestEntity>>(_fixture.Create<MemoryRepository<TestEntity>>);

@@ -9,7 +9,7 @@ namespace Jalex.Infrastructure.Extensions
         public static Type GetNullableUnderlyingType(this Type t)
         {
             if (t != null && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)) return Nullable.GetUnderlyingType(t);
-            else return t;
+            return t;
         }
 
         public static bool IsNullable(this Type t)

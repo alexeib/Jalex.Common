@@ -11,7 +11,7 @@ namespace Jalex.Infrastructure.Extensions
 
         public static MemberInfo GetMemberInfo<T, TValue>(this Expression<Func<T, TValue>> property)
         {
-            Guard.AgainstNull(property, "property");
+            if (property == null) throw new ArgumentNullException(nameof(property));
 
             // current expression should be MemberExpression in general case
             Expression currentExpression = property.Body;

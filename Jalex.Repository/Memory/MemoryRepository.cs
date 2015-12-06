@@ -8,7 +8,6 @@ using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Utils;
 using Jalex.Repository.IdProviders;
 
 namespace Jalex.Repository.Memory
@@ -129,8 +128,7 @@ namespace Jalex.Repository.Memory
         /// <returns>Operation result with ids of the new objects in order of the objects given to this function</returns>
         public Task<IEnumerable<OperationResult<Guid>>> SaveManyAsync(IEnumerable<T> objects, WriteMode writeMode)
         {
-            Guard.AgainstNull(objects, "objects");
-
+            if (objects == null) throw new ArgumentNullException(nameof(objects));
             var objectArr = objects as T[] ?? objects.ToArray();
             var results = createResults(
                 writeMode, objectArr,
@@ -189,7 +187,7 @@ namespace Jalex.Repository.Memory
             }
             catch (Exception e)
             {
-                Logger.ErrorException(e, "Failed to save (mode={0}) {1} (id={2})", writeMode, _typeDescriptor.TypeName, id);
+                Logger.Error(e, "Failed to save (mode={0}) {1} (id={2})", writeMode, _typeDescriptor.TypeName, id);
                 return new OperationResult<Guid>(
                                 false,
                                 id,

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Jalex.Infrastructure.Utils;
 
@@ -13,7 +14,7 @@ namespace Jalex.Infrastructure.ServiceComposition
 
         public ServiceComposer(IEnumerable<IComposableService<T, TRet>> composableServices)
         {
-            Guard.AgainstNull(composableServices, "composableServices");
+            if (composableServices == null) throw new ArgumentNullException(nameof(composableServices));
             _composableServices = composableServices;
         }
 

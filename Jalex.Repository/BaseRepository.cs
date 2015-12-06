@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using Jalex.Infrastructure.Logging;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Logging;
 using Jalex.Repository.IdProviders;
 using Magnum;
+using NLog;
 
 namespace Jalex.Repository
 {
     public abstract class BaseRepository<T>
     {
         // ReSharper disable once StaticFieldInGenericType
-        private static readonly ILogger _staticLogger = LogManager.GetCurrentClassLogger();
+        protected static readonly ILogger _staticLogger = LogManager.GetCurrentClassLogger();
         private ILogger _instanceLogger;
 
         protected readonly IReflectedTypeDescriptor<T> _typeDescriptor;
