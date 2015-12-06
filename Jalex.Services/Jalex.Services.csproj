@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logging\TimedLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Caching\CacheResponsibility.cs" />
     <Compile Include="Repository\MappingResponsibility.cs" />
