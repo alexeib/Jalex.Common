@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cassandra.Mapping.TypeConversion;
+using Jalex.Infrastructure.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -8,6 +9,8 @@ namespace Jalex.Repository.Cassandra
 {
     public class ComplexTypeConverter : TypeConverter
     {
+        private readonly JsonMissingTypeObjectRemover _jsonMissingTypeObjectRemover = new JsonMissingTypeObjectRemover();
+
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
                                                                              {
                                                                                  DateFormatHandling = DateFormatHandling.IsoDateFormat,
@@ -20,7 +23,7 @@ namespace Jalex.Repository.Cassandra
                                                                                                   new StringEnumConverter()
                                                                                               }
                                                                              };
-    #region Overrides of TypeConverter
+        #region Overrides of TypeConverter
 
         /// <summary>
         /// Gets any user defined conversion functions that can convert a value of type <typeparamref name="TDatabase"/> (coming from Cassandra) to a
@@ -32,11 +35,16 @@ namespace Jalex.Repository.Cassandra
         /// </returns>
         protected override Func<TDatabase, TPoco> GetUserDefinedFromDbConverter<TDatabase, TPoco>()
         {
-            if (typeof (TDatabase) != typeof (string))
+            if (typeof(TDatabase) != typeof(string))
             {
                 return null;
             }
-            return dbObj => JsonConvert.DeserializeObject<ComplexTypeContainer<TPoco>>(dbObj as string, _serializerSettings).Object;
+            return dbObj =>
+                   {
+                       var objStr = _jsonMissingTypeObjectRemover.RemoveMissingTypesFromJsonString(dbObj as string);
+                       return JsonConvert.DeserializeObject<ComplexTypeContainer<TPoco>>(objStr, _serializerSettings)
+                                         .Object;
+                   };
         }
 
         /// <summary>
@@ -50,7 +58,7 @@ namespace Jalex.Repository.Cassandra
         /// </returns>
         protected override Func<TPoco, TDatabase> GetUserDefinedToDbConverter<TPoco, TDatabase>()
         {
-            if (typeof (TDatabase) != typeof (string))
+            if (typeof(TDatabase) != typeof(string))
             {
                 return null;
             }
@@ -62,6 +70,6 @@ namespace Jalex.Repository.Cassandra
                                                                            _serializerSettings);
         }
 
-        #endregion
+        #endregion        
     }
 }

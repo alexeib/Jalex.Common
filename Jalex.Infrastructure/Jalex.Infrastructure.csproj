@@ -114,6 +114,7 @@
     <Compile Include="Repository\WriteMode.cs" />
     <Compile Include="Serialization\CustomTypeNameAttribute.cs" />
     <Compile Include="Serialization\CustomTypeNameBinder.cs" />
+    <Compile Include="Serialization\JsonMissingTypeObjectRemover.cs" />
     <Compile Include="ServiceComposition\ComposableServiceNotFoundException.cs" />
     <Compile Include="ServiceComposition\IComposableService.cs" />
     <Compile Include="ServiceComposition\ServiceComposer.cs" />
