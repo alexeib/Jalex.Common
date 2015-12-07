@@ -56,7 +56,9 @@ namespace Jalex.Infrastructure.Configuration
             }
             catch (ReflectionTypeLoadException loadException)
             {
-                throw new AggregateException(loadException.Concat(loadException.LoaderExceptions));
+                var message = loadException.LoaderExceptions.Select(e => e.ToString())
+                                           .StringJoin("\n\n");
+                throw new AggregateException(message, loadException);
             }
 
 
