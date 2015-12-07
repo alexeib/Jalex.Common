@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Jalex.Infrastructure.Extensions;
 using Magnum.Extensions;
+using MoreLinq;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -41,13 +43,22 @@ namespace Jalex.Infrastructure.Configuration
                 yield break;
             }
 
-            var configurationTypes =
-                from a in AppDomain.CurrentDomain.GetAssemblies()
-                from t in a.GetTypes()
-                where t.IsClass && t.Implements(typeof (IConfiguration))
-                select t;
+            IDictionary<string, Type> configurationTypesByName;
 
-            var configurationTypesByName = configurationTypes.ToUniqueDictionary(t => t.Name);
+            try
+            {
+                var configurationTypes =
+                    from a in AppDomain.CurrentDomain.GetAssemblies()
+                    from t in a.GetTypes()
+                    where t.IsClass && t.Implements(typeof (IConfiguration))
+                    select t;
+                configurationTypesByName = configurationTypes.ToUniqueDictionary(t => t.Name);
+            }
+            catch (ReflectionTypeLoadException loadException)
+            {
+                throw new AggregateException(loadException.Concat(loadException.LoaderExceptions));
+            }
+
 
             var yamlDeserializer = new Deserializer();
             var fileContents = File.ReadAllText(configFileName);
