@@ -21,14 +21,7 @@ namespace Jalex.Services.Caching
         private readonly IReflectedTypeDescriptor<T> _typeDescriptor;
 
         // ReSharper disable once StaticFieldInGenericType
-        private static readonly ILogger _staticLogger = LogManager.GetCurrentClassLogger();
-        private ILogger _instanceLogger;
-
-        public ILogger Logger
-        {
-            get { return _instanceLogger ?? _staticLogger; }
-            set { _instanceLogger = value; }
-        }
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public CacheResponsibility(
             IQueryableRepository<T> repository,

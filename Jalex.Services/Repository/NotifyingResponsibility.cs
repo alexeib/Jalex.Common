@@ -137,12 +137,12 @@ namespace Jalex.Services.Repository
                     insertedEntities.AddRange(objCollection);
                     break;
                 case WriteMode.Update:
-                    var getExistingTasks = objCollection.Select(o => getExisting(o, c => updatedEntities.Add(c)));
+                    var getExistingTasks = objCollection.Select(o => getExistingAsync(o, updatedEntities.Add));
                     await Task.WhenAll(getExistingTasks)
                               .ConfigureAwait(false);
                     break;
                 case WriteMode.Upsert:
-                    var tasks = objCollection.Select(o => getExisting(o, c => updatedEntities.Add(c), i => insertedEntities.Add(i)));
+                    var tasks = objCollection.Select(o => getExistingAsync(o, updatedEntities.Add, insertedEntities.Add));
                     await Task.WhenAll(tasks)
                               .ConfigureAwait(false);
                     break;
@@ -166,7 +166,7 @@ namespace Jalex.Services.Repository
             return results;
         }
 
-        private async Task getExisting(T obj, Action<ChangingEntity> gotExisting, Action<T> didNotGetExisting = null)
+        private async Task getExistingAsync(T obj, Action<ChangingEntity> gotExisting, Action<T> didNotGetExisting = null)
         {
             var id = _typeDescriptor.GetId(obj);
             T existing = null;
