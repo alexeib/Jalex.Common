@@ -391,11 +391,9 @@ namespace Jalex.Repository.Cassandra
                 {
                     if (!_isTableCreated)
                     {
-                        var systemSession = CassandraSessionPool.GetSessionForKeyspace("system");
-                        var tableRowSet =
-                            systemSession.Execute(
-                                                  $"select columnfamily_name from schema_columnfamilies where keyspace_name='{session.Keyspace}' and columnfamily_name = '{typeof(T).Name.ToLowerInvariant()}'");
-                        if (!tableRowSet.Any())
+                        var existingTable = session.Cluster.Metadata.GetTable(session.Keyspace, typeof (T).Name.ToLowerInvariant());
+
+                        if (existingTable == null)
                         {
                             Debug.WriteLine("Creating table " + typeof(T));
                             var table = new Table<T>(session);

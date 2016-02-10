@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\packages\xunit.core\build\$(__paket__xunit_core_props).props" Condition="Exists('..\packages\xunit.core\build\$(__paket__xunit_core_props).props')" Label="Paket" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -38,6 +39,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dataflow\FilterBlockTests.cs" />
@@ -51,15 +53,8 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
       <ItemGroup>
         <Reference Include="Ploeh.AutoFixture">
           <HintPath>..\packages\AutoFixture\lib\net40\Ploeh.AutoFixture.dll</HintPath>
@@ -70,7 +65,35 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore' And $(TargetFrameworkVersion) == 'v4.5.1'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\win81\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\win81\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0')">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\net40\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\net40\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
       <ItemGroup>
         <Reference Include="FluentAssertions.Core">
           <HintPath>..\packages\FluentAssertions\lib\net45\FluentAssertions.Core.dll</HintPath>
@@ -84,9 +107,120 @@
         </Reference>
       </ItemGroup>
     </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\monoandroid\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\monotouch\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And $(TargetFrameworkVersion) == 'v5.0'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\sl5\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\sl5\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTesting.Silverlight">
+          <HintPath>..\packages\FluentAssertions\lib\sl5\Microsoft.VisualStudio.QualityTools.UnitTesting.Silverlight.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\wp8\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\wp8\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\wpa81\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\wpa81\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Xamarin.iOS'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\xamarin.ios\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkProfile) == 'Profile32'">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\portable-win81+wpa81\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\portable-win81+wpa81\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == '.NETCore' And $(TargetFrameworkVersion) == 'v4.5') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile5') Or ($(TargetFrameworkProfile) == 'Profile6') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile14') Or ($(TargetFrameworkProfile) == 'Profile19') Or ($(TargetFrameworkProfile) == 'Profile24') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile37') Or ($(TargetFrameworkProfile) == 'Profile42') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile47') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile92') Or ($(TargetFrameworkProfile) == 'Profile102') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile136') Or ($(TargetFrameworkProfile) == 'Profile147') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile158') Or ($(TargetFrameworkProfile) == 'Profile225') Or ($(TargetFrameworkProfile) == 'Profile240') Or ($(TargetFrameworkProfile) == 'Profile255') Or ($(TargetFrameworkProfile) == 'Profile259') Or ($(TargetFrameworkProfile) == 'Profile328') Or ($(TargetFrameworkProfile) == 'Profile336') Or ($(TargetFrameworkProfile) == 'Profile344')">
+      <ItemGroup>
+        <Reference Include="FluentAssertions.Core">
+          <HintPath>..\packages\FluentAssertions\lib\portable-net40+sl5+win8+wp8+wpa81\FluentAssertions.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="FluentAssertions">
+          <HintPath>..\packages\FluentAssertions\lib\portable-net40+sl5+win8+wp8+wpa81\FluentAssertions.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
+      <ItemGroup>
+        <Reference Include="System.Threading.Tasks.Dataflow">
+          <HintPath>..\packages\Microsoft.Tpl.Dataflow\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151')">
       <ItemGroup>
         <Reference Include="System.Threading.Tasks.Dataflow">
           <HintPath>..\packages\Microsoft.Tpl.Dataflow\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
@@ -120,7 +254,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')) Or ($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
       <ItemGroup>
         <Reference Include="xunit.assert">
-          <HintPath>..\packages\xunit.assert\lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.assert.dll</HintPath>
+          <HintPath>..\packages\xunit.assert\lib\portable-net45+win8+wp8+wpa81\xunit.assert.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -128,42 +262,19 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore'">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <PropertyGroup>
-        <__paket__xunit_core_props>win8\xunit.core</__paket__xunit_core_props>
-        <__paket__xunit_core_targets>win8\xunit.core</__paket__xunit_core_targets>
+        <__paket__xunit_core_props>win81\xunit.core</__paket__xunit_core_props>
       </PropertyGroup>
     </When>
-    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
       <PropertyGroup>
-        <__paket__xunit_core_props>monoandroid\xunit.core</__paket__xunit_core_props>
+        <__paket__xunit_core_props>wpa81\xunit.core</__paket__xunit_core_props>
       </PropertyGroup>
     </When>
-    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+    <When Condition="($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
       <PropertyGroup>
-        <__paket__xunit_core_props>monotouch\xunit.core</__paket__xunit_core_props>
-      </PropertyGroup>
-    </When>
-    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')">
-      <PropertyGroup>
-        <__paket__xunit_core_props>wp8\xunit.core</__paket__xunit_core_props>
-        <__paket__xunit_core_targets>wp8\xunit.core</__paket__xunit_core_targets>
-      </PropertyGroup>
-    </When>
-    <When Condition="$(TargetFrameworkIdentifier) == 'Xamarin.iOS'">
-      <PropertyGroup>
-        <__paket__xunit_core_props>Xamarin.iOS\xunit.core</__paket__xunit_core_props>
-      </PropertyGroup>
-    </When>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')) Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
-      <PropertyGroup>
-        <__paket__xunit_core_props>portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core</__paket__xunit_core_props>
-      </PropertyGroup>
-    </When>
-    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkProfile) == 'Profile32')">
-      <PropertyGroup>
-        <__paket__xunit_core_props>portable-win81+wpa81\xunit.core</__paket__xunit_core_props>
-        <__paket__xunit_core_targets>portable-win81+wpa81\xunit.core</__paket__xunit_core_targets>
+        <__paket__xunit_core_props>portable-net45+win8+wp8+wpa81\xunit.core</__paket__xunit_core_props>
       </PropertyGroup>
     </When>
   </Choose>
@@ -171,13 +282,92 @@
     <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')) Or ($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
       <ItemGroup>
         <Reference Include="xunit.core">
-          <HintPath>..\packages\xunit.extensibility.core\lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.dll</HintPath>
+          <HintPath>..\packages\xunit.extensibility.core\lib\portable-net45+win8+wp8+wpa81\xunit.core.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="..\packages\xunit.core\build\$(__paket__xunit_core_props).props" Condition="Exists('..\packages\xunit.core\build\$(__paket__xunit_core_props).props')" Label="Paket" />
-  <Import Project="..\packages\xunit.core\build\$(__paket__xunit_core_targets).targets" Condition="Exists('..\packages\xunit.core\build\$(__paket__xunit_core_targets).targets')" Label="Paket" />
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\win8\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="xunit.execution.desktop">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\net45\xunit.execution.desktop.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\monoandroid\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\monotouch\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And $(TargetFrameworkVersion) == 'v8.0'">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\wp8\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\wpa81\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Xamarin.iOS'">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\xamarinios\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
+      <ItemGroup>
+        <Reference Include="xunit.execution.dotnet">
+          <HintPath>..\packages\xunit.extensibility.execution\lib\portable-net45+win8+wp8+wpa81\xunit.execution.dotnet.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

@@ -10,6 +10,7 @@ using Jalex.Repository.IdProviders;
 using Jalex.Repository.Memory;
 using Jalex.Services.Caching;
 using Jalex.Services.Test.Fixtures;
+using NLog;
 using NSubstitute;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -28,6 +29,7 @@ namespace Jalex.Services.Test.Caching
             _fixture.Register<IIdProvider>(_fixture.Create<GuidIdProvider>);
             _fixture.Register<IReflectedTypeDescriptorProvider>(_fixture.Create<ReflectedTypeDescriptorProvider>);
             _fixture.Register<IQueryableRepository<TestEntity>>(_fixture.Create<MemoryRepository<TestEntity>>);
+            _fixture.Register(() => Substitute.For<ILogger>());
 
             registerCache();
         }
