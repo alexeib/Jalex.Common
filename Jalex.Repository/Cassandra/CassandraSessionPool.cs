@@ -52,7 +52,9 @@ namespace Jalex.Repository.Cassandra
         {
             string[] contacts = getContacts();
             Builder builder = Cluster.Builder();
-            builder.AddContactPoints(contacts).WithPort(getCassandraPort());
+
+            builder.AddContactPoints(contacts)
+                   .WithPort(getCassandraPort());
 
             Cluster cluster = builder.Build();
 
@@ -77,8 +79,7 @@ namespace Jalex.Repository.Cassandra
             int port;
             if (int.TryParse(contactPortString, out port)) 
                 return port;
-            else 
-                return _defaultPort;  
+            return _defaultPort;
         }
 
         private static string[] getContacts()
