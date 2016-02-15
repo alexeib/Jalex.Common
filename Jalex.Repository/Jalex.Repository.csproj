@@ -46,6 +46,7 @@
     <Compile Include="BaseRepository.cs" />
     <Compile Include="Cassandra\CassandraHelper.cs" />
     <Compile Include="Cassandra\CassandraRepository.cs" />
+    <Compile Include="Cassandra\CassandraRetryPolicy.cs" />
     <Compile Include="Cassandra\CassandraSessionPool.cs" />
     <Compile Include="Cassandra\CassandraSetup.cs" />
     <Compile Include="Cassandra\ComplexTypeContainer.cs" />

@@ -51,10 +51,13 @@ namespace Jalex.Repository.Cassandra
         private static ISession createSessionForKeyspace(string keyspace)
         {
             string[] contacts = getContacts();
+            var retryPolicy = new CassandraRetryPolicy(3, TimeSpan.Zero);
+
             Builder builder = Cluster.Builder();
 
             builder.AddContactPoints(contacts)
-                   .WithPort(getCassandraPort());
+                   .WithPort(getCassandraPort())
+                   .WithRetryPolicy(retryPolicy);
 
             Cluster cluster = builder.Build();
 
