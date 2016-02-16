@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Jalex.Infrastructure.Extensions;
 using Magnum.Extensions;
-using MoreLinq;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
