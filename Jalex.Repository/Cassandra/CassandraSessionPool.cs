@@ -15,6 +15,7 @@ namespace Jalex.Repository.Cassandra
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
+        private const string _defaultKeyspaceSettingName = "cassandra-keyspace";
         private const string _defaultContactsSettingName = "cassandra-contacts";
         private const string _defaultContactsPort = "cassandra-port";
         private const int _defaultPort = 9042;
@@ -23,8 +24,18 @@ namespace Jalex.Repository.Cassandra
 
         internal static IEnumerable<string> Contacts { get; set; }
 
-        internal static ISession GetSessionForKeyspace(string keyspace)
+        internal static ISession GetSession(string keyspace = null)
         {
+            if (keyspace == null)
+            {
+                keyspace = ConfigurationManager.AppSettings[_defaultKeyspaceSettingName] ?? Environment.GetEnvironmentVariable(@"DEFAULT_CASSANDRA_KEYSPACE");
+            }
+
+            if (string.IsNullOrEmpty(keyspace))
+            {
+                throw new InvalidOperationException("Must specify Cassandra keyspace by providing a value in the Keyspace property or populating the " + _defaultKeyspaceSettingName + " app setting");
+            }
+
             var session = _keyspaceToSession.GetOrAdd(keyspace, createSessionForKeyspace);
             return session;
         }

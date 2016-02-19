@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,9 +19,7 @@ using Jalex.Repository.IdProviders;
 namespace Jalex.Repository.Cassandra
 {
     public class CassandraRepository<T> : BaseRepository<T>, IQueryableRepositoryWithTtl<T> where T : class
-    {
-        private const string _defaultKeyspaceSettingNane = "cassandra-keyspace";
-
+    {        
         // ReSharper disable once StaticMemberInGenericType
         private static readonly HashSet<Type> _nativelySupportedTypes = new HashSet<Type>
                                                                         {
@@ -369,16 +366,7 @@ namespace Jalex.Repository.Cassandra
 
         private ISession getCassandraSession()
         {
-            string keyspace = Keyspace ?? ConfigurationManager.AppSettings[_defaultKeyspaceSettingNane] ?? Environment.GetEnvironmentVariable(@"DEFAULT_CASSANDRA_KEYSPACE");
-
-            if (string.IsNullOrEmpty(keyspace))
-            {
-                throw new InvalidOperationException("Must specify Cassandra keyspace by providing a value in the Keyspace property or populating the " + _defaultKeyspaceSettingNane +
-                                                    " app setting");
-            }
-
-            var session = CassandraSessionPool.GetSessionForKeyspace(keyspace);
-
+            var session = CassandraSessionPool.GetSession(Keyspace);
             return session;
         }
 

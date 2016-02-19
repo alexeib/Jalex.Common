@@ -10,12 +10,12 @@ namespace Jalex.Repository.Test
     public class CassandraRepositoryTests_TestObject : IQueryableRepositoryWithTtlTests<TestObject>
     {
         public CassandraRepositoryTests_TestObject()
-            : base(createFixture())
+            : base(CreateFixture())
         {
             
         }
 
-        private static IFixture createFixture()
+        public static IFixture CreateFixture()
         {
             IFixture fixture = new Fixture();
 

@@ -51,6 +51,7 @@
     <Compile Include="Cassandra\CassandraSetup.cs" />
     <Compile Include="Cassandra\ComplexTypeContainer.cs" />
     <Compile Include="Cassandra\ComplexTypeConverter.cs" />
+    <Compile Include="Cassandra\Migration\CassandraRegexMigrator.cs" />
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
     <Compile Include="Memory\MemoryRepository.cs" />
@@ -110,6 +111,7 @@
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5')">
       <ItemGroup>
