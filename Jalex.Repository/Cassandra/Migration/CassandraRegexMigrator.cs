@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Cassandra;
 using Jalex.Infrastructure.Repository.Migration;
 
 namespace Jalex.Repository.Cassandra.Migration
 {
-    public class CassandraRegexMigrator : IDataMigrator
+    public class CassandraRegexMigrator : ITableDataMigrator
     {
         private readonly string _pattern;
         private readonly string _replacement;
@@ -27,18 +28,22 @@ namespace Jalex.Repository.Cassandra.Migration
             _replacement = replacement;
         }
 
-        public void Migrate()
+        public async Task ExecuteAsync()
         {
             var session = CassandraSessionPool.GetSession();
-            var rowSet = session.Execute($"select * from {TargetTable}");
+
+            var statement = new SimpleStatement($"select * from {TargetTable}");
+            var rowSet = await session.ExecuteAsync(statement)
+                                      .ConfigureAwait(false);
 
             foreach (var row in rowSet)
             {
-                updateRow(session, row, rowSet.Columns);
+                await updateRowAsync(session, row, rowSet.Columns)
+                    .ConfigureAwait(false);
             }
         }
 
-        private void updateRow(ISession session, Row row, CqlColumn[] cqlColumns)
+        private async Task updateRowAsync(ISession session, Row row, CqlColumn[] cqlColumns)
         {
             List<string> columns = new List<string>();
             List<string> values = new List<string>();
@@ -65,7 +70,8 @@ namespace Jalex.Repository.Cassandra.Migration
             }
 
             var insertQuery = $"insert into {TargetTable} ( {string.Join(",", columns)} ) values ({string.Join(",", values)})";
-            session.Execute(insertQuery);
+            var statement = new SimpleStatement(insertQuery);
+            await session.ExecuteAsync(statement).ConfigureAwait(false);
         }
     }
 }

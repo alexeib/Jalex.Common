@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Jalex.Repository.Test.Migration
 {
-    public abstract class IDataMigratorTests
+    public abstract class TableDataMigratorTests
     {
         private readonly IFixture _fixture;
         private readonly string _pattern;
@@ -16,7 +16,7 @@ namespace Jalex.Repository.Test.Migration
 
         private const string _notPattern = "123";
 
-        protected IDataMigratorTests(IFixture fixture, string pattern, string replacement)
+        protected TableDataMigratorTests(IFixture fixture, string pattern, string replacement)
         {
             _fixture = fixture;
             _pattern = pattern;
@@ -53,8 +53,8 @@ namespace Jalex.Repository.Test.Migration
             {
                 await createTestObjectsAsync(repo, testObject1Id, testObject2Id);
 
-                var sut = _fixture.Create<IDataMigrator>();
-                sut.Migrate();
+                var sut = _fixture.Create<ITableDataMigrator>();
+                await sut.ExecuteAsync();
 
                 var obj1 = await repo.GetByIdAsync(testObject1Id);
                 var obj2 = await repo.GetByIdAsync(testObject2Id);

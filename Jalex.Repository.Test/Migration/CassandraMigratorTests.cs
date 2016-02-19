@@ -5,7 +5,7 @@ using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test.Migration
 {
-    public class CassandraMigratorTests : IDataMigratorTests
+    public class CassandraMigratorTests : TableDataMigratorTests
     {
         private const string _pattern = @"aaa";
         private const string _replacement = "bb";
@@ -19,7 +19,7 @@ namespace Jalex.Repository.Test.Migration
         {
             var fixture = CassandraRepositoryTests_TestObject.CreateFixture();
 
-            fixture.Register<IDataMigrator>(() => new CassandraRegexMigrator("testobject", new Version(0,1), _pattern, _replacement));
+            fixture.Register<ITableDataMigrator>(() => new CassandraRegexMigrator("testobject", new Version(0,1), _pattern, _replacement));
 
             return fixture;
         }

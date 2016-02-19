@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Jalex.Infrastructure.Repository.Migration
 {
-    public interface IDataMigrator
+    public interface ITableDataMigrator
     {
         string TargetTable { get; }
 
         Version TargetVersion { get; }
 
-        void Migrate();
+        Task ExecuteAsync();
     }
 }

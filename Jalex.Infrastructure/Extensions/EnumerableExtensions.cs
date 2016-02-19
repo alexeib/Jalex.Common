@@ -63,5 +63,11 @@ namespace Jalex.Infrastructure.Extensions
 
             return string.Join(separator, enumerable);
         }
+
+        [DebuggerStepThrough]
+        public static IEnumerable<T> ToEnumerable<T>(this T obj)
+        {
+            yield return obj;
+        }
     }
 }

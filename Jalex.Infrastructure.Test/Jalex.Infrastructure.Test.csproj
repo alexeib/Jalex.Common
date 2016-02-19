@@ -68,6 +68,7 @@
     <Compile Include="Objects\TestObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReflectedTypeDescriptor\ReflectedTypeDescriptorTests.cs" />
+    <Compile Include="Repository\Migration\RepositoryDataMigratorTests.cs" />
     <Compile Include="Serialization\CustomTypeNameBinderTests.cs" />
     <Compile Include="ServiceComposition\ServiceComposerTests.cs" />
     <Compile Include="Specifications\SpecificationsTests.cs" />

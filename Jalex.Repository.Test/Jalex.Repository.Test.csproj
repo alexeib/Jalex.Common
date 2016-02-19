@@ -52,7 +52,7 @@
     <Compile Include="IQueryableRepositoryWithTtlTests.cs" />
     <Compile Include="MemoryRepositoryTests.cs" />
     <Compile Include="Migration\CassandraMigratorTests.cs" />
-    <Compile Include="Migration\IDataMigratorTests.cs" />
+    <Compile Include="Migration\TableDataMigratorTests.cs" />
     <Compile Include="MongoDBRepositoryTests.cs" />
     <Compile Include="Objects\IObjectWithIdAndName.cs" />
     <Compile Include="Objects\TestEntity.cs" />
