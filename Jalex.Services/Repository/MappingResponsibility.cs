@@ -136,25 +136,6 @@ namespace Jalex.Services.Repository
         #region Implementation of IWriter<in TClass>
 
         /// <summary>
-        /// Saves an object
-        /// </summary>
-        /// <param name="obj">object to save</param>
-        /// <param name="writeMode">writing mode. inserting an object that exists or updating an object that does not exist will fail. Defaults to upsert</param>
-        /// <returns>Operation result with id of the new object in order of the objects given to this function</returns>
-        public virtual async Task<OperationResult<Guid>> SaveAsync(TClass obj, WriteMode writeMode)
-        {
-            var entity = _classToEntityMapper.Map(obj);
-            var result = await _entityRepository.SaveAsync(entity, writeMode).ConfigureAwait(false);
-
-            if (result.Success)
-            {
-                var classDescriptor = _reflectedTypeDescriptorProvider.GetReflectedTypeDescriptor<TClass>();
-                classDescriptor.SetId(obj, result.Value);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Saves objects
         /// </summary>
         /// <param name="objects">objects to save</param>
