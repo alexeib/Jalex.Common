@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MoreLinq">
+      <HintPath>..\packages\morelinq\lib\net35\MoreLinq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +58,7 @@
     <Compile Include="Configuration\Configuration3.cs" />
     <Compile Include="Configuration\ConfigurationProviderTests.cs" />
     <Compile Include="Configuration\YamlConfigurationSupplierTest.cs" />
+    <Compile Include="Containers\MemoryUsageTests.cs" />
     <Compile Include="Containers\TypedInstanceContainerTests.cs" />
     <Compile Include="IO\DiscriminatingFileLoaderTests.cs" />
     <Compile Include="Objects\ChildEntity.cs" />

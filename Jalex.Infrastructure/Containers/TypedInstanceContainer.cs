@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Serialization;
 using Magnum;
 using Newtonsoft.Json;
@@ -16,21 +16,21 @@ namespace Jalex.Infrastructure.Containers
     {
         private readonly Func<TInstance, TKey> _getKey;
         private readonly TKey _defaultKey;
-        private readonly ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>> _instanceDictionary;
+        private readonly ConcurrentDictionary<Tuple<Type, TKey>, TInstance> _instanceDictionary;
 
         // ReSharper disable once StaticFieldInGenericType
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
-                                            {
-                                                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                                                NullValueHandling = NullValueHandling.Ignore,
-                                                DefaultValueHandling = DefaultValueHandling.Ignore,
-                                                Converters = new List<JsonConverter>
+        {
+            DateFormatHandling = DateFormatHandling.IsoDateFormat,
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            Converters = new List<JsonConverter>
                                                 {
                                                     new StringEnumConverter()
                                                 },
-                                                TypeNameHandling = TypeNameHandling.Objects,
-                                                Binder = new CustomTypeNameBinder()
-                                            };
+            TypeNameHandling = TypeNameHandling.Objects,
+            Binder = new CustomTypeNameBinder()
+        };
 
         /// <summary>
         /// Constructor
@@ -57,8 +57,8 @@ namespace Jalex.Infrastructure.Containers
             _defaultKey = defaultKey;
 
             _instanceDictionary = string.IsNullOrEmpty(serializedState)
-                ? new ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>>()
-                : JsonConvert.DeserializeObject<ConcurrentDictionary<Type, ConcurrentDictionary<TKey, TInstance>>>(serializedState, _serializerSettings);
+                ? new ConcurrentDictionary<Tuple<Type, TKey>, TInstance>()
+                : deserializeState(serializedState);
         }
 
         /// <summary>
@@ -80,19 +80,7 @@ namespace Jalex.Infrastructure.Containers
         public T Get<T>(TKey key) where T : class, TInstance
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
-
-            var instanceType = typeof(T);
-            ConcurrentDictionary<TKey, TInstance> instancesByKey;
-            if (!_instanceDictionary.TryGetValue(instanceType, out instancesByKey))
-            {
-                return default(T);
-            }
-
-
-            TInstance instance;
-            instancesByKey.TryGetValue(key, out instance);
-
-            return instance as T;
+            return _instanceDictionary.GetValueOrDefault(new Tuple<Type, TKey>(typeof (T), key)) as T;
         }
 
         /// <summary>
@@ -112,8 +100,7 @@ namespace Jalex.Infrastructure.Containers
                 throw new InvalidOperationException("instance key cannot be null");
             }
 
-            var instancesByKey = _instanceDictionary.GetOrAdd(instanceType, new ConcurrentDictionary<TKey, TInstance>());
-            instancesByKey[key] = instance;
+            _instanceDictionary[new Tuple<Type, TKey>(instanceType, key)] = instance;
         }
 
         /// <summary>
@@ -133,8 +120,7 @@ namespace Jalex.Infrastructure.Containers
                 throw new InvalidOperationException("instance key cannot be null");
             }
 
-            var instancesByKey = _instanceDictionary.GetOrAdd(instanceType, new ConcurrentDictionary<TKey, TInstance>());
-            instancesByKey[key] = instance;
+            _instanceDictionary[new Tuple<Type, TKey>(instanceType, key)] = instance;
         }
 
         /// <summary>
@@ -157,16 +143,8 @@ namespace Jalex.Infrastructure.Containers
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
 
-            var instanceType = typeof(T);
-            ConcurrentDictionary<TKey, TInstance> instancesByKey;
-            if (!_instanceDictionary.TryGetValue(instanceType, out instancesByKey))
-            {
-                return false;
-            }
-
-
             TInstance ret;
-            bool success = instancesByKey.TryRemove(key, out ret);
+            bool success = _instanceDictionary.TryRemove(new Tuple<Type, TKey>(typeof(T), key), out ret);
             return success;
         }
 
@@ -188,15 +166,7 @@ namespace Jalex.Infrastructure.Containers
         /// <returns>Whether the instance exists in the container</returns>
         public bool Contains<T>(TKey key) where T : class, TInstance
         {
-            var instanceType = typeof(T);
-            ConcurrentDictionary<TKey, TInstance> instancesByKey;
-            if (!_instanceDictionary.TryGetValue(instanceType, out instancesByKey))
-            {
-                return false;
-            }
-
-            var contains = instancesByKey.ContainsKey(key);
-            return contains;
+            return _instanceDictionary.ContainsKey(new Tuple<Type, TKey>(typeof (T), key));
         }
 
         public string SerializeToString()
@@ -215,8 +185,7 @@ namespace Jalex.Infrastructure.Containers
         /// </returns>
         public IEnumerator<TInstance> GetEnumerator()
         {
-            var allObjects = _instanceDictionary.Values.SelectMany(dict => dict.Values).ToList();
-            return allObjects.GetEnumerator();
+            return _instanceDictionary.Values.GetEnumerator();
         }
 
         /// <summary>
@@ -231,5 +200,10 @@ namespace Jalex.Infrastructure.Containers
         }
 
         #endregion
+
+        private static ConcurrentDictionary<Tuple<Type, TKey>, TInstance> deserializeState(string serializedState)
+        {
+            return JsonConvert.DeserializeObject<ConcurrentDictionary<Tuple<Type, TKey>, TInstance>>(serializedState, _serializerSettings);
+        }
     }
 }

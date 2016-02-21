@@ -54,9 +54,9 @@
     <Compile Include="Configuration\IConfigurationSupplier.cs" />
     <Compile Include="Configuration\YamlConfigurationException.cs" />
     <Compile Include="Configuration\YamlConfigurationSupplier.cs" />
+    <Compile Include="Containers\TypedInstanceContainer.cs" />
     <Compile Include="Containers\TypedInstanceContainerExtensions.cs" />
     <Compile Include="Containers\IWeakCollection.cs" />
-    <Compile Include="Containers\TypedInstanceContainer.cs" />
     <Compile Include="Containers\WeakCollection.cs" />
     <Compile Include="Expressions\ExpressionNodeFinder.cs" />
     <Compile Include="Extensions\ConcurrentBagExtensions.cs" />
