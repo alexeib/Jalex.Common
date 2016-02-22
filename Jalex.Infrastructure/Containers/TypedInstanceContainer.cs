@@ -203,7 +203,7 @@ namespace Jalex.Infrastructure.Containers
         private static Dictionary<Tuple<Type, TKey>, TInstance> deserializeState(string serializedState, Func<TInstance, TKey> getKey)
         {
             var instances = JsonConvert.DeserializeObject<List<TInstance>>(serializedState, _serializerSettings);
-            var dict = new Dictionary<Tuple<Type, TKey>, TInstance>();
+            var dict = new Dictionary<Tuple<Type, TKey>, TInstance>(instances.Count);
             foreach (var instance in instances)
             {
                 var key = new Tuple<Type, TKey>(instance.GetType(), getKey(instance));
