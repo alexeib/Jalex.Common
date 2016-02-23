@@ -6,33 +6,27 @@ namespace Jalex.Infrastructure.Configuration
 {
     public class ConfigurationProvider : IConfigurationProvider
     {
-        private readonly Lazy<TypedInstanceContainer<string, IConfiguration>> _configurationsContainer;
+        private readonly Lazy<TypedInstanceContainer<IConfiguration>> _configurationsContainer;
 
         public ConfigurationProvider(Lazy<IEnumerable<IConfigurationSupplier>> configurationSuppliers)
         {
-            _configurationsContainer = new Lazy<TypedInstanceContainer<string, IConfiguration>>(() =>
-                                                                                                {
-                                                                                                    var container =
-                                                                                                        new TypedInstanceContainer<string, IConfiguration>(c => c.GetType()
-                                                                                                                                                                 .FullName,
-                                                                                                                                                           string.Empty);
-                                                                                                    foreach (var supplier in configurationSuppliers.Value)
-                                                                                                    {
-                                                                                                        var configurations = supplier.GetConfigurations();
-                                                                                                        foreach (var configuration in configurations)
-                                                                                                        {
-                                                                                                            container.SetDefault(configuration);
-                                                                                                        }
-                                                                                                    }
-                                                                                                    return container;
-                                                                                                });
+            _configurationsContainer = new Lazy<TypedInstanceContainer<IConfiguration>>(() =>
+                                                                                        {
+                                                                                            var container = new TypedInstanceContainer<IConfiguration>();
+                                                                                            foreach (var supplier in configurationSuppliers.Value)
+                                                                                            {
+                                                                                                var configurations = supplier.GetConfigurations();
+                                                                                                container.AddMany(configurations);
+                                                                                            }
+                                                                                            return container;
+                                                                                        });
         }
 
         #region Implementation of IConfigurationProvider
 
         public TConfiguration GetConfiguration<TConfiguration>() where TConfiguration : class, IConfiguration
         {
-            var configuration = _configurationsContainer.Value.GetDefault<TConfiguration>();
+            var configuration = _configurationsContainer.Value.GetSingle<TConfiguration>();
             if (configuration == null)
             {
                 throw new ConfigurationMissingException(typeof(TConfiguration));

@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
 using System.Linq;
 using FluentAssertions;
 using Jalex.Infrastructure.Containers;
-using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Test.Objects;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -16,13 +15,13 @@ namespace Jalex.Infrastructure.Test.Containers
         {
             _fixture = new Fixture();
 
-            _fixture.Register(() => new TypedInstanceContainer<string, IInterface>(inst => inst.Id, string.Empty));
+            _fixture.Register(() => new TypedInstanceContainer<IInterface>());
         }
 
         [Fact]
         public void AddsMetricsSuccessfully()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
 
             var testObjects = new IInterface[]
                               {
@@ -32,7 +31,7 @@ namespace Jalex.Infrastructure.Test.Containers
 
             foreach (var obj in testObjects)
             {
-                sut.Set(obj);
+                sut.Add(obj);
             }
 
             sut.Should().NotBeEmpty();
@@ -42,7 +41,7 @@ namespace Jalex.Infrastructure.Test.Containers
         [Fact]
         public void AddsMetricsSuccessfullyUsingExtension()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
 
             var testObjects = new IInterface[]
                               {
@@ -50,112 +49,81 @@ namespace Jalex.Infrastructure.Test.Containers
                                   _fixture.Create<InterfaceImpl2>()
                               };
 
-            sut.SetMany(testObjects);
+            sut.AddMany(testObjects);
 
             sut.Should().NotBeEmpty();
             sut.ShouldAllBeEquivalentTo(testObjects);
         }
 
         [Fact]
-        public void GetsDefaultInstanceSuccessfully()
+        public void GetsSingleInstanceSuccessfully()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
             var testObject = _fixture.Create<InterfaceImpl>();
             testObject.Id = string.Empty;
 
-            sut.Set(testObject);
+            sut.Add(testObject);
 
-            var expected = sut.GetDefault<InterfaceImpl>();
+            var expected = sut.GetSingle<InterfaceImpl>();
             expected.Should().BeSameAs(testObject);
         }
 
         [Fact]
-        public void GetsKeyedInstanceSuccessfully()
+        public void GetsAllInstancesSuccessfully()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
-            var testObject = _fixture.Create<InterfaceImpl>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
+            var testObjects = _fixture.CreateMany<InterfaceImpl>()
+                                      .ToList();
+            sut.AddMany(testObjects);
 
-            sut.Set(testObject);
-
-            var expected = sut.Get<InterfaceImpl>(testObject.Id);
-            expected.Should().BeSameAs(testObject);
+            var expected = sut.GetAll<InterfaceImpl>();
+            expected.ShouldAllBeEquivalentTo(testObjects);
         }
 
         [Fact]
-        public void ReplacesDefaultInstanceOfSameType()
+        public void AddsANewInstance()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
             var testObjectOriginal = _fixture.Create<InterfaceImpl>();
             var testObjectReplacement = _fixture.Create<InterfaceImpl>();
 
             testObjectOriginal.Id = string.Empty;
             testObjectReplacement.Id = string.Empty;
 
-            sut.Set(testObjectOriginal);
-            sut.Set(testObjectReplacement);
+            sut.Add(testObjectOriginal);
+            sut.Add(testObjectReplacement);
 
-            sut.Should().HaveCount(1);
+            sut.Should().HaveCount(2);
 
-            var expected = sut.GetDefault<InterfaceImpl>();
-            expected.Should().BeSameAs(testObjectReplacement);
+            var expected = sut.GetAll<InterfaceImpl>();
+            expected.Should()
+                    .ContainInOrder(testObjectOriginal, testObjectReplacement);
+            sut.Invoking(s => s.GetSingle<InterfaceImpl>())
+               .ShouldThrow<InvalidOperationException>();
         }
 
         [Fact]
-        public void ReplacesKeyedInstanceOfSameType()
+        public void RemovesInstancesSuccessfully()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
-            var testObjectOriginal = _fixture.Create<InterfaceImpl>();
-            var testObjectReplacement = _fixture.Create<InterfaceImpl>();
-
-            testObjectReplacement.Id = testObjectOriginal.Id;
-
-            sut.Set(testObjectOriginal);
-            sut.Set(testObjectReplacement);
-
-            sut.Should().HaveCount(1);
-
-            var expected = sut.Get<InterfaceImpl>(testObjectOriginal.Id);
-            expected.Should().BeSameAs(testObjectReplacement);
-        }
-
-        [Fact]
-        public void RemovesDefaultInstancesSuccessfully()
-        {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
             var testObject = _fixture.Create<InterfaceImpl>();
-            testObject.Id = string.Empty;
 
-            sut.Set(testObject);
-            sut.RemoveDefault<InterfaceImpl>();
+            sut.Add(testObject);
+            sut.Remove(testObject);
 
             sut.Should().BeEmpty();
 
-            var expected = sut.GetDefault<InterfaceImpl>();
-            expected.Should().BeNull();
-        }
-
-        [Fact]
-        public void RemovesKeyedInstancesSuccessfully()
-        {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
-            var testObject = _fixture.Create<InterfaceImpl>();
-
-            sut.Set(testObject);
-            sut.Remove<InterfaceImpl>(testObject.Id);
-
-            sut.Should().BeEmpty();
-
-            var expected = sut.Get<InterfaceImpl>(testObject.Id);
+            var expected = sut.GetSingle<InterfaceImpl>();
             expected.Should().BeNull();
         }
 
         [Fact]
         public void EnumeratesContainedInstances()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
             var testObjects = _fixture.CreateMany<InterfaceImpl>().ToList();
 
-            sut.SetMany(testObjects);
+            sut.AddMany(testObjects);
 
             sut.Should().Contain(testObjects);
         }
@@ -163,14 +131,14 @@ namespace Jalex.Infrastructure.Test.Containers
         [Fact]
         public void CanBeRehydratedFromJson()
         {
-            var sut = _fixture.Create<TypedInstanceContainer<string, IInterface>>();
+            var sut = _fixture.Create<TypedInstanceContainer<IInterface>>();
             var testObjects = _fixture.CreateMany<InterfaceImpl>().ToList();
 
-            sut.SetMany(testObjects);
+            sut.AddMany(testObjects);
 
             var str = sut.SerializeToString();
 
-            var containerFromStr = new TypedInstanceContainer<string, IInterface>(i => i.Id, string.Empty, str);
+            var containerFromStr = new TypedInstanceContainer<IInterface>(str);
 
             containerFromStr.ShouldAllBeEquivalentTo(sut);
         }

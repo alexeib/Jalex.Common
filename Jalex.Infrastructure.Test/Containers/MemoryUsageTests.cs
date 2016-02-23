@@ -55,30 +55,30 @@ namespace Jalex.Infrastructure.Test.Containers
                  .BeGreaterThan(memV2);
         }
 
-        private IReadOnlyCollection<TypedInstanceContainer<string, T>> createV1<T>(IEnumerable<T> objects, int numPerBucket) where T : Keyed
+        private IReadOnlyCollection<TypedInstanceContainer<T>> createV1<T>(IEnumerable<T> objects, int numPerBucket) where T : Keyed
         {
             var defaultStr = _fixture.Create<string>();
 
             return objects.Batch(numPerBucket)
                           .Select(b =>
                                   {
-                                      var typedInstanceContainer = new TypedInstanceContainer<string, T>(x => x.Key, defaultStr);
-                                      b.ForEach(typedInstanceContainer.Set);
+                                      var typedInstanceContainer = new TypedInstanceContainer<T>();
+                                      b.ForEach(typedInstanceContainer.Add);
                                       return typedInstanceContainer;
                                   })
                           .ToCollection();
 
         }
 
-        private IReadOnlyCollection<TypedInstanceContainer<string, T>> createV2<T>(IEnumerable<T> objects, int numPerBucket) where T : Keyed
+        private IReadOnlyCollection<TypedInstanceContainer<T>> createV2<T>(IEnumerable<T> objects, int numPerBucket) where T : Keyed
         {
             var defaultStr = _fixture.Create<string>();
 
             return objects.Batch(numPerBucket)
                           .Select(b =>
                           {
-                              var typedInstanceContainer = new TypedInstanceContainer<string, T>(x => x.Key, defaultStr);
-                              b.ForEach(typedInstanceContainer.Set);
+                              var typedInstanceContainer = new TypedInstanceContainer<T>();
+                              b.ForEach(typedInstanceContainer.Add);
                               return typedInstanceContainer;
                           })
                           .ToCollection();

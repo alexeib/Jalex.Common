@@ -17,12 +17,11 @@ namespace Jalex.Infrastructure.Test.Configuration
             _fixture = new Fixture();
 
             _configuration1 = _fixture.Create<Configuration1>();
-            var overwrittenConfiguration2 = _fixture.Create<Configuration2>();
             _configuration2 = _fixture.Create<Configuration2>();
 
             var configurationSupplier1Sub = Substitute.For<IConfigurationSupplier>();
             configurationSupplier1Sub.GetConfigurations()
-                                     .Returns(new[] { _configuration1, overwrittenConfiguration2 });
+                                     .Returns(new[] { _configuration1 });
             var configurationSupplier2Sub = Substitute.For<IConfigurationSupplier>();
             configurationSupplier2Sub.GetConfigurations()
                                      .Returns(new[] {_configuration2});
