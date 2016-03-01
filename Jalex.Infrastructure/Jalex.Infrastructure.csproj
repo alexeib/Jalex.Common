@@ -123,6 +123,7 @@
     <Compile Include="ServiceComposition\IComposableService.cs" />
     <Compile Include="ServiceComposition\ServiceComposer.cs" />
     <Compile Include="Specifications\AndSpecification.cs" />
+    <Compile Include="Specifications\ConstantSpecification.cs" />
     <Compile Include="Specifications\ExclusiveOrSpecification.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\NotSpecification.cs" />
