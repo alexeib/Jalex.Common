@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Jalex.Infrastructure.ReflectedTypeDescriptor;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Utils;
 
 namespace Jalex.Repository.Cassandra
 {

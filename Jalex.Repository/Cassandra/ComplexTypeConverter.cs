@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cassandra.Mapping.TypeConversion;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -39,6 +40,12 @@ namespace Jalex.Repository.Cassandra
             {
                 return null;
             }
+
+            if (typeof (TPoco).GetNullableUnderlyingType().IsEnum)
+            {
+                return dbObj => dbObj == null ? default(TPoco) : (TPoco)Enum.Parse(typeof(TPoco), Convert.ToString(dbObj));
+            }
+
             return dbObj =>
                    {
                        var objStr = _jsonMissingTypeObjectRemover.RemoveMissingTypesFromJsonString(dbObj as string);
@@ -61,6 +68,11 @@ namespace Jalex.Repository.Cassandra
             if (typeof(TDatabase) != typeof(string))
             {
                 return null;
+            }
+
+            if (typeof(TPoco).GetNullableUnderlyingType().IsEnum)
+            {
+                return obj => Equals(obj, default(TPoco)) ? default(TDatabase) : (TDatabase)(object)obj.ToString();
             }
 
             return obj => (TDatabase) (object) JsonConvert.SerializeObject(new ComplexTypeContainer<TPoco>
