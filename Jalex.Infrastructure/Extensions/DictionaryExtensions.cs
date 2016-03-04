@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Jalex.Infrastructure.Extensions
 {
@@ -23,6 +24,12 @@ namespace Jalex.Infrastructure.Extensions
                 return value;
             }
             return defaultValueFunc == null ? default(TValue) : defaultValueFunc();
+        }
+
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> source, IDictionary<TKey, TValue> other)
+        {
+            return source.Concat(other)
+                         .ToUniqueDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
     }
 }
