@@ -58,6 +58,17 @@ namespace Jalex.Infrastructure.Containers
         }
 
         /// <summary>
+        /// Retrieves the first instance of a class. 
+        /// </summary>
+        /// <typeparam name="T">The type of instance to retrieve</typeparam>
+        /// <returns>The instance or null if one does not exist</returns>
+        public T GetFirst<T>() where T : class, TInstance
+        {
+            return GetAll<T>()
+                .FirstOrDefault();
+        }
+
+        /// <summary>
         /// Gets all instances of a class
         /// </summary>
         /// <typeparam name="T">The type of instance to get</typeparam>
