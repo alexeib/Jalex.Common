@@ -95,6 +95,18 @@ namespace Jalex.Infrastructure.Containers
         }
 
         /// <summary>
+        /// Adds or replaces an instance
+        /// </summary>
+        /// <param name="instance">The instance to add or replace</param>
+        public void ReplaceAllOfType(TInstance instance)
+        {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
+
+            var type = instance.GetType();
+            _instancesDictionary[type] = new List<TInstance> { instance };
+        }
+
+        /// <summary>
         /// Removes an instance of an item if it exists in this container
         /// </summary>
         /// <param name="item">The item to remove</param>
