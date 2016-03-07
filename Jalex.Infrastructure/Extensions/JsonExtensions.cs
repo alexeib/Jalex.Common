@@ -13,7 +13,7 @@ namespace Jalex.Infrastructure.Extensions
         {
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
             NullValueHandling = NullValueHandling.Ignore,
-            FloatFormatHandling = FloatFormatHandling.Symbol,
+            FloatFormatHandling = FloatFormatHandling.String,
             DefaultValueHandling = DefaultValueHandling.Include,
             Converters = new List<JsonConverter>
             {
