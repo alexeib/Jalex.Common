@@ -31,5 +31,15 @@ namespace Jalex.Infrastructure.Extensions
             return source.Concat(other)
                          .ToUniqueDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
+
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> valueCreator)
+        {
+            TValue value;
+            if (dictionary.TryGetValue(key, out value))
+                return value;
+            value = valueCreator(key);
+            dictionary.Add(key, value);
+            return value;
+        }
     }
 }
