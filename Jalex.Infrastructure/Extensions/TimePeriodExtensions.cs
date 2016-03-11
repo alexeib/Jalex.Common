@@ -16,7 +16,7 @@ namespace Jalex.Infrastructure.Extensions
         }
 
         public static ITimePeriodCollection Merge(this IEnumerable<ITimePeriod> timePeriods)
-        {            
+        {
             var merged = new TimePeriodCollection();
 
             var sorted = timePeriods.OrderBy(p => p.Start)
@@ -27,7 +27,7 @@ namespace Jalex.Infrastructure.Extensions
 
             DateTime currStart = sorted[0].Start;
             DateTime currEnd = sorted[0].End;
-            
+
 
             foreach (var next in sorted.Skip(1))
             {
@@ -55,24 +55,26 @@ namespace Jalex.Infrastructure.Extensions
                 timePeriods = timePeriods.Merge();
             }
 
-            foreach (var timePeriod in timePeriods)
+            return timePeriods.SelectMany(timePeriod => timePeriod.Dates());
+        }
+
+        public static IEnumerable<DateTime> Dates(this ITimePeriod timePeriod)
+        {
+            if (!timePeriod.HasStart)
             {
-                if (!timePeriod.HasStart)
-                {
-                    throw new InvalidOperationException("time period must have a start");
-                }
+                throw new InvalidOperationException("time period must have a start");
+            }
 
-                if (!timePeriod.HasEnd)
-                {
-                    throw new InvalidOperationException("time period must have an end");
-                }
+            if (!timePeriod.HasEnd)
+            {
+                throw new InvalidOperationException("time period must have an end");
+            }
 
-                DateTime currDate = timePeriod.Start;
-                while (currDate <= timePeriod.End)
-                {
-                    yield return currDate;
-                    currDate = currDate.AddDays(1);
-                }
+            DateTime currDate = timePeriod.Start;
+            while (currDate <= timePeriod.End)
+            {
+                yield return currDate;
+                currDate = currDate.AddDays(1);
             }
         }
     }
