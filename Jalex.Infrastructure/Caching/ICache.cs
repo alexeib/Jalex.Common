@@ -61,5 +61,10 @@ namespace Jalex.Infrastructure.Caching
         /// </summary>
         /// <returns></returns>
         long GetSize();
+
+        /// <summary>
+        /// Returns true if the cache contains a given key
+        /// </summary>
+        bool Contains(TKey key);
     }
 }

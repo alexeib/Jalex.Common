@@ -42,6 +42,11 @@ namespace Jalex.Caching.NoOp
             return 0;
         }
 
+        public bool Contains(TKey key)
+        {
+            return false;
+        }
+
         public IEnumerable<KeyValuePair<TKey, TItem>> GetAll()
         {
             yield break;

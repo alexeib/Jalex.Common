@@ -34,6 +34,11 @@ namespace Jalex.Caching.Memory
             return _items.Count;
         }
 
+        public bool Contains(TKKey key)
+        {
+            return _items.ContainsKey(key);
+        }
+
         /// <summary>
         ///     Disposes the object.
         /// </summary>
