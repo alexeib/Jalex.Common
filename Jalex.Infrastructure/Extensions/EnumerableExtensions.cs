@@ -67,6 +67,10 @@ namespace Jalex.Infrastructure.Extensions
         [DebuggerStepThrough]
         public static IEnumerable<T> ToEnumerable<T>(this T obj)
         {
+            if (obj == null)
+            {
+                yield break;
+            }
             yield return obj;
         }
     }
