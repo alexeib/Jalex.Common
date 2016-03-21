@@ -77,5 +77,55 @@ namespace Jalex.Infrastructure.Extensions
                 currDate = currDate.AddDays(1);
             }
         }
+
+        public static ITimePeriodCollection Without(this IEnumerable<ITimePeriod> timePeriods, IEnumerable<ITimePeriod> toRemove)
+        {
+            TimePeriodCollection resultingCollection = new TimePeriodCollection();
+
+            var removePeriods = toRemove.Merge()
+                                        .OrderBy(r => r.Start)
+                                        .ToArray();
+            var periods = timePeriods.Merge()
+                                     .OrderBy(r => r.Start);
+
+            int removePeriodsIdx = 0;
+            foreach (var period in periods)
+            {
+                while (removePeriodsIdx < removePeriods.Length && removePeriods[removePeriodsIdx].End < period.Start)
+                {
+                    removePeriodsIdx++;
+                }
+
+                var currPeriod = period;
+
+                while (currPeriod != null)
+                {
+                    if (removePeriodsIdx >= removePeriods.Length || removePeriods[removePeriodsIdx].Start > currPeriod.End)
+                    {
+                        resultingCollection.Add(currPeriod);
+                        currPeriod = null;
+                    }
+                    else
+                    {
+                        var rem = removePeriods[removePeriodsIdx];
+                        if (rem.Start > currPeriod.Start)
+                        {
+                            resultingCollection.Add(new TimeBlock(currPeriod.Start, rem.Start.AddDays(-1)));
+                        }
+                        if (rem.End < period.End)
+                        {
+                            currPeriod = new TimeBlock(rem.End.AddDays(1), period.End);
+                            removePeriodsIdx++;
+                        }
+                        else
+                        {
+                            currPeriod = null;
+                        }
+                    }
+                }
+            }
+
+            return resultingCollection;
+        }
     }
 }
