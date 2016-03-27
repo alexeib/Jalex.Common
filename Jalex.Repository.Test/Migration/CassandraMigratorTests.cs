@@ -1,6 +1,6 @@
 ﻿using System;
-using Jalex.Infrastructure.Repository.Migration;
 using Jalex.Repository.Cassandra.Migration;
+using Jalex.Repository.Migration;
 using Ploeh.AutoFixture;
 
 namespace Jalex.Repository.Test.Migration

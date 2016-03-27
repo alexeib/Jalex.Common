@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Objects;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Repository.Migration;
+using Jalex.Repository.Migration;
 using NSubstitute;
 using Ploeh.AutoFixture;
 using Xunit;
 
 // ReSharper disable ConsiderUsingAsyncSuffix
 
-namespace Jalex.Infrastructure.Test.Repository.Migration
+namespace Jalex.Repository.Test.Migration
 {
     public class RepositoryDataMigratorTests
     {

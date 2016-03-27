@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Jalex.Infrastructure.Repository;
-using Jalex.Infrastructure.Repository.Migration;
+using Jalex.Repository.Migration;
 using Ploeh.AutoFixture;
 using Xunit;
 
