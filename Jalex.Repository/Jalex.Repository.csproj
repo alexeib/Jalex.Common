@@ -73,6 +73,10 @@
     <Compile Include="IdProviders\GuidIdProvider.cs" />
     <Compile Include="IdProviders\IIdProvider.cs" />
     <Compile Include="Memory\MemoryRepository.cs" />
+    <Compile Include="Migration\IRepositoryDataMigrator.cs" />
+    <Compile Include="Migration\ITableDataMigrator.cs" />
+    <Compile Include="Migration\RepositoryDataMigrator.cs" />
+    <Compile Include="Migration\TableVersion.cs" />
     <Compile Include="MongoDB\MongoDBFileRepository.cs" />
     <Compile Include="MongoDB\MongoHelper.cs" />
     <Compile Include="MongoDB\MongoSetup.cs" />

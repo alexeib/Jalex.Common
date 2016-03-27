@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Jalex.Infrastructure.Extensions;
+using Jalex.Infrastructure.Repository;
 
-namespace Jalex.Infrastructure.Repository.Migration
+namespace Jalex.Repository.Migration
 {
     public class RepositoryDataMigrator : IRepositoryDataMigrator
     {
@@ -27,25 +27,21 @@ namespace Jalex.Infrastructure.Repository.Migration
                 var currVersion = await _tableVersionRepository.FirstOrDefaultAsync(tv => tv.TableName == migratorsByTable.Key)
                                                                .ConfigureAwait(false) ?? new TableVersion();
                 var migrators = migratorsByTable.Where(m => m.TargetVersion > currVersion.Version)
-                                                .OrderBy(m => m.TargetVersion)
-                                                .ToCollection();
-                if (migrators.Count > 0)
+                                                .OrderBy(m => m.TargetVersion);
+                try
                 {
-                    try
+                    foreach (var migrator in migrators)
                     {
-                        foreach (var migrator in migrators)
-                        {
-                            await migrator.ExecuteAsync();
-                            currVersion.Version = migrator.TargetVersion;
-                        }
+                        await migrator.ExecuteAsync();
+                        currVersion.Version = migrator.TargetVersion;
                     }
-                    catch (Exception)
-                    {
-                        await _tableVersionRepository.SaveAsync(currVersion);
-                        throw;
-                    }
-                    
                 }
+                catch (Exception)
+                {
+                    await _tableVersionRepository.SaveAsync(currVersion);
+                    throw;
+                }
+
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cassandra;
-using Jalex.Infrastructure.Repository.Migration;
+using Jalex.Repository.Migration;
 
 namespace Jalex.Repository.Cassandra.Migration
 {

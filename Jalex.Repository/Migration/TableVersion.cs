@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Jalex.Infrastructure.Repository;
 
-namespace Jalex.Infrastructure.Repository.Migration
+namespace Jalex.Repository.Migration
 {
     public class TableVersion
     {

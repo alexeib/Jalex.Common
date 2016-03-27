@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Jalex.Infrastructure.Repository.Migration
+namespace Jalex.Repository.Migration
 {
     public interface ITableDataMigrator
     {

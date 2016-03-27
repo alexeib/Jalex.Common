@@ -127,10 +127,6 @@
     <Compile Include="Repository\Messages\EntityCreated.cs" />
     <Compile Include="Repository\Messages\EntityDeleted.cs" />
     <Compile Include="Repository\Messages\EntityUpdated.cs" />
-    <Compile Include="Repository\Migration\RepositoryDataMigrator.cs" />
-    <Compile Include="Repository\Migration\IRepositoryDataMigrator.cs" />
-    <Compile Include="Repository\Migration\ITableDataMigrator.cs" />
-    <Compile Include="Repository\Migration\TableVersion.cs" />
     <Compile Include="Repository\RepositoryConstants.cs" />
     <Compile Include="Repository\RepositoryException.cs" />
     <Compile Include="Repository\RepositoryExtensions.cs" />
