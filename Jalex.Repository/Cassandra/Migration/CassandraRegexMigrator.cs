@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cassandra;
+using Jalex.Infrastructure.Extensions;
 using Jalex.Repository.Migration;
+using Magnum.Extensions;
 
 namespace Jalex.Repository.Cassandra.Migration
 {
@@ -58,13 +63,32 @@ namespace Jalex.Repository.Cassandra.Migration
                     continue;
                 }
 
-                var valueAsString = Convert.ToString(originalValue);
+                string valueAsString;
+
+                var valueAsDict = originalValue as IDictionary;
+                var valueAsList = originalValue as IList;
+
+                if (valueAsDict != null)
+                {
+                    var dictValues = (from object key in valueAsDict.Keys
+                                      select toCassandraStr(key) + ":" + toCassandraStr(valueAsDict[key]));
+                    valueAsString = "{" + string.Join(",", dictValues) + "}";
+                }
+                else if (valueAsList != null)
+                {
+                    var listValues = (from object item in valueAsList select toCassandraStr(item));
+                    valueAsString = "[" + string.Join(",", listValues) + "]";
+                }
+                else
+                {
+                    valueAsString = Convert.ToString(originalValue);
+                }
 
                 var modifiedValue = Regex.Replace(valueAsString, _pattern, _replacement);
                 columns.Add(colName);
                 if (originalValue is string)
                 {
-                    modifiedValue = "'" + modifiedValue + "'";
+                    modifiedValue = "'" + modifiedValue.Replace("'", "''") + "'";
                 }
                 values.Add(modifiedValue);
             }
@@ -72,6 +96,20 @@ namespace Jalex.Repository.Cassandra.Migration
             var insertQuery = $"insert into {TargetTable} ( {string.Join(",", columns)} ) values ({string.Join(",", values)})";
             var statement = new SimpleStatement(insertQuery);
             await session.ExecuteAsync(statement).ConfigureAwait(false);
+        }
+
+        private static string toCassandraStr(object item)
+        {
+            string strVal;
+            if (item is string)
+            {
+                strVal = "'" + item + "'";
+            }
+            else
+            {
+                strVal = item?.ToString();
+            }
+            return strVal;
         }
     }
 }
