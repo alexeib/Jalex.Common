@@ -3,6 +3,7 @@ using Autofac;
 using Jalex.Infrastructure.Repository;
 using Jalex.Repository.Cassandra;
 using Jalex.Repository.IdProviders;
+using Jalex.Repository.Migration;
 using Jalex.Repository.MongoDB;
 
 namespace Jalex.Repository
@@ -17,6 +18,10 @@ namespace Jalex.Repository
         {
             builder.RegisterType<GuidIdProvider>()
                    .As<IIdProvider>()
+                   .InstancePerLifetimeScope();
+
+            builder.RegisterType<RepositoryDataMigrator>()
+                   .As<IRepositoryDataMigrator>()
                    .InstancePerLifetimeScope();
 
             switch (RepositoryType)
