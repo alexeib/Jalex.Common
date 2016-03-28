@@ -25,7 +25,7 @@ namespace Jalex.Repository.Migration
             foreach (var migratorsByTable in _tableDataMigrators.GroupBy(d => d.TargetTable))
             {
                 var currVersion = await _tableVersionRepository.FirstOrDefaultAsync(tv => tv.TableName == migratorsByTable.Key)
-                                                               .ConfigureAwait(false) ?? new TableVersion();
+                                                               .ConfigureAwait(false) ?? new TableVersion { TableName = migratorsByTable.Key };
                 var migrators = migratorsByTable.Where(m => m.TargetVersion > currVersion.Version)
                                                 .OrderBy(m => m.TargetVersion);
                 try

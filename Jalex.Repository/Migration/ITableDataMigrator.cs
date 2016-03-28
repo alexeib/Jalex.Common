@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Jalex.Repository.Migration
 {
@@ -7,7 +6,7 @@ namespace Jalex.Repository.Migration
     {
         string TargetTable { get; }
 
-        Version TargetVersion { get; }
+        int TargetVersion { get; }
 
         Task ExecuteAsync();
     }

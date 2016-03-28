@@ -2,13 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cassandra;
-using Jalex.Infrastructure.Extensions;
 using Jalex.Repository.Migration;
-using Magnum.Extensions;
 
 namespace Jalex.Repository.Cassandra.Migration
 {
@@ -18,12 +15,11 @@ namespace Jalex.Repository.Cassandra.Migration
         private readonly string _replacement;
 
         public string TargetTable { get; }
-        public Version TargetVersion { get; }
+        public int TargetVersion { get; }
 
-        public CassandraRegexMigrator(string targetTable, Version targetVersion, string pattern, string replacement)
+        public CassandraRegexMigrator(string targetTable, int targetVersion, string pattern, string replacement)
         {
             if (targetTable == null) throw new ArgumentNullException(nameof(targetTable));
-            if (targetVersion == null) throw new ArgumentNullException(nameof(targetVersion));
             if (pattern == null) throw new ArgumentNullException(nameof(pattern));
             if (replacement == null) throw new ArgumentNullException(nameof(replacement));
 
@@ -79,6 +75,13 @@ namespace Jalex.Repository.Cassandra.Migration
                     var listValues = (from object item in valueAsList select toCassandraStr(item));
                     valueAsString = "[" + string.Join(",", listValues) + "]";
                 }
+                else if (column.Type == typeof(DateTimeOffset))
+                {
+                    if(((DateTimeOffset)originalValue).Year == 1)
+                        continue;
+
+                    valueAsString = toCassandraStr(originalValue);
+                }
                 else
                 {
                     valueAsString = Convert.ToString(originalValue);
@@ -86,9 +89,9 @@ namespace Jalex.Repository.Cassandra.Migration
 
                 var modifiedValue = Regex.Replace(valueAsString, _pattern, _replacement);
                 columns.Add(colName);
-                if (originalValue is string)
+                if (originalValue is string || originalValue is DateTimeOffset)
                 {
-                    modifiedValue = "'" + modifiedValue.Replace("'", "''") + "'";
+                    modifiedValue = toCassandraStr(modifiedValue);
                 }
                 values.Add(modifiedValue);
             }
@@ -100,16 +103,15 @@ namespace Jalex.Repository.Cassandra.Migration
 
         private static string toCassandraStr(object item)
         {
-            string strVal;
             if (item is string)
             {
-                strVal = "'" + item + "'";
+                return "'" + ((string)item).Replace("'", "''") + "'";
             }
-            else
+            if (item is DateTimeOffset)
             {
-                strVal = item?.ToString();
+                return ((DateTimeOffset) item).ToString("yyyy-MM-ddTHH:mm:sszzz");
             }
-            return strVal;
+            return item?.ToString();
         }
     }
 }

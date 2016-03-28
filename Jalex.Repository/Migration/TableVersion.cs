@@ -10,11 +10,6 @@ namespace Jalex.Repository.Migration
         [Indexed]
         public string TableName { get; set; }
 
-        public Version Version { get; set; }
-
-        public TableVersion()
-        {
-            Version = new Version();
-        }
+        public int Version { get; set; }
     }
 }
