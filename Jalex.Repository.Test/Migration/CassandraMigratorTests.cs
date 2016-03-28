@@ -19,7 +19,7 @@ namespace Jalex.Repository.Test.Migration
         {
             var fixture = CassandraRepositoryTests_TestObject.CreateFixture();
 
-            fixture.Register<ITableDataMigrator>(() => new CassandraRegexMigrator("testobject", new Version(0,1), _pattern, _replacement));
+            fixture.Register<ITableDataMigrator>(() => new CassandraRegexMigrator("testobject", 1, _pattern, _replacement));
 
             return fixture;
         }
