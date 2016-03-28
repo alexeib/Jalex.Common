@@ -36,10 +36,9 @@ namespace Jalex.Repository.Migration
                         currVersion.Version = migrator.TargetVersion;
                     }
                 }
-                catch (Exception)
+                finally
                 {
                     await _tableVersionRepository.SaveAsync(currVersion);
-                    throw;
                 }
 
             }
