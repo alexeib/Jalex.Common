@@ -73,5 +73,26 @@ namespace Jalex.Infrastructure.Extensions
             }
             yield return obj;
         }
+
+        [DebuggerStepThrough]
+        public static double AverageOrNaN(this IEnumerable<int> source)
+        {
+            if (source.IsNullOrEmpty()) return double.NaN;
+            return source.Average();
+        }
+
+        [DebuggerStepThrough]
+        public static double AverageOrNaN(this IEnumerable<double> source)
+        {
+            if (source.IsNullOrEmpty()) return double.NaN;
+            return source.Average();
+        }
+
+        public static IEnumerable<T> Each<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (var item in source)
+                action(item);
+            return source;
+        }
     }
 }
