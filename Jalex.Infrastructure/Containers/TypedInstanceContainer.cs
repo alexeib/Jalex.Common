@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Jalex.Infrastructure.Extensions;
 using Jalex.Infrastructure.Serialization;
 using Newtonsoft.Json;
@@ -13,6 +14,8 @@ namespace Jalex.Infrastructure.Containers
         where TInstance : class
     {
         private readonly Dictionary<Type, ICollection<TInstance>> _instancesDictionary;
+
+        private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         // ReSharper disable once StaticFieldInGenericType
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
@@ -53,8 +56,20 @@ namespace Jalex.Infrastructure.Containers
         /// <returns>The instance or null if one does not exist</returns>
         public T GetSingle<T>() where T : class, TInstance
         {
-            return GetAll<T>()
-                .SingleOrDefault();
+            _lock.EnterReadLock();
+            try
+            {
+                ICollection<TInstance> collection;
+                if (_instancesDictionary.TryGetValue(typeof(T), out collection))
+                {
+                    return collection.SingleOrDefault() as T;
+                }
+                return null;
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -64,8 +79,20 @@ namespace Jalex.Infrastructure.Containers
         /// <returns>The instance or null if one does not exist</returns>
         public T GetFirst<T>() where T : class, TInstance
         {
-            return GetAll<T>()
-                .FirstOrDefault();
+            _lock.EnterReadLock();
+            try
+            {
+                ICollection<TInstance> collection;
+                if (_instancesDictionary.TryGetValue(typeof(T), out collection))
+                {
+                    return collection.FirstOrDefault() as T;
+                }
+                return null;
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -74,14 +101,22 @@ namespace Jalex.Infrastructure.Containers
         /// <typeparam name="T">The type of instance to get</typeparam>
         public IEnumerable<T> GetAll<T>() where T : class, TInstance
         {
-            ICollection<TInstance> collection;
-            if (_instancesDictionary.TryGetValue(typeof(T), out collection))
+            _lock.EnterReadLock();
+            try
             {
-                return collection.Cast<T>()
-                                 .ToCollection();
-            }
+                ICollection<TInstance> collection;
+                if (_instancesDictionary.TryGetValue(typeof(T), out collection))
+                {
+                    return collection.Cast<T>()
+                                     .ToCollection();
+                }
 
-            return Enumerable.Empty<T>();
+                return Enumerable.Empty<T>();
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -91,7 +126,16 @@ namespace Jalex.Infrastructure.Containers
         public void Add(TInstance instance)
         {
             if (instance == null) throw new ArgumentNullException(nameof(instance));
-            addToDict(_instancesDictionary, instance);
+
+            _lock.EnterWriteLock();
+            try
+            {
+                addToDict(_instancesDictionary, instance);
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
 
         /// <summary>
@@ -103,7 +147,16 @@ namespace Jalex.Infrastructure.Containers
             if (instance == null) throw new ArgumentNullException(nameof(instance));
 
             var type = instance.GetType();
-            _instancesDictionary[type] = new List<TInstance> { instance };
+
+            _lock.EnterWriteLock();
+            try
+            {
+                _instancesDictionary[type] = new List<TInstance> { instance };
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
 
         /// <summary>
@@ -116,13 +169,22 @@ namespace Jalex.Infrastructure.Containers
             if (item == null) throw new ArgumentNullException(nameof(item));
 
             var type = item.GetType();
-            ICollection<TInstance> collection;
-            if (_instancesDictionary.TryGetValue(type, out collection))
+
+            _lock.EnterWriteLock();
+            try
             {
-                // ReSharper disable once PossibleNullReferenceException
-                return collection.Remove(item);
+                ICollection<TInstance> collection;
+                if (_instancesDictionary.TryGetValue(type, out collection))
+                {
+                    // ReSharper disable once PossibleNullReferenceException
+                    return collection.Remove(item);
+                }
+                return false;
             }
-            return false;
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
 
         /// <summary>
@@ -132,12 +194,35 @@ namespace Jalex.Infrastructure.Containers
         /// <returns>Whether any instances exist in the container</returns>
         public bool ContainsAny<T>() where T : class, TInstance
         {
-            return GetAll<T>().Any();
+            _lock.EnterReadLock();
+            try
+            {
+                ICollection<TInstance> collection;
+                if (_instancesDictionary.TryGetValue(typeof(T), out collection))
+                {
+                    return collection.Any();
+                }
+                return false;
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
 
         public string SerializeToString()
         {
-            var instances = this.ToCollection();
+            IReadOnlyCollection<TInstance> instances;
+            _lock.EnterReadLock();
+            try
+            {
+                instances = this.ToCollection();
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+
             var str = JsonConvert.SerializeObject(instances, _serializerSettings);
             return str;
         }
@@ -171,6 +256,7 @@ namespace Jalex.Infrastructure.Containers
         private static Dictionary<Type, ICollection<TInstance>> deserializeState(string serializedState)
         {
             var instances = JsonConvert.DeserializeObject<List<TInstance>>(serializedState, _serializerSettings);
+
             var dict = new Dictionary<Type, ICollection<TInstance>>(instances.Count);
             foreach (var instance in instances)
             {
