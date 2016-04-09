@@ -89,7 +89,7 @@ namespace Jalex.Infrastructure.Extensions
             return source.Average();
         }
 
-        public static IEnumerable<T> Each<T>(this IEnumerable<T> source, Action<T> action)
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             foreach (var item in source)
                 action(item);
