@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{89020085-DF8D-47C2-929E-3EEFDEA30B02}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,6 +39,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Concurrency", "Jalex.Concurrency\Jalex.Concurrency.csproj", "{F8C54981-2F19-4461-A095-2DF6B89C5744}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.Concurrency.Test", "Jalex.Concurrency.Test\Jalex.Concurrency.Test.csproj", "{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jalex.MachineLearning", "Jalex.MachineLearning\Jalex.MachineLearning.csproj", "{CACC60A5-582F-49A6-8AE1-A763062AA181}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,6 +108,10 @@ Global
 		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11B2CA7D-E5DD-4DDA-9018-FD951808ED4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CACC60A5-582F-49A6-8AE1-A763062AA181}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CACC60A5-582F-49A6-8AE1-A763062AA181}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CACC60A5-582F-49A6-8AE1-A763062AA181}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CACC60A5-582F-49A6-8AE1-A763062AA181}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

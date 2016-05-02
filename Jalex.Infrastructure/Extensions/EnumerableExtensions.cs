@@ -89,13 +89,6 @@ namespace Jalex.Infrastructure.Extensions
             return source.Average();
         }
 
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            foreach (var item in source)
-                action(item);
-            return source;
-        }
-
         [DebuggerStepThrough]
         public static async Task<IEnumerable<T>> WhereAsync<T>(this IEnumerable<T> items, Func<T, Task<bool>> predicate)
         {

@@ -3,6 +3,10 @@ redirects: on
 source https://api.nuget.org/v3/index.json
 source https://www.nuget.org/api/v2/
 
+nuget Accord.MachineLearning
+nuget Accord.Math
+nuget Accord.Neuro
+nuget Accord.Statistics
 nuget Nuget.CommandLine
 nuget Autofac
 nuget AutoFixture
