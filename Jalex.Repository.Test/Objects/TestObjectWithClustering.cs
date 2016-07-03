@@ -10,9 +10,9 @@ namespace Jalex.Repository.Test.Objects
         [Indexed]
         public string Name { get; set; }
 
-        [Indexed(IsClustered = true)]
+        [Indexed(IndexType = IndexType.Clustered)]
         public string RefId { get; set; }
-        [Indexed(IsClustered = true)]
+        [Indexed(IndexType = IndexType.Clustered)]
         public int Number { get; set; }
 
         public TestObject NestedObject { get; set; }

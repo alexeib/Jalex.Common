@@ -16,11 +16,12 @@ namespace Jalex.Infrastructure.Repository
         {
             SortOrder = Order.Unspecified;
             Index = -1;
+            IndexType = IndexType.Secondary;
         }
 
         public int Index { get; set; }
         public Order SortOrder { get; set; }
         public string Name { get; set; }
-        public bool IsClustered { get; set; }
+        public IndexType IndexType { get; set; }
     }
 }

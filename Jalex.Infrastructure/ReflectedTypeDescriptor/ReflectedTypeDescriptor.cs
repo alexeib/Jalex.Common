@@ -43,7 +43,8 @@ namespace Jalex.Infrastructure.ReflectedTypeDescriptor
             TypeParameter = Expression.Parameter(_type);
             IdPropertyExpression = Expression.Property(TypeParameter, IdPropertyName);
 
-            HasClusteredIndices = Properties.Any(prop => prop.GetCustomAttributes(true).Any(a => a is IndexedAttribute && ((IndexedAttribute)a).IsClustered));
+            HasClusteredIndices = Properties.Any(prop => prop.GetCustomAttributes(true)
+                                                             .Any(a => a is IndexedAttribute && ((IndexedAttribute) a).IndexType.HasFlag(IndexType.Clustered)));
         }
 
         public Guid GetId(T target)

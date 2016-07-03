@@ -105,6 +105,7 @@
     <Compile Include="Repository\IDeleter.cs" />
     <Compile Include="Repository\IdFormatException.cs" />
     <Compile Include="Repository\IFileRepository.cs" />
+    <Compile Include="Repository\IndexType.cs" />
     <Compile Include="Repository\IQueryableReader.cs" />
     <Compile Include="Repository\IWriter.cs" />
     <Compile Include="Repository\IndexedAttribute.cs" />

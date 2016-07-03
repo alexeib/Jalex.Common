@@ -9,10 +9,10 @@ namespace Jalex.Services.Test.Fixtures
         public string Name { get; set; }
         public double NumValue { get; set; }
 
-        [Indexed(IsClustered = true)]
+        [Indexed(IndexType = IndexType.Clustered)]
         public string ClusteredKey { get; set; }
 
-        [Indexed(IsClustered = true)]
+        [Indexed(IndexType = IndexType.Clustered)]
         public string ClusteredKey2 { get; set; }
     }
 }
