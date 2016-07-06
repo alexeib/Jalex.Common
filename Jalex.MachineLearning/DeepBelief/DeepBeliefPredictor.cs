@@ -11,18 +11,18 @@ namespace Jalex.MachineLearning.DeepBelief
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput> _inputExtractor;
-        private readonly IOutputExtractor<TInput, TOutput> _outputExtractor;
+        private readonly IPredictionCreator<TOutput> _predictionCreator;
 
         public Tuple<double, double>[] InputMeanAndStd { get; }
 
         public DeepBeliefNetwork Network { get; }
 
-        public DeepBeliefPredictor(DeepBeliefNetwork network, IInputExtractor<TInput> inputExtractor, IOutputExtractor<TInput, TOutput> outputExtractor, Tuple<double, double>[] inputMeanAndStd)
+        public DeepBeliefPredictor(DeepBeliefNetwork network, IInputExtractor<TInput> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
         {
             Network = network;
             InputMeanAndStd = inputMeanAndStd;
             _inputExtractor = inputExtractor;
-            _outputExtractor = outputExtractor;
+            _predictionCreator = predictionCreator;
         }
 
         #region Implementation of IPredictor
@@ -40,7 +40,7 @@ namespace Jalex.MachineLearning.DeepBelief
             try
             {
                 var outputs = Network.Compute(inputs);
-                var prediction = _outputExtractor.CreatePrediction(outputs);
+                var prediction = _predictionCreator.CreatePrediction(outputs);
                 return prediction;
             }
             catch (Exception e)

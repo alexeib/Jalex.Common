@@ -49,10 +49,10 @@
     <Compile Include="DeepBelief\LayerType.cs" />
     <Compile Include="DeepBelief\WeightInitializationType.cs" />
     <Compile Include="Extractors\IInputExtractor.cs" />
-    <Compile Include="Extractors\InputOutputBuilder.cs" />
-    <Compile Include="Extractors\IOutputExtractor.cs" />
+    <Compile Include="Extractors\InputBuilder.cs" />
+    <Compile Include="Extractors\IPredictionCreator.cs" />
     <Compile Include="Extractors\LambdaInputExtractor.cs" />
-    <Compile Include="Extractors\LambdaOutputExtractor.cs" />
+    <Compile Include="Extractors\LambdaPredictionCreator.cs" />
     <Compile Include="IPrediction.cs" />
     <Compile Include="IPredictor.cs" />
     <Compile Include="ITrainer.cs" />

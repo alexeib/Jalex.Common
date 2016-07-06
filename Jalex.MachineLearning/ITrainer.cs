@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Jalex.MachineLearning
 {
-    public interface ITrainer<in TInput, out TOutput>
+    public interface ITrainer<TInput, out TOutput>
     {
-        IPredictor<TInput,TOutput> Train(IEnumerable<TInput> inputs);
+        IPredictor<TInput,TOutput> Train(IEnumerable<Tuple<TInput, double[]>> inputsAndOutputs);
     }
 }

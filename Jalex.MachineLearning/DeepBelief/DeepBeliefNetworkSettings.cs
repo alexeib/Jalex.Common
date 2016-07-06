@@ -16,14 +16,8 @@ namespace Jalex.MachineLearning.DeepBelief
                                                                  {
                                                                      VisibleLayerType = LayerType.Gaussian,
                                                                      HiddenLayerType = LayerType.Gaussian,
-                                                                     Neurons = 64,
+                                                                     Neurons = 8,
                                                                  },
-                                                                 new LayerParameters
-                                                                 {
-                                                                 },
-                                                                 new LayerParameters
-                                                                 {
-                                                                 }
                                                              };
 
         [TunableParameter]
@@ -36,7 +30,7 @@ namespace Jalex.MachineLearning.DeepBelief
         public double Momentum { get; set; } = 0.2;
 
         [TunableParameter]
-        public int Epochs { get; set; } = 600;
+        public int Epochs { get; set; } = 150;
 
         [TunableParameter]
         public WeightInitializationType InitializationType { get; set; } = WeightInitializationType.NguyenWidrow;

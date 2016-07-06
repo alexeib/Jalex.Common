@@ -4,6 +4,7 @@ using System.Linq;
 using Accord.MachineLearning.VectorMachines;
 using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Statistics.Kernels;
+using Jalex.Infrastructure.Extensions;
 using Jalex.MachineLearning.Extractors;
 using NLog;
 
@@ -15,50 +16,51 @@ namespace Jalex.MachineLearning.SVM
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput> _inputExtractor;
-        private readonly IOutputExtractor<TInput, TOutput> _outputExtractor;
+        private readonly IPredictionCreator<TOutput> _predictionCreator;
         private readonly SvmSettings _settings;
-        private readonly InputOutputBuilder<TInput, TOutput> _inputOutputBuilder;
+        private readonly InputBuilder<TInput> _inputBuilder;
 
         public bool IsLoggingEnabled { get; set; } = true;
 
-        public DtwSvmTrainer(IInputExtractor<TInput> inputExtractor, IOutputExtractor<TInput, TOutput> outputExtractor, SvmSettings settings)
+        public DtwSvmTrainer(IInputExtractor<TInput> inputExtractor, IPredictionCreator<TOutput> predictionCreator, SvmSettings settings)
         {
             _inputExtractor = inputExtractor;
-            _outputExtractor = outputExtractor;
+            _predictionCreator = predictionCreator;
             _settings = settings;
 
-            _inputOutputBuilder = new InputOutputBuilder<TInput, TOutput>(inputExtractor, outputExtractor);
+            _inputBuilder = new InputBuilder<TInput>(inputExtractor);
         }
 
         #region Implementation of ITrainer
 
-        public IPredictor<TInput, TOutput> Train(IEnumerable<TInput> inputs)
+        public IPredictor<TInput, TOutput> Train(IEnumerable<Tuple<TInput, double[]>> inputsAndOutputs)
         {
-            double[][] numericalInputs, outputs;
-            _inputOutputBuilder.BuildInputOutputs(inputs, out numericalInputs, out outputs);
+            var inpOutColl = inputsAndOutputs.ToCollection();
+            double[][] numericalOutputs = inpOutColl.Select(x => x.Item2)
+                                                    .ToArray();
+            var numericalInputs = _inputBuilder.BuildInputs(inpOutColl.Select(x => x.Item1));
 
             if (numericalInputs.Length == 0)
             {
                 return null;
             }
 
-            var outputLength = outputs[0].Length;
-
-            var meanStd = _inputOutputBuilder.NormalizeInputs(numericalInputs);
+            var outputLength = numericalOutputs[0].Length;
+            var meanStd = _inputBuilder.NormalizeInputs(numericalInputs);
 
             ISupportVectorMachine[] svms = new ISupportVectorMachine[outputLength];
 
             Enumerable.Range(0, outputLength)
                       .OrderBy(i => Math.Abs(i - outputLength / 2)) // start from the middle as it is most computationally intensive
                       .AsParallel()
-                      .ForAll(i => svms[i] = trainSvm(numericalInputs, outputs, i));
+                      .ForAll(i => svms[i] = trainSvm(numericalInputs, numericalOutputs, i));
 
             if (IsLoggingEnabled)
             {
                 _logger.Info("Training finished");
             }
 
-            return new DtwSvmPredictor<TInput, TOutput>(svms, _inputExtractor, _outputExtractor, meanStd);
+            return new DtwSvmPredictor<TInput, TOutput>(svms, _inputExtractor, _predictionCreator, meanStd);
         }
 
         #endregion

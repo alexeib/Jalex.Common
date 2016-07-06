@@ -20,7 +20,7 @@ namespace Jalex.MachineLearning.DeepBelief
         public double Decay { get; set; } = 0.001;
 
         [TunableParameter]
-        public int Epochs { get; set; } = 200;
+        public int Epochs { get; set; } = 100;
 
         [TunableParameter]
         public double Alpha { get; set; } = 1;

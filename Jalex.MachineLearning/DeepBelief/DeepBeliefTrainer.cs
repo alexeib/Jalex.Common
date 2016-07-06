@@ -18,46 +18,48 @@ namespace Jalex.MachineLearning.DeepBelief
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput> _inputExtractor;
-        private readonly IOutputExtractor<TInput, TOutput> _outputExtractor;
+        private readonly IPredictionCreator<TOutput> _predictionCreator;
         private readonly DeepBeliefNetworkSettings _settings;
         private readonly DeepBeliefNetwork _network;
-        private readonly InputOutputBuilder<TInput, TOutput> _inputOutputBuilder;
+        private readonly InputBuilder<TInput> _inputBuilder;
 
         public DeepBeliefTrainer(IInputExtractor<TInput> inputExtractor,
-                                 IOutputExtractor<TInput, TOutput> outputExtractor,
+                                 IPredictionCreator<TOutput> predictionCreator,
                                  DeepBeliefNetworkSettings settings,
                                  DeepBeliefNetwork network = null)
         {
             _inputExtractor = inputExtractor;
-            _outputExtractor = outputExtractor;
+            _predictionCreator = predictionCreator;
             _settings = settings;
             _network = network;
 
-            _inputOutputBuilder = new InputOutputBuilder<TInput, TOutput>(inputExtractor, outputExtractor);
+            _inputBuilder = new InputBuilder<TInput>(inputExtractor);
         }
 
         public bool IsLoggingEnabled { get; set; }
 
         #region Implementation of INeuralTrainer
 
-        public IPredictor<TInput, TOutput> Train(IEnumerable<TInput> inputs)
+        public IPredictor<TInput, TOutput> Train(IEnumerable<Tuple<TInput, double[]>> inputsAndOutputs)
         {
-            double[][] numericalInputs, outputs;
-            _inputOutputBuilder.BuildInputOutputs(inputs, out numericalInputs, out outputs);
+            var inpOutColl = inputsAndOutputs.ToCollection();
+            double[][] numericalOutputs = inpOutColl.Select(x => x.Item2)
+                                                    .ToArray();
+            var numericalInputs = _inputBuilder.BuildInputs(inpOutColl.Select(x => x.Item1));
 
             if (numericalInputs.Length == 0)
             {
                 return null;
             }
 
-            var meanStd = _inputOutputBuilder.NormalizeInputs(numericalInputs);
+            var meanStd = _inputBuilder.NormalizeInputs(numericalInputs);
 
-            var network = _network ?? CreateNetwork(numericalInputs[0].Length, outputs[0].Length, _settings);
+            var network = _network ?? CreateNetwork(numericalInputs[0].Length, numericalOutputs[0].Length, _settings);
 
             trainHiddenLayers(network, numericalInputs);
-            trainNetwork(network, numericalInputs, outputs);
+            trainNetwork(network, numericalInputs, numericalOutputs);
 
-            return new DeepBeliefPredictor<TInput, TOutput>(network, _inputExtractor, _outputExtractor, meanStd);
+            return new DeepBeliefPredictor<TInput, TOutput>(network, _inputExtractor, _predictionCreator, meanStd);
         }
 
         public static DeepBeliefNetwork CreateNetwork(int inputLength, int outputLength, DeepBeliefNetworkSettings settings)

@@ -10,16 +10,16 @@ namespace Jalex.MachineLearning.SVM
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput> _inputExtractor;
-        private readonly IOutputExtractor<TInput, TOutput> _outputExtractor;
+        private readonly IPredictionCreator<TOutput> _predictionCreator;
 
         public Tuple<double, double>[] InputMeanAndStd { get; }
 
         public ISupportVectorMachine[] Svms { get; }
 
-        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput> inputExtractor, IOutputExtractor<TInput, TOutput> outputExtractor, Tuple<double, double>[] inputMeanAndStd)
+        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
         {
             _inputExtractor = inputExtractor;
-            _outputExtractor = outputExtractor;
+            _predictionCreator = predictionCreator;
             Svms = svms;
             InputMeanAndStd = inputMeanAndStd;
         }
@@ -45,7 +45,7 @@ namespace Jalex.MachineLearning.SVM
                     outputs[i] = getOutput(inputs, Svms[i]);
                 }
 
-                var prediction = _outputExtractor.CreatePrediction(outputs);
+                var prediction = _predictionCreator.CreatePrediction(outputs);
                 return prediction;
             }
             catch (Exception e)
