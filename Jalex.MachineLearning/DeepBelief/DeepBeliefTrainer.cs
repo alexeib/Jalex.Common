@@ -17,13 +17,13 @@ namespace Jalex.MachineLearning.DeepBelief
         // ReSharper disable once StaticMemberInGenericType
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IInputExtractor<TInput> _inputExtractor;
+        private readonly IInputExtractor<TInput, double> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
         private readonly DeepBeliefNetworkSettings _settings;
         private readonly DeepBeliefNetwork _network;
-        private readonly InputBuilder<TInput> _inputBuilder;
+        private readonly DoubleInputBuilder<TInput> _doubleInputBuilder;
 
-        public DeepBeliefTrainer(IInputExtractor<TInput> inputExtractor,
+        public DeepBeliefTrainer(IInputExtractor<TInput, double> inputExtractor,
                                  IPredictionCreator<TOutput> predictionCreator,
                                  DeepBeliefNetworkSettings settings,
                                  DeepBeliefNetwork network = null)
@@ -33,7 +33,7 @@ namespace Jalex.MachineLearning.DeepBelief
             _settings = settings;
             _network = network;
 
-            _inputBuilder = new InputBuilder<TInput>(inputExtractor);
+            _doubleInputBuilder = new DoubleInputBuilder<TInput>(inputExtractor);
         }
 
         public bool IsLoggingEnabled { get; set; }
@@ -45,14 +45,14 @@ namespace Jalex.MachineLearning.DeepBelief
             var inpOutColl = inputsAndOutputs.ToCollection();
             double[][] numericalOutputs = inpOutColl.Select(x => x.Item2)
                                                     .ToArray();
-            var numericalInputs = _inputBuilder.BuildInputs(inpOutColl.Select(x => x.Item1));
+            var numericalInputs = _doubleInputBuilder.BuildInputs(inpOutColl.Select(x => x.Item1));
 
             if (numericalInputs.Length == 0)
             {
                 return null;
             }
 
-            var meanStd = _inputBuilder.NormalizeInputs(numericalInputs);
+            var meanStd = _doubleInputBuilder.NormalizeInputs(numericalInputs);
 
             var network = _network ?? CreateNetwork(numericalInputs[0].Length, numericalOutputs[0].Length, _settings);
 

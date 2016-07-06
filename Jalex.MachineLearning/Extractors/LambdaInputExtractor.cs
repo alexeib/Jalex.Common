@@ -2,11 +2,11 @@
 
 namespace Jalex.MachineLearning.Extractors
 {
-    public class LambdaInputExtractor<TInput> : IInputExtractor<TInput>
+    public class LambdaInputExtractor<TInstance, TInput> : IInputExtractor<TInstance, TInput>
     {
-        private readonly Func<TInput, double[]> _inputExtractionFunc;
+        private readonly Func<TInstance, TInput[]> _inputExtractionFunc;
 
-        public LambdaInputExtractor(Func<TInput, double[]> inputExtractionFunc)
+        public LambdaInputExtractor(Func<TInstance, TInput[]> inputExtractionFunc)
         {
             if (inputExtractionFunc == null) throw new ArgumentNullException(nameof(inputExtractionFunc));
             _inputExtractionFunc = inputExtractionFunc;
@@ -14,7 +14,7 @@ namespace Jalex.MachineLearning.Extractors
 
         #region Implementation of IInputExtractor
 
-        public double[] ExtractInputs(TInput input) => _inputExtractionFunc(input);
+        public TInput[] ExtractInputs(TInstance input) => _inputExtractionFunc(input);
 
         #endregion
     }

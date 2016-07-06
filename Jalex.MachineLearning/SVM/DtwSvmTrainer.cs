@@ -15,20 +15,20 @@ namespace Jalex.MachineLearning.SVM
         // ReSharper disable once StaticMemberInGenericType
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IInputExtractor<TInput> _inputExtractor;
+        private readonly IInputExtractor<TInput, double> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
         private readonly SvmSettings _settings;
-        private readonly InputBuilder<TInput> _inputBuilder;
+        private readonly DoubleInputBuilder<TInput> _doubleInputBuilder;
 
         public bool IsLoggingEnabled { get; set; } = true;
 
-        public DtwSvmTrainer(IInputExtractor<TInput> inputExtractor, IPredictionCreator<TOutput> predictionCreator, SvmSettings settings)
+        public DtwSvmTrainer(IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, SvmSettings settings)
         {
             _inputExtractor = inputExtractor;
             _predictionCreator = predictionCreator;
             _settings = settings;
 
-            _inputBuilder = new InputBuilder<TInput>(inputExtractor);
+            _doubleInputBuilder = new DoubleInputBuilder<TInput>(inputExtractor);
         }
 
         #region Implementation of ITrainer
@@ -38,7 +38,7 @@ namespace Jalex.MachineLearning.SVM
             var inpOutColl = inputsAndOutputs.ToCollection();
             double[][] numericalOutputs = inpOutColl.Select(x => x.Item2)
                                                     .ToArray();
-            var numericalInputs = _inputBuilder.BuildInputs(inpOutColl.Select(x => x.Item1));
+            var numericalInputs = _doubleInputBuilder.BuildInputs(inpOutColl.Select(x => x.Item1));
 
             if (numericalInputs.Length == 0)
             {
@@ -46,7 +46,7 @@ namespace Jalex.MachineLearning.SVM
             }
 
             var outputLength = numericalOutputs[0].Length;
-            var meanStd = _inputBuilder.NormalizeInputs(numericalInputs);
+            var meanStd = _doubleInputBuilder.NormalizeInputs(numericalInputs);
 
             ISupportVectorMachine[] svms = new ISupportVectorMachine[outputLength];
 

@@ -9,14 +9,14 @@ namespace Jalex.MachineLearning.SVM
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IInputExtractor<TInput> _inputExtractor;
+        private readonly IInputExtractor<TInput, double> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
 
         public Tuple<double, double>[] InputMeanAndStd { get; }
 
         public ISupportVectorMachine[] Svms { get; }
 
-        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
+        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
         {
             _inputExtractor = inputExtractor;
             _predictionCreator = predictionCreator;

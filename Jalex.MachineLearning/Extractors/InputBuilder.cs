@@ -1,59 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Accord.Statistics;
 
 namespace Jalex.MachineLearning.Extractors
 {
-    internal class InputBuilder<TInput>
+    internal class InputBuilder<TInstance, TInput>
     {
-        private readonly IInputExtractor<TInput> _inputExtractor;
+        private readonly IInputExtractor<TInstance, TInput> _inputExtractor;
 
-        public InputBuilder(IInputExtractor<TInput> inputExtractor)
+        public InputBuilder(IInputExtractor<TInstance, TInput> inputExtractor)
         {
             _inputExtractor = inputExtractor;
         }
 
-        public double[][] BuildInputs(IEnumerable<TInput> inputs)
+        public TInput[][] BuildInputs(IEnumerable<TInstance> instances)
         {
-            var doubles = doubleInputs(inputs);
-            double[][] numericalInputs = doubles.ToArray();
-            return numericalInputs;
+            var inputs = toInputs(instances);
+            return inputs.ToArray();
         }
 
-        public Tuple<double, double>[] NormalizeInputs(double[][] inputs)
+        private IEnumerable<TInput[]> toInputs(IEnumerable<TInstance> instances)
         {
-            return null;
-
-            var meanStd = new Tuple<double, double>[inputs[0].Length];
-
-            var numParameters = inputs[0].Length;
-            for (int i = 0; i < numParameters; i++)
-            {
-                var samples = inputs.Select(x => x[i])
-                                    .ToArray();
-                var mean = samples.Mean();
-                var std = samples.StandardDeviation(mean);
-
-                if (!double.IsNaN(std))
-                {
-                    foreach (double[] input in inputs)
-                    {
-                        input[i] = (input[i] - mean) / std;
-                    }
-                }
-
-                meanStd[i] = new Tuple<double, double>(mean, std);
-            }
-
-            return meanStd;
-        }
-
-        private IEnumerable<double[]> doubleInputs(IEnumerable<TInput> inputs)
-        {
-            return from input in inputs
-                   let numericalInputs = _inputExtractor.ExtractInputs(input)
-                   where inputs != null
+            return from instance in instances
+                   let numericalInputs = _inputExtractor.ExtractInputs(instance)
+                   where numericalInputs != null
                    select numericalInputs;
         }
     }

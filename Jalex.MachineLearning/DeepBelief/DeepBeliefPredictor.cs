@@ -10,14 +10,14 @@ namespace Jalex.MachineLearning.DeepBelief
         // ReSharper disable once StaticMemberInGenericType
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IInputExtractor<TInput> _inputExtractor;
+        private readonly IInputExtractor<TInput, double> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
 
         public Tuple<double, double>[] InputMeanAndStd { get; }
 
         public DeepBeliefNetwork Network { get; }
 
-        public DeepBeliefPredictor(DeepBeliefNetwork network, IInputExtractor<TInput> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
+        public DeepBeliefPredictor(DeepBeliefNetwork network, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
         {
             Network = network;
             InputMeanAndStd = inputMeanAndStd;
