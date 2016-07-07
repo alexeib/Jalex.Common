@@ -16,7 +16,13 @@ namespace Jalex.MachineLearning.DeepBelief
                                                                  {
                                                                      VisibleLayerType = LayerType.Gaussian,
                                                                      HiddenLayerType = LayerType.Gaussian,
-                                                                     Neurons = 8,
+                                                                     Neurons = 16,
+                                                                 },
+                                                                 new LayerParameters
+                                                                 {
+                                                                     VisibleLayerType = LayerType.Gaussian,
+                                                                     HiddenLayerType = LayerType.Gaussian,
+                                                                     Neurons = 16,
                                                                  },
                                                              };
 

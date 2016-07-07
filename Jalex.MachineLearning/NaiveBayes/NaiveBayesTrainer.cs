@@ -56,9 +56,14 @@ namespace Jalex.MachineLearning.NaiveBayes
             {
                 for (int i = 0; i < numericalInputs[0].Length; i++)
                 {
-                    if (bayes.Distributions[c, i][0] == 0 || bayes.Distributions[c, i][0] == 1)
+                    if (bayes.Distributions[c, i][0] == 0)
                     {
-                        throw new Exception();
+                        bayes.Distributions[c, i][0] = 1 - bayes.Distributions[c, i][1];
+                    }
+
+                    if (bayes.Distributions[c, i][1] == 0)
+                    {
+                        bayes.Distributions[c, i][1] = 1 - bayes.Distributions[c, i][0];
                     }
                 }
             }

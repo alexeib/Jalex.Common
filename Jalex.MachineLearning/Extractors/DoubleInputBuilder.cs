@@ -13,7 +13,7 @@ namespace Jalex.MachineLearning.Extractors
 
         public Tuple<double, double>[] NormalizeInputs(double[][] inputs)
         {
-            return null;
+            //return null;
 
             var meanStd = new Tuple<double, double>[inputs[0].Length];
 
