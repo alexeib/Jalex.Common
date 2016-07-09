@@ -54,23 +54,6 @@ namespace Jalex.MachineLearning.NaiveBayes
             var bayes = new Accord.MachineLearning.Bayes.NaiveBayes(_outputClasses, _inputClasses);
             bayes.Estimate(numericalInputs, numericalOutputs);
 
-            for (int c = 0; c < _outputClasses; c++)
-            {
-                for (int i = 0; i < _inputClasses.Length; i++)
-                {
-                    var curr = bayes.Distributions[c, i];
-                    var sum = curr.Sum();
-                    if (sum < 1)
-                    {
-                        var toAdd = (1 - sum)/curr.Length;
-                        for (int j = 0; j < curr.Length; j++)
-                        {
-                            curr[j] += toAdd;
-                        }
-                    }
-                }
-            }
-
             return new NaiveBayesPredictor<TInput, TOutput>(bayes, _inputExtractor, _predictionCreator);
         }
 
