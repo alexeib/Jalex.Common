@@ -13,14 +13,20 @@ namespace Jalex.MachineLearning.NaiveBayes
     {
         private readonly IInputExtractor<TInput, int> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
+        private readonly int _outputClasses;
+        private readonly int[] _inputClasses;
         private readonly InputBuilder<TInput, int> _inputBuilder;
 
-        public NaiveBayesTrainer(IInputExtractor<TInput, int> inputExtractor, IPredictionCreator<TOutput> predictionCreator)
+        public NaiveBayesTrainer(IInputExtractor<TInput, int> inputExtractor, IPredictionCreator<TOutput> predictionCreator, int outputClasses, IEnumerable<int> inputClasses)
         {
             if (inputExtractor == null) throw new ArgumentNullException(nameof(inputExtractor));
             if (predictionCreator == null) throw new ArgumentNullException(nameof(predictionCreator));
+            if (inputClasses == null) throw new ArgumentNullException(nameof(inputClasses));
+
             _inputExtractor = inputExtractor;
             _predictionCreator = predictionCreator;
+            _outputClasses = outputClasses;
+            _inputClasses = inputClasses.ToArray();
 
             _inputBuilder = new InputBuilder<TInput, int>(_inputExtractor);
         }
@@ -45,25 +51,22 @@ namespace Jalex.MachineLearning.NaiveBayes
                 throw new InvalidOperationException("Current implementation of Naive Bayes only supports a single class");
             }
 
-            var symbols = Enumerable.Range(0, numericalInputs[0].Length)
-                                    .Select(_ => 2)
-                                    .ToArray();
-
-            var bayes = new Accord.MachineLearning.Bayes.NaiveBayes(2, symbols);
+            var bayes = new Accord.MachineLearning.Bayes.NaiveBayes(_outputClasses, _inputClasses);
             bayes.Estimate(numericalInputs, numericalOutputs);
 
-            for (int c = 0; c < 2; c++)
+            for (int c = 0; c < _outputClasses; c++)
             {
-                for (int i = 0; i < numericalInputs[0].Length; i++)
+                for (int i = 0; i < _inputClasses.Length; i++)
                 {
-                    if (bayes.Distributions[c, i][0] == 0)
+                    var curr = bayes.Distributions[c, i];
+                    var sum = curr.Sum();
+                    if (sum < 1)
                     {
-                        bayes.Distributions[c, i][0] = 1 - bayes.Distributions[c, i][1];
-                    }
-
-                    if (bayes.Distributions[c, i][1] == 0)
-                    {
-                        bayes.Distributions[c, i][1] = 1 - bayes.Distributions[c, i][0];
+                        var toAdd = (1 - sum)/curr.Length;
+                        for (int j = 0; j < curr.Length; j++)
+                        {
+                            curr[j] += toAdd;
+                        }
                     }
                 }
             }
