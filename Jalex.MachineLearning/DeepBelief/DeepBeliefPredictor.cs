@@ -13,14 +13,14 @@ namespace Jalex.MachineLearning.DeepBelief
         private readonly IInputExtractor<TInput, double> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
 
-        public Tuple<double, double>[] InputMeanAndStd { get; }
-
         public DeepBeliefNetwork Network { get; }
+        public NormalizationParams[] NormalizationParams { get; set; }
 
-        public DeepBeliefPredictor(DeepBeliefNetwork network, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
+        public DeepBeliefPredictor(DeepBeliefNetwork network, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, NormalizationParams[] normalizationParams)
         {
+            if (normalizationParams == null) throw new ArgumentNullException(nameof(normalizationParams));
             Network = network;
-            InputMeanAndStd = inputMeanAndStd;
+            NormalizationParams = normalizationParams;
             _inputExtractor = inputExtractor;
             _predictionCreator = predictionCreator;
         }
@@ -35,7 +35,7 @@ namespace Jalex.MachineLearning.DeepBelief
                 return null;
             }
 
-            normalizeInputs(inputs);
+            normalize(inputs);
 
             try
             {
@@ -52,15 +52,13 @@ namespace Jalex.MachineLearning.DeepBelief
 
         #endregion
 
-        private void normalizeInputs(double[] inputs)
+        private void normalize(double[] inputs)
         {
-            if (InputMeanAndStd == null) return;
-
-            for (int i = 0; i < inputs.Length; i++)
+            if (NormalizationParams != null)
             {
-                if (!double.IsNaN(InputMeanAndStd[i].Item2))
+                for (int i = 0; i < inputs.Length; i++)
                 {
-                    inputs[i] = (inputs[i] - InputMeanAndStd[i].Item1) / InputMeanAndStd[i].Item2;
+                    inputs[i] = NormalizationParams[i].Normalize(inputs[i]);
                 }
             }
         }

@@ -12,16 +12,16 @@ namespace Jalex.MachineLearning.SVM
         private readonly IInputExtractor<TInput, double> _inputExtractor;
         private readonly IPredictionCreator<TOutput> _predictionCreator;
 
-        public Tuple<double, double>[] InputMeanAndStd { get; }
+        public NormalizationParams[] NormalzationParams { get; }
 
         public ISupportVectorMachine[] Svms { get; }
 
-        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, Tuple<double, double>[] inputMeanAndStd)
+        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, NormalizationParams[] normalzationParams)
         {
             _inputExtractor = inputExtractor;
             _predictionCreator = predictionCreator;
             Svms = svms;
-            InputMeanAndStd = inputMeanAndStd;
+            NormalzationParams = normalzationParams;
         }
 
         #region Implementation of IPredictor
@@ -34,7 +34,7 @@ namespace Jalex.MachineLearning.SVM
                 return null;
             }
 
-            normalizeInputs(inputs);
+            normalize(inputs);
 
             try
             {
@@ -57,16 +57,13 @@ namespace Jalex.MachineLearning.SVM
 
         #endregion
 
-        private void normalizeInputs(double[] inputs)
+        private void normalize(double[] inputs)
         {
-            if (InputMeanAndStd == null) return;
+            if (NormalzationParams == null) return;
 
             for (int i = 0; i < inputs.Length; i++)
             {
-                if (!double.IsNaN(InputMeanAndStd[i].Item2))
-                {
-                    inputs[i] = (inputs[i] - InputMeanAndStd[i].Item1) / InputMeanAndStd[i].Item2;
-                }
+                inputs[i] = NormalzationParams[i].Normalize(inputs[i]);
             }
         }
 

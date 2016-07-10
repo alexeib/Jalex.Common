@@ -46,7 +46,7 @@ namespace Jalex.MachineLearning.SVM
             }
 
             var outputLength = numericalOutputs[0].Length;
-            var meanStd = _doubleInputBuilder.NormalizeInputs(numericalInputs);
+            var normalizationParams = _doubleInputBuilder.NormalizeInputs(numericalInputs);
 
             ISupportVectorMachine[] svms = new ISupportVectorMachine[outputLength];
 
@@ -60,7 +60,7 @@ namespace Jalex.MachineLearning.SVM
                 _logger.Info("Training finished");
             }
 
-            return new DtwSvmPredictor<TInput, TOutput>(svms, _inputExtractor, _predictionCreator, meanStd);
+            return new DtwSvmPredictor<TInput, TOutput>(svms, _inputExtractor, _predictionCreator, normalizationParams);
         }
 
         #endregion

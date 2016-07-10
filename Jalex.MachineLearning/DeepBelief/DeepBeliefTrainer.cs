@@ -52,14 +52,14 @@ namespace Jalex.MachineLearning.DeepBelief
                 return null;
             }
 
-            var meanStd = _doubleInputBuilder.NormalizeInputs(numericalInputs);
+            var normalizationParams = _doubleInputBuilder.NormalizeInputs(numericalInputs);
 
             var network = _network ?? CreateNetwork(numericalInputs[0].Length, numericalOutputs[0].Length, _settings);
 
             trainHiddenLayers(network, numericalInputs);
             trainNetwork(network, numericalInputs, numericalOutputs);
 
-            return new DeepBeliefPredictor<TInput, TOutput>(network, _inputExtractor, _predictionCreator, meanStd);
+            return new DeepBeliefPredictor<TInput, TOutput>(network, _inputExtractor, _predictionCreator, normalizationParams);
         }
 
         public static DeepBeliefNetwork CreateNetwork(int inputLength, int outputLength, DeepBeliefNetworkSettings settings)

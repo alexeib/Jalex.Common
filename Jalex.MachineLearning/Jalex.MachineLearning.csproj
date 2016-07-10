@@ -54,6 +54,7 @@
     <Compile Include="Extractors\IPredictionCreator.cs" />
     <Compile Include="Extractors\LambdaInputExtractor.cs" />
     <Compile Include="Extractors\LambdaPredictionCreator.cs" />
+    <Compile Include="Extractors\NormalizationParams.cs" />
     <Compile Include="IPrediction.cs" />
     <Compile Include="IPredictor.cs" />
     <Compile Include="ITrainer.cs" />
