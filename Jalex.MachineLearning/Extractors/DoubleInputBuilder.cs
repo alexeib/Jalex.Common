@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using Accord.Statistics;
 using Jalex.Infrastructure.Extensions;
 
@@ -8,6 +6,9 @@ namespace Jalex.MachineLearning.Extractors
 {
     internal class DoubleInputBuilder<TInput> : InputBuilder<TInput, double>
     {
+        const double _stdsToClip = 2;
+        const double _desiredMin = -1, _desiredMax = 1;
+
         public DoubleInputBuilder(IInputExtractor<TInput, double> inputExtractor)
             : base(inputExtractor)
         {
@@ -27,40 +28,38 @@ namespace Jalex.MachineLearning.Extractors
 
                 var sampleMean = samples.Mean();
                 var sampleStd = samples.StandardDeviation(sampleMean);
-                samples = samples.Where(x => x > sampleMean + sampleStd * 2 || x < sampleMean - sampleStd * 2)
+                samples = samples.Where(x => x < sampleMean + sampleStd * _stdsToClip && x > sampleMean - sampleStd * _stdsToClip)
                                  .ToArray();
+
+                //sampleMean = samples.Mean();
+                //sampleStd = samples.StandardDeviation(sampleMean);
+
+                //var centeredSamples = samples.Select(x => NormalizationParams.Standardize(x, sampleMean, sampleStd))
+                //                             .ToCollection();
+
+                //var min = centeredSamples.Min();
+                //var max = centeredSamples.Max();
 
                 var min = samples.Min();
                 var max = samples.Max();
 
-                var scaledSamples = samples.Select(x => scale(x, min, max))
-                                           .ToArray();
-
-                var mean = scaledSamples.Mean();
-                var std = scaledSamples.StandardDeviation(mean);
-
                 normPs[i] = new NormalizationParams
                 {
-                    Min = min,
-                    Max = max,
-                    ScaledMean = mean,
-                    ScaledStd = std,
+                    FromMin = min,
+                    FromMax = max,
+                    ToMin = _desiredMin,
+                    ToMax = _desiredMax,
+                    Mean = sampleMean,
+                    Std = sampleStd,
                 };
 
                 foreach (double[] input in inputs)
                 {
                     input[i] = normPs[i].Normalize(input[i]);
                 }
-
-                
             }
 
             return normPs;
-        }
-
-        private double scale(double d, double min, double max)
-        {
-            return (d - min) / (max - min);
         }
     }
 }
