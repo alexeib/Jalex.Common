@@ -16,22 +16,22 @@ namespace Jalex.MachineLearning.SVM
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput, double> _inputExtractor;
-        private readonly IPredictionCreator<TOutput> _predictionCreator;
+        private readonly IPredictionCreator<TInput, TOutput> _predictionCreator;
         private readonly SvmSettings _settings;
         private readonly DoubleInputBuilder<TInput> _doubleInputBuilder;
 
         public bool IsLoggingEnabled { get; set; } = true;
 
-        public DtwSvmTrainer(IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, SvmSettings settings)
-        {
-            _inputExtractor = inputExtractor;
-            _predictionCreator = predictionCreator;
-            _settings = settings;
+	    public DtwSvmTrainer(IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TInput, TOutput> predictionCreator, SvmSettings settings)
+	    {
+		    _inputExtractor = inputExtractor;
+		    _predictionCreator = predictionCreator;
+		    _settings = settings;
 
-            _doubleInputBuilder = new DoubleInputBuilder<TInput>(inputExtractor);
-        }
+		    _doubleInputBuilder = new DoubleInputBuilder<TInput>(inputExtractor);
+	    }
 
-        #region Implementation of ITrainer
+	    #region Implementation of ITrainer
 
         public IPredictor<TInput, TOutput> Train(IEnumerable<Tuple<TInput, double[]>> inputsAndOutputs)
         {

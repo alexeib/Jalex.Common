@@ -1,20 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Jalex.MachineLearning
 {
     public class LambdaPredictor<TInput, TOutput> : IPredictor<TInput, TOutput>
     {
-        private readonly Func<TInput, IPrediction<TOutput>> _predictionFunc;
+        private readonly Func<IEnumerable<TInput>, IEnumerable<IPrediction<TInput, TOutput>>> _predictionFunc;
 
-        public LambdaPredictor(Func<TInput, IPrediction<TOutput>> predictionFunc)
+        public LambdaPredictor(Func<TInput, IPrediction<TInput, TOutput>> predictionFunc)
         {
             if (predictionFunc == null) throw new ArgumentNullException(nameof(predictionFunc));
-            _predictionFunc = predictionFunc;
+            _predictionFunc = inps => inps.Select(predictionFunc);
         }
 
-        #region Implementation of IPredictor<in TInput,out TOutput>
+		public LambdaPredictor(Func<IEnumerable<TInput>, IEnumerable<IPrediction<TInput, TOutput>>> predictionFunc)
+		{
+			if (predictionFunc == null) throw new ArgumentNullException(nameof(predictionFunc));
+			_predictionFunc = predictionFunc;
+		}
 
-        public IPrediction<TOutput> ComputePrediction(TInput input)
+		#region Implementation of IPredictor<in TInput,out TOutput>
+
+		public IEnumerable<IPrediction<TInput, TOutput>> ComputePredictions(IEnumerable<TInput> input)
         {
             return _predictionFunc(input);
         }

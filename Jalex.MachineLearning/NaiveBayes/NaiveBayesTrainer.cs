@@ -12,26 +12,29 @@ namespace Jalex.MachineLearning.NaiveBayes
     public class NaiveBayesTrainer<TInput, TOutput> : ITrainer<TInput, TOutput>
     {
         private readonly IInputExtractor<TInput, int> _inputExtractor;
-        private readonly IPredictionCreator<TOutput> _predictionCreator;
+        private readonly IPredictionCreator<TInput, TOutput> _predictionCreator;
         private readonly int _outputClasses;
         private readonly int[] _inputClasses;
         private readonly InputBuilder<TInput, int> _inputBuilder;
 
-        public NaiveBayesTrainer(IInputExtractor<TInput, int> inputExtractor, IPredictionCreator<TOutput> predictionCreator, int outputClasses, IEnumerable<int> inputClasses)
-        {
-            if (inputExtractor == null) throw new ArgumentNullException(nameof(inputExtractor));
-            if (predictionCreator == null) throw new ArgumentNullException(nameof(predictionCreator));
-            if (inputClasses == null) throw new ArgumentNullException(nameof(inputClasses));
+	    public NaiveBayesTrainer(IInputExtractor<TInput, int> inputExtractor,
+	                             IPredictionCreator<TInput, TOutput> predictionCreator,
+	                             int outputClasses,
+	                             IEnumerable<int> inputClasses)
+	    {
+		    if (inputExtractor == null) throw new ArgumentNullException(nameof(inputExtractor));
+		    if (predictionCreator == null) throw new ArgumentNullException(nameof(predictionCreator));
+		    if (inputClasses == null) throw new ArgumentNullException(nameof(inputClasses));
 
-            _inputExtractor = inputExtractor;
-            _predictionCreator = predictionCreator;
-            _outputClasses = outputClasses;
-            _inputClasses = inputClasses.ToArray();
+		    _inputExtractor = inputExtractor;
+		    _predictionCreator = predictionCreator;
+		    _outputClasses = outputClasses;
+		    _inputClasses = inputClasses.ToArray();
 
-            _inputBuilder = new InputBuilder<TInput, int>(_inputExtractor);
-        }
+		    _inputBuilder = new InputBuilder<TInput, int>(_inputExtractor);
+	    }
 
-        #region Implementation of ITrainer<TInput,out TOutput>
+	    #region Implementation of ITrainer<TInput,out TOutput>
 
         public IPredictor<TInput, TOutput> Train(IEnumerable<Tuple<TInput, double[]>> inputsAndOutputs)
         {

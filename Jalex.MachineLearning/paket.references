@@ -4,3 +4,4 @@ Accord.Statistics
 Accord.MachineLearning
 Autofac
 NLog
+System.Net.Http.Formatting.Extension

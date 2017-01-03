@@ -28,6 +28,7 @@ nuget morelinq
 nuget Newtonsoft.Json
 nuget NLog
 nuget NSubstitute
+nuget System.Net.Http.Formatting.Extension
 nuget TimePeriodLibrary.NET
 nuget xunit
 nuget xunit.abstractions

@@ -1,7 +1,6 @@
 REDIRECTS: ON
 NUGET
   remote: http://api.nuget.org/v3/index.json
-  specs:
     Accord (3.0.2)
     Accord.MachineLearning (3.0.2)
       Accord (>= 3.0.2)
@@ -313,3 +312,7 @@ NUGET
     xunit.extensions (1.9.0.1566)
       xunit (>= 1.9.0.1566)
     YamlDotNet (3.8)
+  remote: https://api.nuget.org/v3/index.json
+    System.Net.Http (4.0) - framework: >= net40
+    System.Net.Http.Formatting.Extension (5.2.3)
+      System.Net.Http  - framework: >= net40

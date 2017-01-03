@@ -18,13 +18,13 @@ namespace Jalex.MachineLearning.DeepBelief
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput, double> _inputExtractor;
-        private readonly IPredictionCreator<TOutput> _predictionCreator;
+        private readonly IPredictionCreator<TInput, TOutput> _predictionCreator;
         private readonly DeepBeliefNetworkSettings _settings;
         private readonly DeepBeliefNetwork _network;
         private readonly DoubleInputBuilder<TInput> _doubleInputBuilder;
 
         public DeepBeliefTrainer(IInputExtractor<TInput, double> inputExtractor,
-                                 IPredictionCreator<TOutput> predictionCreator,
+                                 IPredictionCreator<TInput, TOutput> predictionCreator,
                                  DeepBeliefNetworkSettings settings,
                                  DeepBeliefNetwork network = null)
         {

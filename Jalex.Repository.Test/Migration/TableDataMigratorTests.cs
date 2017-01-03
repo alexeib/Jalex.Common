@@ -38,8 +38,7 @@ namespace Jalex.Repository.Test.Migration
                 .With(o => o.Name, _notPattern)
                 .Create();
 
-            repo.SaveManyAsync(new[] {testObject1, testObject2}, WriteMode.Upsert)
-                .Wait();
+	        await repo.SaveManyAsync(new[] {testObject1, testObject2}, WriteMode.Upsert);
         }
 
         [Fact]

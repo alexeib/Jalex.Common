@@ -1,12 +1,14 @@
 ﻿namespace Jalex.MachineLearning.Concrete
 {
-    public class ValuePrediction<T> : IPrediction<T>
+    public class ValuePrediction<TInput, TOutput> : IPrediction<TInput, TOutput>
     {
-        public T Value { get; set; }
+		public TInput Input { get; }
+        public TOutput Value { get; }
 
-        public ValuePrediction(T value)
+        public ValuePrediction(TInput input, TOutput value)
         {
-            Value = value;
+	        Input = input;
+	        Value = value;
         }
     }
 }

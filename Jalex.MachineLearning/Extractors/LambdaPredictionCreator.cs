@@ -2,11 +2,11 @@
 
 namespace Jalex.MachineLearning.Extractors
 {
-    public class LambdaPredictionCreator<TOutput> : IPredictionCreator<TOutput>
+    public class LambdaPredictionCreator<TInput, TOutput> : IPredictionCreator<TInput, TOutput>
     {
-        private readonly Func<double[], IPrediction<TOutput>> _predictionCreationFunc;
+        private readonly Func<TInput, double[], IPrediction<TInput, TOutput>> _predictionCreationFunc;
 
-        public LambdaPredictionCreator(Func<double[], IPrediction<TOutput>> predictionCreationFunc)
+        public LambdaPredictionCreator(Func<TInput, double[], IPrediction<TInput, TOutput>> predictionCreationFunc)
         {
             if (predictionCreationFunc == null) throw new ArgumentNullException(nameof(predictionCreationFunc));
 
@@ -15,7 +15,7 @@ namespace Jalex.MachineLearning.Extractors
 
         #region Implementation of IOutputExtractor
 
-        public IPrediction<TOutput> CreatePrediction(double[] doubleOutputs) => _predictionCreationFunc(doubleOutputs);
+        public IPrediction<TInput, TOutput> CreatePrediction(TInput input, double[] doubleOutputs) => _predictionCreationFunc(input, doubleOutputs);
 
         #endregion
     }

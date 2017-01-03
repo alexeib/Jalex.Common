@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Accord.MachineLearning.VectorMachines;
 using Jalex.MachineLearning.Extractors;
 using NLog;
@@ -10,49 +11,57 @@ namespace Jalex.MachineLearning.SVM
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IInputExtractor<TInput, double> _inputExtractor;
-        private readonly IPredictionCreator<TOutput> _predictionCreator;
+        private readonly IPredictionCreator<TInput, TOutput> _predictionCreator;
 
         public NormalizationParams[] NormalzationParams { get; }
 
         public ISupportVectorMachine[] Svms { get; }
 
-        public DtwSvmPredictor(ISupportVectorMachine[] svms, IInputExtractor<TInput, double> inputExtractor, IPredictionCreator<TOutput> predictionCreator, NormalizationParams[] normalzationParams)
+	    public DtwSvmPredictor(ISupportVectorMachine[] svms,
+	                           IInputExtractor<TInput, double> inputExtractor,
+	                           IPredictionCreator<TInput, TOutput> predictionCreator,
+	                           NormalizationParams[] normalzationParams)
+	    {
+		    _inputExtractor = inputExtractor;
+		    _predictionCreator = predictionCreator;
+		    Svms = svms;
+		    NormalzationParams = normalzationParams;
+	    }
+
+	    #region Implementation of IPredictor
+
+        public IEnumerable<IPrediction<TInput, TOutput>> ComputePredictions(IEnumerable<TInput> inputs)
         {
-            _inputExtractor = inputExtractor;
-            _predictionCreator = predictionCreator;
-            Svms = svms;
-            NormalzationParams = normalzationParams;
-        }
+	        foreach (var input in inputs)
+	        {
+		        var numericInputs = _inputExtractor.ExtractInputs(input);
+		        if (numericInputs == null)
+		        {
+			        yield return null;
+		        }
+		        else
+		        {
+			        normalize(numericInputs);
+			        IPrediction<TInput, TOutput> prediction = null;
 
-        #region Implementation of IPredictor
+					try
+			        {
+				        var outputs = new double[Svms.Length];
 
-        public IPrediction<TOutput> ComputePrediction(TInput input)
-        {
-            var inputs = _inputExtractor.ExtractInputs(input);
-            if (inputs == null)
-            {
-                return null;
-            }
+				        for (int i = 0; i < Svms.Length; i++)
+				        {
+					        outputs[i] = getOutput(numericInputs, Svms[i]);
+				        }
 
-            normalize(inputs);
-
-            try
-            {
-                var outputs = new double[Svms.Length];
-
-                for (int i = 0; i < Svms.Length; i++)
-                {
-                    outputs[i] = getOutput(inputs, Svms[i]);
-                }
-
-                var prediction = _predictionCreator.CreatePrediction(outputs);
-                return prediction;
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, $"Failed to generate prediction for input {input}");
-                return null;
-            }
+				        prediction = _predictionCreator.CreatePrediction(input, outputs);
+			        }
+			        catch (Exception e)
+			        {
+				        _logger.Error(e, $"Failed to generate prediction for input {input}");
+			        }
+			        yield return prediction;
+		        }
+	        }
         }
 
         #endregion
